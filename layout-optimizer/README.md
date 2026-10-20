@@ -1,6 +1,6 @@
-# Toucan2 custom layout optimizer (2026-10-19)
+# Walid layout optimizer (2026-10-19)
 
-Spike-grade tooling that produced the custom letter layout for the Toucan2.
+Spike-grade tooling that produced the Walid layout (WLD) for the Toucan2.
 
 - `extract_corpus.py` — builds `corpus/local_{en,fr,dar}.txt` from ~/.claude history/transcripts and a claude.ai export unzipped into `./export/`. Corpus files are NOT committed here (private text); rerun to regenerate.
 - `analyzer.py` — Toucan geometry (from toucan.dtsi), metrics (SFB, SFS, scissors, LSB, redirects, rolls, home row, finger load, effort), reference layouts (QWERTY, Colemak-DH, Graphite, Gallium, Canary, Sturdy, Ergo-L, Optimot).

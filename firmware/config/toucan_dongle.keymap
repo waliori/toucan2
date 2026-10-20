@@ -88,7 +88,7 @@
         compatible = "zmk,keymap";
 
         base {
-            display-name = "BASE";
+            display-name = "WLD";
             bindings = <
 &kp TAB   &kp B &kp W &kp L &kp D &kp Q      &kp Z   &kp O &kp Y     &kp COMMA &kp K &kp BSPC
 &kp LSHFT &kp C &kp S &kp N &kp T &kp V      &kp DOT &kp A &kp E     &kp I     &kp H &kp LALT
