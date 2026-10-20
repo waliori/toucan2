@@ -4,6 +4,20 @@ Typing trainer for the custom Toucan2 layout. Shows the board (ZMK Studio style)
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 
+Hosted copy: https://toucan-trainer.walid-lahnine.workers.dev (Cloudflare Worker, static assets + the sync endpoint below).
+Deploy a new version with `npx wrangler@latest deploy` from this folder (one-time `npx wrangler@latest login`; `.assetsignore`
+keeps the dev files off the site).
+
+## Sync between devices
+
+Progress lives in the browser (`localStorage`, every `toucan.*` key). **Sync** in the toolbar shows a secret 32-hex code:
+copy it, open the trainer on the other machine, click Sync and paste it. From then on each finished text (and closing the
+tab) uploads the whole state as one JSON blob to `/p/<code>`; opening the page downloads it if the server copy is newer
+(`toucan.updated` stamp, last writer wins). Pasting a code onto a device that already has progress replaces that progress
+with what the code holds, so link a new machine before practising on it. Anyone with the code can read or overwrite your
+stats, nothing else: keep it in a password manager, there is no account and no recovery. Storage is one Cloudflare KV
+namespace (`worker.mjs`, `wrangler.toml`); the local `python3 -m http.server` copy simply has no sync.
+
 `keymap.js` is generated from the firmware keymap (`firmware/config/toucan_dongle.keymap`):
 `node gen.mjs <corpus_dir>` (corpus_dir = folder with local_en.txt / local_fr.txt and, if present, local_fr_restored.txt from layout-optimizer). Rerun after changing the keymap.
 

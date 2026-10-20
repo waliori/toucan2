@@ -108,6 +108,7 @@
     <button id="hints" aria-pressed="true" title="Auto: a key keeps its label and immediate highlight while you learn it; once known, its label disappears and the hint comes only after a 1 s hesitation. Always: full labels. Hidden: no board at all.">Hints: auto</button>
     <select id="target" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy"></select>
     <button id="restart" title="New text (Esc)">New text</button>
+    <button id="sync" aria-pressed="false" title="Sync your progress between devices with a secret code (see README)">Sync</button>
     <button id="feed" aria-pressed="false" title="Connect the dongle's key-feed serial port: the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
   </div>
   <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Esc: new text.</div>
@@ -174,6 +175,26 @@
     if (ok) { k.n++; if (dt) k.ms = k.ms * 0.8 + Math.min(dt, 2500) * 0.2; } else k.e++;
   }
   const saveKS = () => localStorage.setItem("toucan.keys", JSON.stringify(KS));
+
+  // Sync: every toucan.* entry is mirrored as one JSON blob at /p/<code> (worker.mjs). The device with the
+  // newer toucan.updated stamp wins; entering a code on a new device adopts whatever that code holds.
+  let code = localStorage.getItem("toucan.sync");
+  const snapshot = () => Object.fromEntries(Object.keys(localStorage).filter((k) => k.startsWith("toucan.") && k !== "toucan.sync").map((k) => [k, localStorage.getItem(k)]));
+  const adopt = (o) => { for (const k in snapshot()) localStorage.removeItem(k); for (const k in o) localStorage.setItem(k, o[k]); location.reload(); };
+  async function push(keepalive) { if (!code) return; localStorage.setItem("toucan.updated", Date.now()); try { await fetch("/p/" + code, { method: "PUT", body: JSON.stringify(snapshot()), keepalive }); } catch {} }
+  async function pull(force) { if (!code) return; try { const o = await (await fetch("/p/" + code)).json(); if (!o) return push();
+      const srv = Number(o["toucan.updated"] || 0), loc = Number(localStorage.getItem("toucan.updated") || 0);
+      if (force || srv > loc) adopt(o); else if (loc > srv) push(); } catch {} }
+  const hex = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  $("#sync").setAttribute("aria-pressed", String(!!code));
+  $("#sync").addEventListener("click", () => {
+    const c = prompt("Sync code. Keep it private: anyone with it can read and overwrite your progress.\nCopy it to link another device, or paste the code from another device.", code || hex());
+    if (c === null) return; const v = c.trim().toLowerCase(); if (!/^[a-f0-9]{32}$/.test(v)) return alert("A sync code is 32 hex characters.");
+    if (v === code) return; const fresh = !code; code = v; localStorage.setItem("toucan.sync", code); $("#sync").setAttribute("aria-pressed", "true");
+    pull(!fresh);
+  });
+  window.addEventListener("pagehide", () => push(true));
+  pull();
   const weakest = (chars, n) => [...new Set(chars)].map((c) => [c, conf(c)]).sort((a, b) => a[1] - b[1]).slice(0, n);
   const stars = (acc, wpm) => acc < 95 ? 0 : 1 + (acc >= 98) + (wpm >= targetWpm);
 
@@ -361,7 +382,7 @@
     done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
     const secs = (Date.now() - startT) / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
     const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-200)));
-    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); paintSpark(); saveKS();
+    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); paintSpark(); saveKS(); push();
     const st = stars(acc, wpm), prev = hist.slice(0, -1).filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).map((h) => Number(h.wpm) || 0);
     const pb = prev.length && wpm > Math.max(...prev);
     let msg = `<span class="stars">${"★".repeat(st)}${"☆".repeat(3 - st)}</span> ${wpm} wpm${pb && prev.length ? " <b>personal best</b>" : ""} · ${acc.toFixed(1)}%`;
