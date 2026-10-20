@@ -1,0 +1,9 @@
+warning: Git tree '/home/waliori/Storage/Big/Nextcloud/computers/Perso/Projects/toukan' is dirty
+warning: unable to download 'http://daemon:5000/nix-cache-info': Could not connect to server (7) Failed to connect to daemon:5000 after 3122 ms: Could not connect to server
+these 3 derivations will be built:
+  /nix/store/ifby24fc9qsm1qrzry79ry33k0xf22vx-prospector-scanner-scanner.drv
+  /nix/store/js4ljimb71bxsn6gfwd7wf07zmq8hxyh-prospector-scanner-reset.drv
+  /nix/store/31kdhlq085g00w9xcmy0v9r5ad4nhk97-prospector-scanner.drv
+building '/nix/store/js4ljimb71bxsn6gfwd7wf07zmq8hxyh-prospector-scanner-reset.drv'...
+building '/nix/store/ifby24fc9qsm1qrzry79ry33k0xf22vx-prospector-scanner-scanner.drv'...
+building '/nix/store/31kdhlq085g00w9xcmy0v9r5ad4nhk97-prospector-scanner.drv'...

@@ -1,4 +1,4 @@
-# Toucan2 keymap v2 (firmware, `firmware/config/toucan_dongle.keymap`)
+# Toucan2 keymap v2 (firmware, `firmware/config/toucan.keymap`)
 
 OS layout on both machines: **US International** (dead keys). The firmware sends `' " \` ^` as
 "dead key + space" so they stay plain; accents come from the prefix below.
@@ -40,7 +40,7 @@ Studio unlock = NAV + bottom-left letter key (the "p" key).
  RESET -- F4 F5 F6 F11    BT0    BT1   BT2    BT3   BT4
  --    -- F1 F2 F3 F10    BTclr  USB/BLE BriDn BriUp --
 ```
-BOOT = dongle into bootloader (for flashing). RESET = reboot the dongle.
+BOOT = left half into its bootloader (for flashing). RESET = reboot the left half. BT0-BT4 pick the host profile, BTclr forgets the current one, USB/BLE picks the output.
 ## MOU (auto while touching trackpad): thumbs = middle/left/right click.
 
 History: v1 (same letters, no accents) was applied over Studio RPC on 2026-10-19 before the firmware existed; see `studio-rpc/keymap_v1.mjs`.

@@ -2,7 +2,7 @@
 // Usage: node gen.mjs [corpus_dir]   (corpus_dir holds local_en.txt / local_fr.txt / local_fr_restored.txt)
 import fs from "node:fs";
 
-const KEYMAP = new URL("../firmware/config/toucan_dongle.keymap", import.meta.url);
+const KEYMAP = new URL("../firmware/config/toucan.keymap", import.meta.url);
 const src = fs.readFileSync(KEYMAP, "utf8");
 
 // physical layout from toucan.dtsi (w h x y rot rx ry), 42 keys

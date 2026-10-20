@@ -1,0 +1,40 @@
+manifest:
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    - name: t-ogura
+      url-base: https://github.com/t-ogura
+  projects:
+    # the scanner needs ZMK main / Zephyr 4 (same pins zmk-nix uses for its own builds)
+    - name: zmk
+      remote: zmkfirmware
+      revision: 4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85  # main 2026-10-09
+      import: app/west.yml
+    - name: zephyr
+      remote: zmkfirmware
+      revision: 10ba6d0cb38bc3d258775d27982f707599320085  # v4.1.0+zmk-fixes
+      import:
+        name-blocklist:
+          - ci-tools
+          - hal_altera
+          - hal_cypress
+          - hal_infineon
+          - hal_microchip
+          - hal_nxp
+          - hal_openisa
+          - hal_silabs
+          - hal_xtensa
+          - hal_st
+          - hal_ti
+          - loramac-node
+          - mcuboot
+          - mcumgr
+          - net-tools
+          - openthread
+          - edtt
+          - trusted-firmware-m
+    - name: prospector-zmk-module
+      remote: t-ogura
+      revision: 72a71aeea816eb0f86ffc5b108b267076ce5f0af  # v2.2.3
+  self:
+    path: config

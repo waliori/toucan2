@@ -159,7 +159,7 @@
     <select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select>
     <button id="restart" title="New text (Esc)">New text</button>
     <button id="sync" aria-pressed="false" title="Sync your progress between devices with a secret code (see README)">Sync</button>
-    <button id="feed" aria-pressed="false" title="Connect the dongle's key-feed serial port: the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
+    <button id="feed" aria-pressed="false" title="Connect the keyboard's key-feed serial port (left half on USB): the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
   </div>
   <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Tab or Esc: new text · Ctrl+←/→ lesson · Ctrl+↑/↓ mode · Ctrl+B board · Ctrl+I stats.</div>
 </header>
@@ -187,7 +187,7 @@
 </dialog>
 
 <dialog id="nofeed">
-  <p><b>Live feed needs a Chromium-based browser.</b> It reads the dongle's USB serial port through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
+  <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard's USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
   <form method="dialog"><button>OK</button></form>
 </dialog>
 
@@ -346,11 +346,11 @@
 
   // ---------- layer / modifier state from incoming keys ----------
   const down = new Set();   // positions currently held
-  let feedOn = false, lastFeedPos = -1, feedPort = null, feedReader = null;   // live feed from the dongle (see bottom)
+  let feedOn = false, lastFeedPos = -1, feedPort = null, feedReader = null;   // live feed from the keyboard (see bottom)
   const feedLayers = new Set();
   let layerTimer = 0;
   function flashLayer(id) {
-    if (feedOn) return;   // the dongle tells us the real layer
+    if (feedOn) return;   // the keyboard tells us the real layer
     clearTimeout(layerTimer);
     if (id !== 0) { showLayer(id); layerTimer = setTimeout(() => { if (!expectedLayer()) showLayer(0); }, 1500); }
     else if (!expectedLayer()) showLayer(0);
@@ -596,7 +596,7 @@
       const mark = pendingDead; pendingDead = null;
       if (key.normalize("NFD").length === 1) { const c = (key + mark).normalize("NFC"); if (c.length === 1) key = c; }
     }
-    const r = feedOn ? null : resolve(e);   // with the feed the board is driven by the dongle, not inferred from the OS event
+    const r = feedOn ? null : resolve(e);   // with the feed the board is driven by the keyboard, not inferred from the OS event
     if (r) { down.add(r.pos); keyEls[r.pos].classList.add("down"); flashLayer(r.layer); relabel(); }
     const altgr = e.getModifierState("AltGraph") || (e.ctrlKey && e.altKey);   // é ç ü arrive as AltGr + letter
     if ((e.ctrlKey || e.metaKey || e.altKey) && !altgr) return;   // let shortcuts through
@@ -618,7 +618,7 @@
   });
   window.addEventListener("blur", () => { shiftDown.left = shiftDown.right = false; if (feedOn) return; keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); });
 
-  // ---------- live feed: the dongle's USB logging port carries "feed: K <pos> <1|0>" / "feed: L <layer> <1|0>" ----------
+  // ---------- live feed: the left half's USB logging port carries "feed: K <pos> <1|0>" / "feed: L <layer> <1|0>" ----------
   function feedLine(line) {
     const m = /feed: ([KL]) (\d+) ([01])/.exec(line); if (!m) return;
     const n = Number(m[2]), on = m[3] === "1";
