@@ -7,6 +7,14 @@ Open `index.html` in Chrome (double-click works), or serve the folder: `python3 
 `keymap.js` is generated from the firmware keymap (`firmware/config/toucan_dongle.keymap`):
 `node gen.mjs <corpus_dir>` (corpus_dir = folder with local_en.txt / local_fr.txt and, if present, local_fr_restored.txt from layout-optimizer). Rerun after changing the keymap.
 
+**Live feed.** `Live feed` connects the dongle's key-feed serial port (Chrome WebSerial, page must be on 127.0.0.1 or https).
+The board then mirrors the real keyboard: keys light as they are pressed on either half, held layers and the sticky accent
+layers show at once, and a wrong character marks the key you actually hit. The dongle has two serial ports with the same
+name; pick one and press a key: if nothing lights, disconnect and pick the other. The choice is remembered. The ports need
+read/write access: `sudo chmod a+rw /dev/ttyACM*` or a udev rule for USB id 1d50:615e.
+
+Without the feed the board is inferred from what the OS receives (works everywhere, but layers only show after the fact).
+
 Accents need the OS on the US International layout, like the keyboard itself: the trainer then sees é arrive as AltGr+E and à as dead key + A, and credits the right keys.
 
 ## How the lessons work

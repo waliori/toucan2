@@ -7,6 +7,9 @@ ZMK v0.3 firmware for the Prospector dongle driving the two Toucan2 halves. Buil
 - `config/toucan_dongle.conf` — dongle options (no sleep, battery proxy for the screen, macro timing)
 - `config/west.yml` — pinned ZMK + beekeeb Toucan2 module + Prospector screen module
 - `boards/shields/toucan_dongle/` — the dongle shield (central, no matrix; beekeeb's public repo has none)
+- `src/key_feed.c` — live key feed: every key position and layer change goes out as a line on the USB logging
+  port (`feed: K <pos> <1|0>`, `feed: L <layer> <1|0>`); `trainer/` reads it over WebSerial. The dongle therefore
+  shows two serial ports: Studio's and the feed's (`cat` the port and press a key to tell them apart).
 
 ## Build
 

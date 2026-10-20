@@ -3,7 +3,22 @@ import { SerialPort } from "serialport";
 import { Readable, Writable } from "node:stream";
 import { create_rpc_connection, call_rpc } from "@zmkfirmware/zmk-studio-ts-client";
 
-export async function connect(path = "/dev/ttyACM0") {
+// No path: probe every ZMK serial port (the dongle has two: Studio's and the key feed's) and keep the one that answers RPC.
+export async function connect(path) {
+  if (!path) {
+    const cands = (await SerialPort.list()).filter((p) => /1d50/i.test(p.vendorId || "")).map((p) => p.path).sort();
+    if (!cands.length) throw new Error("no ZMK serial port found (check permissions on /dev/ttyACM*)");
+    for (const c of cands) {
+      const t = await openPort(c);
+      const ok = await Promise.race([deviceInfo(t.conn).then(() => true, () => false), new Promise((r) => setTimeout(() => r(false), 2000))]);
+      if (ok) return t;
+      t.abort(); await t.close().catch(() => {});
+    }
+    throw new Error(`none of ${cands.join(", ")} answers the Studio RPC (locked keyboards still answer; is zmk.studio holding the port?)`);
+  }
+  return openPort(path);
+}
+async function openPort(path) {
   const port = new SerialPort({ path, baudRate: 115200, autoOpen: false });
   await new Promise((res, rej) => port.open((e) => (e ? rej(e) : res())));
   const abortController = new AbortController();
@@ -15,7 +30,7 @@ export async function connect(path = "/dev/ttyACM0") {
   };
   const conn = create_rpc_connection(transport, { signal: abortController.signal });
   const close = () => new Promise((res) => port.close(() => res()));
-  return { conn, close };
+  return { conn, close, abort: () => abortController.abort() };
 }
 
 export const rpc = (conn, req) => call_rpc(conn, req);

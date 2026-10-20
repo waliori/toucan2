@@ -1,6 +1,6 @@
 // After flashing new firmware: wait for unlock, drop the Studio-saved keymap, show what the device now runs.
 import { connect, lockState, keymap, resetSettings, deviceInfo } from "./zmk.mjs";
-const { conn, close } = await connect(process.argv[2] || "/dev/ttyACM0");
+const { conn, close } = await connect(process.argv[2]);
 try {
   console.log("device:", await deviceInfo(conn));
   let ls = await lockState(conn); const t0 = Date.now();

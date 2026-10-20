@@ -1,5 +1,5 @@
 import { connect, keymap, behaviors } from "./zmk.mjs";
-const { conn, close } = await connect(process.argv[2] || "/dev/ttyACM1");
+const { conn, close } = await connect(process.argv[2]);
 try {
   const km = await keymap(conn); const beh = await behaviors(conn);
   const name = Object.fromEntries(Object.entries(beh).map(([n, v]) => [v.id, n]));
