@@ -10,7 +10,8 @@ Open `index.html` in Chrome (double-click works), or serve the folder: `python3 
 **Live feed.** `Live feed` connects the dongle's key-feed serial port (Chrome WebSerial, page must be on 127.0.0.1 or https).
 The board then mirrors the real keyboard: keys light as they are pressed on either half, held layers and the sticky accent
 layers show at once, and a wrong character marks the key you actually hit. The dongle has two serial ports with the same
-name; pick one and press a key: if nothing lights, disconnect and pick the other. The choice is remembered. The ports need
+name; the feed is the first one (lower ttyACM number). If nothing lights when you press a key, disconnect and pick the other.
+The choice is remembered. The ports need
 read/write access: `sudo chmod a+rw /dev/ttyACM*` or a udev rule for USB id 1d50:615e.
 
 Without the feed the board is inferred from what the OS receives (works everywhere, but layers only show after the fact).

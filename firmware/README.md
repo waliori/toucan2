@@ -9,7 +9,8 @@ ZMK v0.3 firmware for the Prospector dongle driving the two Toucan2 halves. Buil
 - `boards/shields/toucan_dongle/` — the dongle shield (central, no matrix; beekeeb's public repo has none)
 - `src/key_feed.c` — live key feed: every key position and layer change goes out as a line on the USB logging
   port (`feed: K <pos> <1|0>`, `feed: L <layer> <1|0>`); `trainer/` reads it over WebSerial. The dongle therefore
-  shows two serial ports: Studio's and the feed's (`cat` the port and press a key to tell them apart).
+  shows two serial ports: the feed is the first (USB interface 0, e.g. `/dev/ttyACM0`), Studio the second
+  (interface 3). `node studio-rpc/reset.mjs` without a path probes both and keeps the one that answers RPC.
 
 ## Build
 
@@ -27,6 +28,7 @@ First build downloads Zephyr + the ARM toolchain (slow once, cached after).
 2. Copy `result/zmk_dongle.uf2` onto it. It reboots by itself.
 3. The Studio-saved keymap in flash overrides a freshly compiled one, so run once:
    `cd ../studio-rpc && node reset.mjs` (unlock when asked: hold NAV, press the bottom-left letter key).
+   The ports are root-only until `sudo chmod a+rw /dev/ttyACM*` (or a udev rule for USB id 1d50:615e).
 
 The halves are never reflashed for keymap changes; they stay on beekeeb's firmware.
 
