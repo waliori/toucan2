@@ -1,0 +1,8 @@
+worker.mjs
+wrangler.toml
+.assetsignore
+gen.mjs
+selftest*
+README.md
+corpus/
+.wrangler/

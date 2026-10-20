@@ -6,3 +6,6 @@ layout-optimizer/corpus/
 layout-optimizer/export/
 trainer/corpus/
 bak/
+
+# wrangler state
+trainer/.wrangler/
