@@ -4,7 +4,7 @@ Typing trainer for the custom Toucan2 layout. Shows the board (ZMK Studio style)
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 
-Hosted copy: https://toucan-trainer.walid-lahnine.workers.dev (Cloudflare Worker, static assets + the sync endpoint below).
+Hosted copy: https://toucan-trainer.waliori.workers.dev (Cloudflare Worker, static assets + the sync endpoint below).
 Deploy a new version with `npx wrangler@latest deploy` from this folder (one-time `npx wrangler@latest login`; `.assetsignore`
 keeps the dev files off the site).
 
