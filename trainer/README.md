@@ -1,6 +1,6 @@
-# Toucan Trainer
+# Walid layout trainer
 
-Typing trainer for the custom Toucan2 layout. Shows the board (ZMK Studio style) with the next key, the key you pressed, and the layer inferred from what arrived (NAV for digits, SYM for symbols, ACC layers for accented letters).
+Typing trainer for the Walid layout (WLD) on the Toucan2. Shows the board (ZMK Studio style) with the next key, the key you pressed, and the layer inferred from what arrived (NAV for digits, SYM for symbols, ACC layers for accented letters).
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 

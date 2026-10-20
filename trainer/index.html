@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Toucan Trainer</title>
+<title>Walid layout trainer</title>
 <script src="keymap.js"></script>
 <style>
   :root {
@@ -156,7 +156,7 @@
 
 <footer>
   <div id="board-wrap">
-    <div id="layer-tag"><span class="name" id="layer-name">BASE</span><span class="mods" id="mods"><span data-m="Shift">Shift</span><span data-m="Control">Ctrl</span><span data-m="Alt">Alt</span><span data-m="Meta">Super</span></span></div>
+    <div id="layer-tag"><span class="name" id="layer-name">WLD</span><span class="mods" id="mods"><span data-m="Shift">Shift</span><span data-m="Control">Ctrl</span><span data-m="Alt">Alt</span><span data-m="Meta">Super</span></span></div>
     <svg id="board" viewBox="0 0 1400 460" aria-label="Keyboard"></svg>
   </div>
 </footer>
@@ -179,7 +179,7 @@
   // Other letter layouts on the same board: the 30 core keys (rows 0-2, columns 1-10) get the chosen letters, every
   // other key (thumbs, mods, NAV/SYM/accent layers) stays as the firmware has it. Strings from layout-optimizer/analyzer.py.
   const LAYOUTS = {
-    custom: ["Toucan custom", null], qwerty: ["QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"], colemakdh: ["Colemak-DH", "qwfpbjluy;arstgmneiozxcdvkh,./"],
+    custom: ["Walid (WLD)", null], qwerty: ["QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"], colemakdh: ["Colemak-DH", "qwfpbjluy;arstgmneiozxcdvkh,./"],
     graphite: ["Graphite", "bldwz'foujnrtsgyhaeiqxmcvkp.-/"], gallium: ["Gallium", "bldcvjyou,nrtsgphaeixqmwzkf';."], canary: ["Canary", "wlypbzfou'crstgmneiaqjvdkxh/,."],
     sturdy: ["Sturdy", "vmlcpxfoujstrdy.naeizkqgwbh';,"], ergol: ["Ergo-L", "qcopwjmd'yasenflrtiuzx-vb.hg,k"],
   };

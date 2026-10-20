@@ -3,7 +3,7 @@
 OS layout on both machines: **US International** (dead keys). The firmware sends `' " \` ^` as
 "dead key + space" so they stay plain; accents come from the prefix below.
 
-## BASE
+## WLD (the Walid layout)
 ```
  Tab    b  w  l  d  q      z  o  y  ,  k    Bksp
  Shift  c  s  n  t  v      .  a  e  i  h    Alt
