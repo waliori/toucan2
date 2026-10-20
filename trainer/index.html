@@ -233,7 +233,7 @@
 
   // ---------- layer / modifier state from incoming keys ----------
   const down = new Set();   // positions currently held
-  let feedOn = false, lastFeedPos = -1, feedPort = null;   // live feed from the dongle (see bottom)
+  let feedOn = false, lastFeedPos = -1, feedPort = null, feedReader = null;   // live feed from the dongle (see bottom)
   const feedLayers = new Set();
   let layerTimer = 0;
   function flashLayer(id) {
@@ -450,15 +450,18 @@
     try {
       await port.open({ baudRate: 115200 }); feedPort = port; feedOn = true; feedLayers.clear();
       $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Live feed: on";
-      const reader = port.readable.pipeThrough(new TextDecoderStream()).getReader(); let buf = "";
-      for (;;) { const { value, done: end } = await reader.read(); if (end) break; buf += value; const lines = buf.split("\n"); buf = lines.pop(); lines.forEach(feedLine); }
+      feedReader = port.readable.pipeThrough(new TextDecoderStream()).getReader(); let buf = "";
+      for (;;) { const { value, done: end } = await feedReader.read(); if (end) break; buf += value; const lines = buf.split("\n"); buf = lines.pop(); lines.forEach(feedLine); }
     } catch (err) { console.warn("feed", err); }
-    feedOn = false; feedPort = null; $("#feed").setAttribute("aria-pressed", "false"); $("#feed").textContent = "Live feed";
+    try { feedReader?.releaseLock(); } catch {}
+    feedOn = false; feedPort = null; feedReader = null; feedLayers.clear(); showLayer(0);
+    keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); relabel();
+    $("#feed").setAttribute("aria-pressed", "false"); $("#feed").textContent = "Live feed";
     try { await port.close(); } catch {}
   }
   $("#feed").addEventListener("click", async () => {
     if (!navigator.serial) { $("#hint").textContent = "WebSerial needs Chrome (or Edge) on http://127.0.0.1 or https."; return; }
-    if (feedPort) { try { await feedPort.close(); } catch {} return; }   // reading loop ends and resets the button
+    if (feedPort) { try { await feedReader.cancel(); } catch {} return; }   // unlocks the stream: the reading loop ends, closes the port and resets the button
     try { const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x1d50 }] }); feedOpen(port); } catch {}   // the dongle shows two ports: pick the one that is not Studio's (press a key: this one talks)
   });
   if (navigator.serial) { navigator.serial.getPorts().then((ps) => { if (ps.length) feedOpen(ps[0]); }); navigator.serial.addEventListener("connect", (e) => { if (!feedPort) feedOpen(e.target); }); }
