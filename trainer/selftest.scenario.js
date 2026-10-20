@@ -36,7 +36,11 @@
   out.replay = $("#hint").querySelector(".replay")?.textContent.slice(0, 60); out.pausedTime = $("#time").textContent;
   // burst keeps running past the first key, stats dialog renders, lesson link works
   document.querySelector('[data-mode="burst"]').click(); await sleep(30); await press(text()[0]); await sleep(1200); out.burstRunning = !$("#text").classList.contains("done");
-  kd({ key: "i", code: "KeyI", ctrlKey: true }); await sleep(30); out.stats = $("#stats").open + " " + $("#stats-body").querySelectorAll("table").length + " tables, " + $("#stats-body").textContent.slice(0, 40); $("#stats").close();
+  kd({ key: "i", code: "KeyI", ctrlKey: true }); await sleep(30);
+  { const n0 = $("#stats-body").querySelectorAll("svg.chart").length; const c = $('#stats-body .chip[data-k="metric"][data-v="err"]'); c.click(); await sleep(20);
+    const dot = $("#stats-body circle[data-tip]"); dot.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 300, clientY: 300 }));
+    out.stats = `${$("#stats").open} ${n0} charts, metric=${$('#stats-body .chip[data-k="metric"][data-v="err"]').getAttribute("aria-pressed")}, tip=${!$("#tip").hidden && $("#tip").textContent.includes("wpm")}, ${$("#stats-body .big b").textContent} texts`; }
+  $("#stats").close();
   kd({ key: "ArrowRight", code: "ArrowRight", ctrlKey: true }); await sleep(30); out.ctrlArrows = $("#lesson-name").textContent.slice(0, 30) + " | " + location.search;
   out.layouts = [...$("#layout").options].map((o) => o.value).join(",");
   // target slider and free number box stay in sync and persist; typing in the box does not feed the trainer
