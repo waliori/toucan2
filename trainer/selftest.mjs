@@ -11,7 +11,7 @@ let id = 0; const pending = new Map();
 ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } else if (d.method === "Runtime.consoleAPICalled") console.log("[console]", d.params.args.map((a) => a.value ?? a.description).join(" ")); else if (d.method === "Runtime.exceptionThrown") console.log("[exception]", d.params.exceptionDetails.exception?.description); };
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 await send("Runtime.enable"); await send("Page.enable"); await sleep(300);
-if (process.env.FRESH) { await send("Runtime.evaluate", { expression: "localStorage.clear()" }); await send("Page.reload"); await sleep(800); }
+if (process.env.FRESH) { await send("Runtime.evaluate", { expression: "localStorage.clear()" }); await send("Page.navigate", { url }); await sleep(800); }   // navigate, not reload: the page rewrites its URL (?mode=…&lesson=…)
 const res = await send("Runtime.evaluate", { expression: readFileSync(file, "utf8"), awaitPromise: true, returnByValue: true });
 console.log(res.result?.exceptionDetails ? JSON.stringify(res.result.exceptionDetails) : JSON.stringify(res.result?.result?.value, null, 1));
 ws.close(); chrome.kill(); process.exit(0);

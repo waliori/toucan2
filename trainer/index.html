@@ -11,6 +11,7 @@
     --ink: #d9e0e8; --ink-dim: #6d7987; --ink-faint: #3b4652;
     --next: #f3b53f; --ok: #9ad39a; --err: #e46f79; --cur: #f3b53f;
     --l1: #6db3ef; --l2: #c38cf7; --l3: #ffa657; --l4: #7fd7c4; --l5: #f28cb0;
+    --key-trans: #171d25; --key-trans-edge: #222b35; --next-fill: #3a3020; --next-ink: #fff;
     --mono: "JetBrains Mono", "Fira Code", "Cascadia Mono", ui-monospace, Menlo, Consolas, monospace;
     --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
@@ -21,11 +22,25 @@
   dialog { max-width: 30rem; padding: 18px 22px; background: var(--panel); color: var(--ink); border: 1px solid var(--key-edge); border-radius: 10px; }
   dialog::backdrop { background: rgba(0, 0, 0, .55); }
   dialog p { margin: 0 0 14px; }
-  dialog form button { padding: 6px 16px; border-radius: 6px; border: 1px solid var(--key-edge); background: var(--key); }
+  dialog form button, dialog .row button, dialog .row label { padding: 6px 16px; border-radius: 6px; border: 1px solid var(--key-edge); background: var(--key); cursor: pointer; }
+  dialog .row { display: flex; gap: 8px; justify-content: end; margin-top: 14px; }
+  #stats { width: min(64rem, 94vw); max-width: none; max-height: 90vh; overflow: auto; }
+  #stats h3 { font-size: 13px; font-weight: 500; color: var(--ink-dim); margin: 14px 0 6px; }
+  #stats .cols { display: flex; gap: 36px; flex-wrap: wrap; align-items: flex-start; }
+  #stats table { border-collapse: collapse; font: 13px/1.5 var(--mono); }
+  #stats td, #stats th { padding: 1px 10px 1px 0; text-align: right; white-space: nowrap; }
+  #stats td:first-child, #stats th:first-child { text-align: left; }
+  #stats th { color: var(--ink-dim); font-weight: 500; }
+  #stats .bar i { display: inline-block; height: 8px; border-radius: 2px; vertical-align: middle; }
+  #hint .replay { display: block; margin-top: 4px; font-size: 13px; }
+  #hint .replay b { color: var(--err); font-weight: 500; }
+  #time.paused { color: var(--ink-dim); }
   button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--next); outline-offset: 2px; }
 
-  header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; padding: 18px 28px 0; gap: 16px; }
-  .stats { font-family: var(--mono); font-size: 14px; color: var(--ink-dim); display: grid; gap: 4px; }
+  header { display: grid; grid-template-columns: auto 1fr; align-items: center; padding: 14px 28px 0; gap: 10px 20px; }
+  .modes { grid-column: 1 / -1; grid-row: 1; }
+  .stats, .tools { grid-row: 2; }
+  .stats { font-family: var(--mono); font-size: 14px; color: var(--ink-dim); display: flex; gap: 18px; flex-wrap: wrap; }
   .stats b { color: var(--ink); font-weight: 500; }
   .modes { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
   .modes button { padding: 6px 12px; border-radius: 6px; color: var(--ink-dim); border: 1px solid transparent; }
@@ -33,7 +48,7 @@
   .tools { display: flex; gap: 6px; justify-content: end; flex-wrap: wrap; }
   .tools button, .tools label { padding: 6px 10px; border-radius: 6px; color: var(--ink-dim); border: 1px solid var(--key-edge); }
   .tools button[aria-pressed="true"] { color: var(--ink); border-color: var(--next); }
-  .sub { grid-column: 2; text-align: center; color: var(--ink-dim); font-size: 13px; margin-top: -6px; }
+  .sub { grid-column: 1 / -1; grid-row: 3; text-align: center; color: var(--ink-dim); font-size: 13px; }
 
   main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 28px; gap: 10px; }
   #lesson-bar { width: min(78ch, 100%); display: flex; justify-content: space-between; align-items: baseline; color: var(--ink-dim); font-size: 13px; }
@@ -74,10 +89,10 @@
   .key rect { fill: var(--key); stroke: var(--key-edge); stroke-width: 2; transition: fill .08s, stroke .08s; }
   .key text { fill: var(--ink); font-family: var(--sans); font-size: 30px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
   .key text.small { font-size: 22px; }
-  .key.trans rect { fill: #171d25; stroke: #222b35; }
+  .key.trans rect { fill: var(--key-trans); stroke: var(--key-trans-edge); }
   .key.trans text { fill: var(--ink-faint); }
-  .key.next rect { stroke: var(--next); stroke-width: 4; fill: #3a3020; }
-  .key.next text { fill: #fff; }
+  .key.next rect { stroke: var(--next); stroke-width: 4; fill: var(--next-fill); }
+  .key.next text { fill: var(--next-ink); }
   .key.down rect { fill: var(--next); stroke: var(--next); }
   .key.down text { fill: #1a1200; }
   .key.down.wrong rect { fill: var(--err); stroke: var(--err); }
@@ -86,6 +101,11 @@
   #empty { color: var(--ink-dim); text-align: center; }
   @media (max-width: 800px) { header { grid-template-columns: 1fr; } .tools, .modes { justify-content: start; } #text { font-size: 20px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (prefers-color-scheme: light) {
+    :root { --bg: #f3f4f6; --panel: #ffffff; --key: #e4e8ee; --key-edge: #c5cdd8; --key-hi: #d6dce5; --ink: #1b222b; --ink-dim: #5a6573; --ink-faint: #aeb7c2;
+      --key-trans: #edf0f3; --key-trans-edge: #dde2e8; --next-fill: #fff0c8; --next-ink: #1b222b; --next: #d9930f; --cur: #d9930f; }
+    dialog::backdrop { background: rgba(0, 0, 0, .3); }
+  }
 </style>
 </head>
 <body>
@@ -102,6 +122,9 @@
     <button data-mode="words-fr" aria-pressed="false">French words</button>
     <button data-mode="words-mix" aria-pressed="false">Mixed</button>
     <button data-mode="layers" aria-pressed="false">Numbers &amp; symbols</button>
+    <button data-mode="sentences" aria-pressed="false">Sentences</button>
+    <button data-mode="weak" aria-pressed="false" title="Drill built from your slowest letter pairs">Weak pairs</button>
+    <button data-mode="burst" aria-pressed="false" title="30 seconds, as fast as you can">Speed burst</button>
     <button data-mode="text" aria-pressed="false">Your text</button>
   </nav>
   <div class="tools">
@@ -109,13 +132,17 @@
     <button id="nextl" title="Next lesson">lesson ›</button>
     <button id="heat" aria-pressed="false" title="Show your error heat map on the board">Errors on board</button>
     <button id="mastery" aria-pressed="false" title="Colour each key by how well you know it (red = new, green = at target speed)">Mastery on board</button>
-    <button id="hints" aria-pressed="true" title="Auto: a key keeps its label and immediate highlight while you learn it; once known, its label disappears and the hint comes only after a 1 s hesitation. Always: full labels. Hidden: no board at all.">Hints: auto</button>
+    <button id="hints" aria-pressed="true" title="Auto: a key keeps its label and immediate highlight while you learn it; once known, its label disappears and the hint comes only after a 1 s hesitation. Always: full labels.">Hints: auto</button>
+    <button id="boardbtn" aria-pressed="true" title="Show or hide the keyboard (Ctrl+B)">Board: shown</button>
+    <button id="sound" aria-pressed="false" title="Short click on every mistake">Sound</button>
+    <button id="statsbtn" title="Your statistics, export and import (Ctrl+I)">Stats</button>
     <select id="target" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy"></select>
+    <select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select>
     <button id="restart" title="New text (Esc)">New text</button>
     <button id="sync" aria-pressed="false" title="Sync your progress between devices with a secret code (see README)">Sync</button>
     <button id="feed" aria-pressed="false" title="Connect the dongle's key-feed serial port: the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
   </div>
-  <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Esc: new text.</div>
+  <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Tab or Esc: new text · Ctrl+←/→ lesson · Ctrl+↑/↓ mode · Ctrl+B board · Ctrl+I stats.</div>
 </header>
 
 <main>
@@ -134,6 +161,11 @@
   </div>
 </footer>
 
+<dialog id="stats">
+  <div id="stats-body"></div>
+  <form method="dialog" class="row"><button type="button" id="export">Export progress</button><label>Import<input type="file" id="import" accept="application/json" hidden></label><button>Close</button></form>
+</dialog>
+
 <dialog id="nofeed">
   <p><b>Live feed needs a Chromium-based browser.</b> It reads the dongle's USB serial port through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
   <form method="dialog"><button>OK</button></form>
@@ -143,6 +175,21 @@
 (() => {
   const T = window.TOUCAN;
   const $ = (s) => document.querySelector(s);
+  const esc = (c) => String(c).replace(/[<>&]/g, (m) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[m]));
+  // Other letter layouts on the same board: the 30 core keys (rows 0-2, columns 1-10) get the chosen letters, every
+  // other key (thumbs, mods, NAV/SYM/accent layers) stays as the firmware has it. Strings from layout-optimizer/analyzer.py.
+  const LAYOUTS = {
+    custom: ["Toucan custom", null], qwerty: ["QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"], colemakdh: ["Colemak-DH", "qwfpbjluy;arstgmneiozxcdvkh,./"],
+    graphite: ["Graphite", "bldwz'foujnrtsgyhaeiqxmcvkp.-/"], gallium: ["Gallium", "bldcvjyou,nrtsgphaeixqmwzkf';."], canary: ["Canary", "wlypbzfou'crstgmneiaqjvdkxh/,."],
+    sturdy: ["Sturdy", "vmlcpxfoujstrdy.naeizkqgwbh';,"], ergol: ["Ergo-L", "qcopwjmd'yasenflrtiuzx-vb.hg,k"],
+  };
+  const CORE = [...Array(36).keys()].filter((p) => p % 12 >= 1 && p % 12 <= 10);
+  const layoutId = LAYOUTS[localStorage.getItem("toucan.layout")] ? localStorage.getItem("toucan.layout") : "custom";
+  const coreString = LAYOUTS[layoutId][1] || CORE.map((p) => T.layers[0].keys[p].char ?? " ").join("");
+  if (LAYOUTS[layoutId][1]) {
+    const codeOf = {}; T.layers.forEach((L) => L.keys.forEach((k) => { if (k.kind === "key" && k.char && !k.shift && !codeOf[k.char]) codeOf[k.char] = k.code; }));
+    [...LAYOUTS[layoutId][1]].forEach((ch, i) => { T.layers[0].keys[CORE[i]] = { kind: "key", char: ch, label: ch.toUpperCase(), code: codeOf[ch] }; });
+  }
   const LAYER_CLASS = ["", "l1", "l2", "l3", "l4", "l5", "l5", "l5", "l5"];
   const FINGER = [0,0,1,2,3,3, 4,4,5,6,7,7];            // per column, row keys
   const FINGER_NAME = ["left pinky","left ring","left middle","left index","right index","right middle","right ring","right pinky"];
@@ -183,13 +230,29 @@
     const k = KS[ch] || (KS[ch] = { n: 0, e: 0, ms: targetMs() * 2 });
     if (ok) { k.n++; if (dt) k.ms = k.ms * 0.8 + Math.min(dt, 2500) * 0.2; } else k.e++;
   }
-  const saveKS = () => localStorage.setItem("toucan.keys", JSON.stringify(KS));
+  const saveKS = () => { localStorage.setItem("toucan.keys", JSON.stringify(KS)); localStorage.setItem("toucan.pairs", JSON.stringify(BG)); };
+  // letter pairs (bigrams) typed in a row: the "Weak pairs" drill and the stats page are built from the slowest ones
+  const BG = JSON.parse(localStorage.getItem("toucan.pairs") || "{}");   // "ab" -> {n, e, ms}
+  function recordPair(prev, ch, ok, dt) {
+    const p = (prev + ch).toLowerCase(); if (!/^\p{L}{2}$/u.test(p)) return;
+    const k = BG[p] || (BG[p] = { n: 0, e: 0, ms: targetMs() * 2 });
+    if (ok) { k.n++; if (dt) k.ms = k.ms * 0.8 + Math.min(dt, 2500) * 0.2; } else k.e++;
+  }
+  const pairScore = ([, k]) => k.ms / targetMs() + 3 * k.e / (k.n + k.e);
+  const weakPairs = (n) => Object.entries(BG).filter(([, k]) => k.n + k.e >= 3).sort((a, b) => pairScore(b) - pairScore(a)).slice(0, n);
+  let boardOn = localStorage.getItem("toucan.board") !== "0";
+  if (hintMode === "off") { hintMode = "auto"; boardOn = false; localStorage.setItem("toucan.hints", "auto"); localStorage.setItem("toucan.board", "0"); }   // old 3-state button
+  let soundOn = localStorage.getItem("toucan.sound") === "1", actx = null;
+  function clickSound() {
+    if (!soundOn) return;
+    try { actx ||= new AudioContext(); const o = actx.createOscillator(), g = actx.createGain(); o.type = "square"; o.frequency.value = 180; g.gain.value = 0.05; o.connect(g).connect(actx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.08); o.stop(actx.currentTime + 0.09); } catch {}
+  }
 
   // Sync: every toucan.* entry is mirrored as one JSON blob at /p/<code> (worker.mjs). The device with the
   // newer toucan.updated stamp wins; entering a code on a new device adopts whatever that code holds.
   let code = localStorage.getItem("toucan.sync");
   const snapshot = () => Object.fromEntries(Object.keys(localStorage).filter((k) => k.startsWith("toucan.") && k !== "toucan.sync").map((k) => [k, localStorage.getItem(k)]));
-  const adopt = (o) => { for (const k in snapshot()) localStorage.removeItem(k); for (const k in o) localStorage.setItem(k, o[k]); location.reload(); };
+  const adopt = (o, stamp) => { for (const k in snapshot()) localStorage.removeItem(k); for (const k in o) localStorage.setItem(k, o[k]); if (stamp) localStorage.setItem("toucan.updated", Date.now()); location.reload(); };
   async function push(keepalive) { if (!code) return; localStorage.setItem("toucan.updated", Date.now()); try { await fetch("/p/" + code, { method: "PUT", body: JSON.stringify(snapshot()), keepalive }); } catch {} }
   async function pull(force) { if (!code) return; try { const o = await (await fetch("/p/" + code)).json(); if (!o) return push();
       const srv = Number(o["toucan.updated"] || 0), loc = Number(localStorage.getItem("toucan.updated") || 0);
@@ -280,12 +343,36 @@
   const textEl = $("#text");
   let target = "", idx = 0, marks = [], typed = [], startT = 0, keystrokes = 0, wrong = 0, done = false, timer = 0;
   // [name, allowed chars, gate]: the lesson is mastered when every gate char reaches confidence 1 (target speed, 95%+ accuracy)
-  const LESSONS = [
+  const TAIL = [["Accents (prefix tap)", "é à è ê ç", "éàèêç"], ["Capitals", "ABC", ""], ["Numbers (NAV layer)", "0123456789"], ["Symbols (SYM layer)", "!@#$%^&*()\"':?;/<>|-=[]\\_+{}`"]];
+  const HANDMADE = [
     ["Home row", "csntaeih"], ["Add r l o d", "csntaeihrlod"], ["Add m g y u", "csntaeihrlodmgyu"],
     ["Add w p x k", "csntaeihrlodmgyuwpxk"], ["Add b v z j q f", "abcdefghijklmnopqrstuvwxyz", "bvzjqf"],
-    ["Punctuation , . ' -", "abcdefghijklmnopqrstuvwxyz,.'-", ",.'-"], ["Accents (prefix tap)", "é à è ê ç", "éàèêç"], ["Capitals", "ABC", ""], ["Numbers (NAV layer)", "0123456789"], ["Symbols (SYM layer)", "!@#$%^&*()\"':?;/<>|-=[]\\_+{}`"],
+    ["Punctuation , . ' -", "abcdefghijklmnopqrstuvwxyz,.'-", ",.'-"],
+  ];
+  function genericLessons(core) {   // any other layout: home row (8 keys), then the remaining letters by corpus frequency, 4 at a time
+    const freq = {}; for (const w of T.words.en.concat(T.words.fr)) for (const c of w) freq[c] = (freq[c] || 0) + 1;
+    const row1 = core.slice(10, 20), home = row1.slice(0, 4) + row1.slice(6);
+    const rest = [...core].filter((c) => /\p{L}/u.test(c) && !home.includes(c)).sort((a, b) => (freq[b] || 0) - (freq[a] || 0));
+    const out = [["Home row", home]]; let acc = home;
+    for (let i = 0; i < rest.length; i += 4) { const grp = rest.slice(i, i + 4).join(""); acc += grp; out.push([`Add ${[...grp].join(" ")}`, acc, grp]); }
+    const punct = [...core].filter((c) => !/\p{L}/u.test(c) && c !== " ").join("");
+    if (punct) out.push([`Punctuation ${[...punct].join(" ")}`, acc + punct, punct]);
+    return out;
+  }
+  const LESSONS = (LAYOUTS[layoutId][1] ? genericLessons(coreString) : HANDMADE).concat(TAIL);
+  const previewed = new Set();   // lessons whose new keys were already shown once this session
+  const SENTENCES = [
+    "The quick brown fox jumps over the lazy dog.", "I'll send you the final version on Monday, before noon if I can.", "Why does this test fail only on the second run?",
+    "She bought 12 apples, 3 lemons and a bag of rice.", "Don't forget: the meeting moved to Room 204.", "Our keyboard has 42 keys and two thumb clusters.",
+    "Reading the logs again, the error appears right after the reboot.", "Is it better to practise ten minutes a day or an hour on Sunday?", "The train leaves at 7:45, so we should walk by seven.",
+    "Accuracy first; speed comes on its own.", "He said \"no\" twice, then changed his mind.", "Most mistakes happen on the ring finger, not the pinky.",
+    "Le train part à 7 h 45, il faudrait partir avant sept heures.", "J'ai relu le rapport hier soir ; il manque encore la conclusion.", "Pourquoi ce test échoue-t-il seulement au deuxième essai ?",
+    "Elle a acheté 12 pommes, 3 citrons et un sac de riz.", "N'oublie pas : la réunion est déplacée en salle 204.", "Le clavier a 42 touches et deux pouces bien occupés.",
+    "À force de répéter, les doigts finissent par connaître le chemin.", "Est-ce mieux de s'entraîner dix minutes par jour ou une heure le dimanche ?", "La précision d'abord ; la vitesse vient toute seule.",
+    "Il a dit « non » deux fois, puis il a changé d'avis.", "Où as-tu rangé le câble USB du dongle ?", "Ça marche très bien depuis la mise à jour d'août.",
   ];
   const gateOf = (i) => (LESSONS[i][2] ?? LESSONS[i][1]).replace(/ /g, "");
+  const BURST_MS = 30000;
   const mastered = (i) => { const g = gateOf(i); return g ? [...g].every((c) => conf(c) >= 1) : (best[i] || 0) >= 2; };
   const best = JSON.parse(localStorage.getItem("toucan.stars") || "{}");   // lesson -> best stars
   let lesson = Number(localStorage.getItem("toucan.lesson") || 0);
@@ -311,6 +398,10 @@
     if (mode === "lesson") {
       const [name, letters] = LESSONS[lesson];
       $("#lesson-name").textContent = `Lesson ${lesson + 1} of ${LESSONS.length} · ${name}`; $("#lesson-letters").textContent = letters.length > 12 && !/[0-9!]/.test(letters) ? "" : letters;
+      // warm-up: keys this lesson introduces that you have never typed are shown once, each pressed three times, before the real text
+      const prevLetters = lesson ? LESSONS[lesson - 1][1] : "";
+      const fresh = [...letters.replace(/ /g, "")].filter((c) => !prevLetters.includes(c) && !KS[c]?.n && c === c.toLowerCase());
+      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { previewed.add(lesson); $("#lesson-name").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
       if (name.startsWith("Accents")) return Array.from({ length: N - 2 }, picker(T.words.fr_acc.length ? T.words.fr_acc : ["été", "à", "déjà", "très", "être", "ça"])).join(" ");
       if (name === "Capitals") { const pick = picker(pool); return Array.from({ length: N }, () => { const w = pick(); return Math.random() < .5 ? w[0].toUpperCase() + w.slice(1) : w; }).join(" "); }
       if (name.startsWith("Numbers")) return Array.from({ length: N - 2 }, () => Math.random() < .35 ? rnd(["3la", "7ta", "9bel", "3andi", "wa7ed", "sa7a", "2026", "3", "7", "9"]) : String(Math.floor(Math.random() * 9999))).join(" ");
@@ -318,8 +409,17 @@
       if (name.startsWith("Punctuation")) return wordsWith(letters, pool, N).split(" ").map((w) => { const r = Math.random(); return r < .25 ? w + "," : r < .45 ? w + "." : r < .55 ? w + "'s" : r < .65 ? "l'" + w : r < .75 ? w + "-" + rnd(["ci", "là", "up", "on"]) : w; }).join(" ");
       return wordsWith(letters, pool, N);
     }
-    $("#lesson-name").textContent = { "words-en": "English words from your own writing", "words-fr": "French words from your own writing", "words-mix": "French and English mixed", layers: "Numbers, symbols and punctuation", text: "Your text" }[mode] || "";
+    $("#lesson-name").textContent = { "words-en": "English words from your own writing", "words-fr": "French words from your own writing", "words-mix": "French and English mixed", layers: "Numbers, symbols and punctuation", text: "Your text", sentences: "Sentences · capitals, punctuation and accents", burst: `Speed burst · ${BURST_MS / 1000} s · aim for ${targetWpm + 10} wpm` }[mode] || "";
     $("#lesson-letters").textContent = "";
+    if (mode === "sentences") { const picks = new Set(); while (picks.size < 3) picks.add(rnd(SENTENCES)); return [...picks].join(" "); }
+    if (mode === "burst") return Array.from({ length: 90 }, () => rnd(pool)).join(" ");
+    if (mode === "weak") {
+      const ps = weakPairs(8).map(([p]) => p);
+      if (!ps.length) { $("#lesson-name").textContent = "Weak pairs · nothing measured yet, type a few texts first"; return Array.from({ length: 24 }, () => rnd(pool)).join(" "); }
+      $("#lesson-name").textContent = "Weak pairs · " + ps.join(" "); $("#lesson-letters").textContent = "";
+      const withPair = pool.filter((w) => ps.some((p) => w.includes(p))); const pick = withPair.length >= 12 ? picker(withPair) : () => rnd(ps) + rnd(ps);
+      return Array.from({ length: 24 }, () => Math.random() < .25 ? rnd(ps).repeat(2) : pick()).join(" ");
+    }
     if (mode === "words-en") return Array.from({ length: 30 }, () => rnd(words.en)).join(" ");
     if (mode === "words-fr") return Array.from({ length: 30 }, () => rnd(words.fr)).join(" ");
     if (mode === "words-mix") return Array.from({ length: 30 }, () => rnd(pool)).join(" ");
@@ -336,7 +436,7 @@
       if (i === idx) s.className = "cur";
       textEl.appendChild(s);
     }
-    $("#progress i").style.width = (100 * idx / Math.max(1, target.length)) + "%";
+    if (mode !== "burst") $("#progress i").style.width = (100 * idx / Math.max(1, target.length)) + "%";
     const cur = textEl.querySelector(".cur"); if (cur) cur.scrollIntoView({ block: "nearest" });
     paintNext();
   }
@@ -363,13 +463,20 @@
     relabel();
   }
   const expectedLayer = () => { const w = !done && bestWay(target[idx]); return w && w.layer !== 0 ? w.layer : 0; };
+  let pausedMs = 0, lastKeyT = 0, errs = [], sameShift = 0;
+  // the clock ignores breaks: any gap over 5 s between two keys (tab switch, coffee) counts as 5 s
+  const elapsed = () => { if (!startT) return 0; const now = Date.now(); const idle = lastKeyT ? now - lastKeyT : 0; return now - startT - pausedMs - Math.max(0, idle - 5000); };
   function newText() {
-    target = makeText(); idx = 0; marks = []; typed = []; startT = 0; keystrokes = 0; wrong = 0; done = false;
+    target = makeText(); idx = 0; marks = []; typed = []; startT = 0; keystrokes = 0; wrong = 0; done = false; pausedMs = 0; lastKeyT = 0; errs = []; sameShift = 0;
+    if (mode === "burst") $("#progress i").style.width = "0%";
     clearInterval(timer); textEl.classList.remove("done"); $("#time").textContent = "00:00"; $("#wpm").textContent = "0"; $("#acc").textContent = "–";
     render(); textEl.focus({ preventScroll: true });
   }
   function tick() {
-    const s = (Date.now() - startT) / 1000; $("#time").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+    if (mode === "burst" && !done && elapsed() >= BURST_MS) { finish(); return; }
+    const s = elapsed() / 1000; $("#time").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+    $("#time").classList.toggle("paused", !done && lastKeyT > 0 && Date.now() - lastKeyT > 5000);
+    if (mode === "burst") $("#progress i").style.width = Math.min(100, 100 * elapsed() / BURST_MS) + "%";
     const correct = marks.slice(0, idx).filter(Boolean).length; $("#wpm").textContent = s > 1 ? Math.round((correct / 5) / (s / 60)) : "0";
     $("#acc").textContent = keystrokes ? (100 * (keystrokes - wrong) / keystrokes).toFixed(1) + "%" : "–";
   }
@@ -389,7 +496,7 @@
   const nextIsNewLesson = () => mode === "lesson" && mastered(lesson) && lesson < LESSONS.length - 1;
   function finish() {
     done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
-    const secs = (Date.now() - startT) / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
+    const secs = elapsed() / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
     const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-200)));
     days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); paintSpark(); saveKS(); push();
     const st = stars(acc, wpm), prev = hist.slice(0, -1).filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).map((h) => Number(h.wpm) || 0);
@@ -402,18 +509,37 @@
       else if (weak.length) msg += ` · still slow: <span class="weak">${weak.map(([c, v]) => `${c === " " ? "space" : c} ${Math.round(100 * v)}%`).join(", ")}</span> · <b>Enter</b> again`;
       else msg += ` · <b>Enter</b> for another text`;
       paintMap();
-    } else msg += ` · <b>Enter</b> for another text`;
+    } else if (mode === "burst") msg += ` · ${marks.filter(Boolean).length} correct keys in ${BURST_MS / 1000} s · <b>Enter</b> to go again`;
+    else msg += ` · <b>Enter</b> for another text`;
+    if (sameShift) msg += ` · <span class="weak">same-hand Shift ×${sameShift}</span>, hold Shift with the other hand`;
+    if (errs.length) {   // replay: the missed words, what you pressed for what, and the key when the board knew it
+      const seen = new Set(); const show = (c) => c === " " ? "space" : c === "\n" ? "enter" : c;
+      const items = errs.filter((e) => !seen.has(e.i) && seen.add(e.i)).slice(0, 8).map((e) => {
+        let a = e.i, b = e.i; while (a > 0 && !/[ \n]/.test(target[a - 1])) a--; while (b < target.length && !/[ \n]/.test(target[b])) b++;
+        const label = e.pos >= 0 && e.pos !== bestWay(e.exp)?.pos ? e.label : "";
+        return `${esc(target.slice(a, b))}: <b>${esc(show(e.got))}</b> for ${esc(show(e.exp))}${label ? ` (${esc(label)} key)` : ""}`;
+      });
+      msg += `<span class="replay">missed ${errs.length}: ${items.join(" · ")}${errs.length > items.length ? " …" : ""}</span>`;
+    }
     $("#hint").innerHTML = msg;
   }
-  let lastKeyT = 0;
-  function typeChar(ch) {
+  const shiftDown = { left: false, right: false };   // which Shift the OS reports held (the feed uses the real key positions instead)
+  const isUpper = (c) => c !== c.toLowerCase() && c === c.toUpperCase();
+  function typeChar(ch, pos = -1, label = "") {
     if (done) return;
     const now = Date.now();
     if (!startT) { startT = now; timer = setInterval(tick, 500); lastKeyT = 0; }
     keystrokes++;
+    if (lastKeyT && now - lastKeyT > 5000) pausedMs += now - lastKeyT - 5000;
     const ok = ch === target[idx]; marks[idx] = ok; typed[idx] = ch;
-    record(target[idx], ok, lastKeyT ? now - lastKeyT : 0); lastKeyT = now;
-    if (!ok) { wrong++; const w = bestWay(target[idx]); if (w) { heat[w.pos] = (heat[w.pos] || 0) + 1; localStorage.setItem("toucan.heat", JSON.stringify(heat)); if (heatOn) paintHeat(); } }
+    const dt = lastKeyT ? now - lastKeyT : 0;
+    record(target[idx], ok, dt); if (idx > 0 && marks[idx - 1]) recordPair(target[idx - 1], target[idx], ok, dt); lastKeyT = now;
+    if (ok && isUpper(ch)) {   // Shift with the same hand as the letter is the habit to break
+      const w = bestWay(ch); const leftLetter = w && w.pos < 36 && (w.pos % 12) < 6;
+      const l = feedOn ? shiftPositions.some((p) => down.has(p) && p % 12 < 6) : shiftDown.left, r = feedOn ? shiftPositions.some((p) => down.has(p) && p % 12 >= 6) : shiftDown.right;
+      if (w && ((leftLetter && l && !r) || (!leftLetter && r && !l))) sameShift++;
+    }
+    if (!ok) { wrong++; errs.push({ i: idx, exp: target[idx], got: ch, pos, label }); clickSound(); const w = bestWay(target[idx]); if (w) { heat[w.pos] = (heat[w.pos] || 0) + 1; localStorage.setItem("toucan.heat", JSON.stringify(heat)); if (heatOn) paintHeat(); } }
     idx++;
     if (idx >= target.length) { render(); finish(); return; }
     render();
@@ -435,8 +561,13 @@
     return pool.find((c) => c.layer === shownLayer) || pool.find((c) => c.layer === 0) || pool[0];
   }
   document.addEventListener("keydown", (e) => {
-    if (e.target === $("#paste")) return;
+    if (e.target === $("#paste") || $("#stats").open) return;
     setMods(e);
+    if (e.code === "ShiftLeft") shiftDown.left = true; if (e.code === "ShiftRight") shiftDown.right = true;
+    if (e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+      const act = { ArrowLeft: () => setLesson(lesson - 1), ArrowRight: () => setLesson(lesson + 1), ArrowUp: () => cycleMode(-1), ArrowDown: () => cycleMode(1), KeyB: () => toggleBoard(), KeyI: openStats }[e.code];
+      if (act) { e.preventDefault(); act(); return; }
+    }
     let key = e.key;
     if (key === "Dead" || (DEAD_OF[e.code + (e.shiftKey ? "+" : "")] && isDeadFor(target[idx], e))) {   // first half of a dead-key accent
       pendingDead = DEAD_OF[e.code + (e.shiftKey ? "+" : "")] || "\u0301"; return;
@@ -452,16 +583,20 @@
     if (key === "Escape") { e.preventDefault(); newText(); return; }
     if (key === "Backspace") { e.preventDefault(); backspace(); return; }
     if (key === "Enter") { e.preventDefault(); if (done) { if (nextIsNewLesson()) setLesson(lesson + 1); else newText(); } else typeChar("\n"); return; }
-    if (key === "Tab") { e.preventDefault(); if (!done) typeChar("\t"); return; }
-    if (key.length === 1) { e.preventDefault(); const wrongPos = r ? r.pos : feedOn ? lastFeedPos : -1; if (wrongPos >= 0 && target[idx] !== key) keyEls[wrongPos].classList.add("wrong"); typeChar(key); }
+    if (key === "Tab") { e.preventDefault(); if (!done && target[idx] === "\t") typeChar("\t", r ? r.pos : -1); else if (!e.shiftKey) newText(); return; }
+    if (key.length === 1) {
+      e.preventDefault(); const wrongPos = r ? r.pos : feedOn ? lastFeedPos : -1; if (wrongPos >= 0 && target[idx] !== key) keyEls[wrongPos].classList.add("wrong");
+      const lay = feedOn ? shownLayer : (r ? r.layer : 0); typeChar(key, wrongPos, wrongPos >= 0 ? T.layers.find((L) => L.id === lay)?.keys[wrongPos]?.label || "" : "");
+    }
   });
   document.addEventListener("keyup", (e) => {
     setMods(e);
+    if (e.code === "ShiftLeft") shiftDown.left = false; if (e.code === "ShiftRight") shiftDown.right = false;
     const cands = byCode.get(e.code) || [];
     cands.forEach((c) => { down.delete(c.pos); keyEls[c.pos].classList.remove("down", "wrong"); });
     relabel();
   });
-  window.addEventListener("blur", () => { if (feedOn) return; keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); });
+  window.addEventListener("blur", () => { shiftDown.left = shiftDown.right = false; if (feedOn) return; keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); });
 
   // ---------- live feed: the dongle's USB logging port carries "feed: K <pos> <1|0>" / "feed: L <layer> <1|0>" ----------
   function feedLine(line) {
@@ -511,19 +646,52 @@
     $("#paste").style.display = m === "text" ? "block" : "none";
     $("#prev").style.visibility = $("#nextl").style.visibility = m === "lesson" ? "visible" : "hidden";
     $("#lesson-map").style.display = m === "lesson" ? "flex" : "none";
-    paintMap(); paintSpark(); newText();
+    paintMap(); paintSpark(); newText(); setUrl();
   }
-  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); paintSpark(); newText(); } }
+  const MODES = [...document.querySelectorAll(".modes button")].map((b) => b.dataset.mode);
+  const cycleMode = (d) => setMode(MODES[(MODES.indexOf(mode) + d + MODES.length) % MODES.length]);
+  const setUrl = () => history.replaceState(null, "", mode === "lesson" ? `?mode=lesson&lesson=${lesson + 1}` : `?mode=${mode}`);   // the address bar is always a link to this view
+  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); paintSpark(); newText(); setUrl(); } }
   document.querySelectorAll(".modes button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
   $("#prev").addEventListener("click", () => setLesson(lesson - 1));
   $("#nextl").addEventListener("click", () => setLesson(lesson + 1));
   $("#restart").addEventListener("click", newText);
   $("#heat").addEventListener("click", () => { heatOn = !heatOn; $("#heat").setAttribute("aria-pressed", String(heatOn)); paintHeat(); });
   $("#mastery").addEventListener("click", () => { masteryOn = !masteryOn; $("#mastery").setAttribute("aria-pressed", String(masteryOn)); paintHeat(); });
-  const HINT_LABEL = { auto: "Hints: auto", always: "Hints: always", off: "Board: hidden" };
-  function applyHintMode() { $("#hints").textContent = HINT_LABEL[hintMode]; $("#hints").setAttribute("aria-pressed", String(hintMode !== "always")); document.querySelector("footer").style.display = hintMode === "off" ? "none" : ""; paintNext(); }
-  $("#hints").addEventListener("click", () => { hintMode = { auto: "always", always: "off", off: "auto" }[hintMode]; localStorage.setItem("toucan.hints", hintMode); applyHintMode(); });
+  const HINT_LABEL = { auto: "Hints: auto", always: "Hints: always" };
+  function applyHintMode() { $("#hints").textContent = HINT_LABEL[hintMode]; $("#hints").setAttribute("aria-pressed", String(hintMode === "auto")); paintNext(); }
+  $("#hints").addEventListener("click", () => { hintMode = hintMode === "auto" ? "always" : "auto"; localStorage.setItem("toucan.hints", hintMode); applyHintMode(); });
   applyHintMode();
+  function toggleBoard(v = !boardOn) { boardOn = v; localStorage.setItem("toucan.board", boardOn ? "1" : "0"); $("#boardbtn").setAttribute("aria-pressed", String(boardOn)); $("#boardbtn").textContent = boardOn ? "Board: shown" : "Board: hidden"; document.querySelector("footer").style.display = boardOn ? "" : "none"; }
+  $("#boardbtn").addEventListener("click", () => toggleBoard()); toggleBoard(boardOn);
+  const applySound = () => { $("#sound").setAttribute("aria-pressed", String(soundOn)); $("#sound").textContent = soundOn ? "Sound: on" : "Sound"; };
+  $("#sound").addEventListener("click", () => { soundOn = !soundOn; localStorage.setItem("toucan.sound", soundOn ? "1" : "0"); applySound(); clickSound(); }); applySound();
+  for (const [id, [name]] of Object.entries(LAYOUTS)) { const o = document.createElement("option"); o.value = id; o.textContent = name; o.selected = id === layoutId; $("#layout").appendChild(o); }
+  $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.reload(); });
+  // ---------- stats, export, import ----------
+  function openStats() {
+    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]");
+    const total = Object.values(days).reduce((a, b) => a + b, 0);
+    const last = hist.slice(-10).map((h) => Number(h.wpm) || 0), avg = last.length ? Math.round(last.reduce((a, b) => a + b, 0) / last.length) : 0;
+    const bestW = hist.reduce((m, h) => Math.max(m, Number(h.wpm) || 0), 0);
+    const keys = Object.entries(KS).filter(([c]) => c !== " " && c !== "\n" && c !== "\t").map(([c, k]) => ({ c, n: k.n, acc: 100 * k.n / (k.n + k.e), wpm: Math.round(12000 / k.ms), conf: Math.min(1, conf(c)) })).sort((a, b) => a.conf - b.conf);
+    const fingers = Array(10).fill(0); for (const [c, k] of Object.entries(KS)) { const w = bestWay(c); if (w) fingers[fingerOf(w.pos)] += k.n + k.e; } const fmax = Math.max(1, ...fingers), fsum = fingers.reduce((a, b) => a + b, 0) || 1;
+    const byDay = {}; for (const h of hist) { const d = new Date(h.t).toISOString().slice(0, 10); (byDay[d] ||= []).push(Number(h.wpm) || 0); }
+    const pairs = weakPairs(10);
+    const bar = (v, max, col) => `<span class="bar"><i style="width:${Math.round(90 * v / (max || 1))}px;background:${col || "var(--l1)"}"></i></span>`;
+    const row = (cells) => `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+    $("#stats-body").innerHTML = `<p>${hist.length} texts · ${Math.round(total / 60)} min · ${Object.keys(days).length} days · last 10 texts <b>${avg} wpm</b> · best <b>${bestW} wpm</b> · ${keys.filter((k) => k.conf >= 1).length}/${keys.length} keys at target</p>
+      <div class="cols">
+        <div><h3>Keys, weakest first</h3><table><tr><th>key</th><th>presses</th><th>accuracy</th><th>speed</th><th>mastery</th></tr>${keys.slice(0, 45).map((k) => row([esc(k.c), k.n, k.acc.toFixed(0) + "%", k.wpm + " wpm", bar(k.conf, 1, `hsl(${Math.round(120 * k.conf)} 50% 45%)`)])).join("") || row(["no keys typed yet"])}</table></div>
+        <div><h3>Finger load</h3><table>${[...FINGER_NAME, "left thumb", "right thumb"].map((n, i) => row([n, (100 * fingers[i] / fsum).toFixed(1) + "%", bar(fingers[i], fmax)])).join("")}</table>
+          <h3>Slowest letter pairs</h3><table><tr><th>pair</th><th>typed</th><th>errors</th><th>speed</th></tr>${pairs.map(([p, k]) => row([esc(p), k.n, k.e, Math.round(12000 / k.ms) + " wpm"])).join("") || row(["not enough data yet"])}</table>
+          <h3>Speed by day</h3><table>${Object.keys(byDay).sort().slice(-14).map((d) => { const a = byDay[d], m = Math.round(a.reduce((x, y) => x + y, 0) / a.length); return row([d, m + " wpm", a.length + " texts", bar(m, bestW)]); }).join("") || row(["no texts yet"])}</table></div>
+      </div>`;
+    $("#stats").showModal();
+  }
+  $("#statsbtn").addEventListener("click", openStats);
+  $("#export").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: "application/json" })); a.download = `toucan-trainer-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); });
+  $("#import").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== "object" || !("toucan.keys" in o)) throw 0; adopt(o, true); } catch { alert("Not a trainer export."); } });
   for (const v of [20, 25, 30, 35, 40, 50, 60]) { const o = document.createElement("option"); o.value = v; o.textContent = `target ${v} wpm`; o.selected = v === targetWpm; $("#target").appendChild(o); }
   $("#target").addEventListener("change", (e) => { targetWpm = Number(e.target.value); localStorage.setItem("toucan.target", targetWpm); paintMap(); paintHeat(); e.target.blur(); });
   paintStreak();
@@ -531,7 +699,9 @@
   textEl.addEventListener("click", () => textEl.focus());
 
   buildBoard();
-  setMode("lesson");
+  const q = new URLSearchParams(location.search);   // ?mode=lesson&lesson=3 or ?mode=words-fr: a shareable link to a view
+  if (q.has("lesson")) lesson = Math.max(0, Math.min(LESSONS.length - 1, Number(q.get("lesson")) - 1 || 0));
+  setMode(MODES.includes(q.get("mode")) ? q.get("mode") : "lesson");
 })();
 </script>
 </body>
