@@ -1,5 +1,5 @@
 {
-  description = "Toucan2 + Prospector dongle ZMK firmware (custom layout, accent prefix, Studio enabled)";
+  description = "Toucan2 halves ZMK firmware: Walid layout, accent prefix, Studio, live key feed, Prospector status advertisement";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -15,16 +15,17 @@
     packages = forAllSystems (system: rec {
       default = firmware;
 
-      # nix build  ->  result/zmk_dongle.uf2 (flash this) and result/zmk_reset.uf2 (settings reset, emergencies only)
+      # nix build  ->  result/zmk_left.uf2, result/zmk_right.uf2 (flash these) and result/zmk_reset.uf2 (settings reset)
       firmware = zmk-nix.legacyPackages.${system}.buildSplitKeyboard {
         name = "toucan2-firmware";
         src = nixpkgs.lib.sourceFilesBySuffices self [ ".board" ".c" ".cmake" "CMakeLists.txt" "Kconfig" ".conf" ".defconfig" ".dts" ".dtsi" ".json" ".keymap" ".overlay" ".shield" ".yml" "_defconfig" ];
 
         board = "seeeduino_xiao_ble";
-        parts = [ "dongle" "reset" ];
-        centralPart = "dongle";
+        parts = [ "left" "right" "reset" ];
+        centralPart = "left";
         shield = {
-          dongle = "toucan_dongle prospector_adapter";
+          left = "toucan_left rgbled_adapter nice_view_gem key_feed";
+          right = "toucan_right rgbled_adapter";
           reset = "settings_reset";
         };
         enableZmkStudio = true;
@@ -37,10 +38,10 @@
           done
         '';
 
-        zephyrDepsHash = "sha256-6Ouyc0Aw8II7j+K2XT3qZ66ee8HQlRmuco89NrDUE5Y=";
+        zephyrDepsHash = "sha256-eyVaO5Dh+Xl4EBk5bBqNbgzrafo9hsF9UtDNjK+RCx0=";
 
         meta = {
-          description = "Toucan2 dongle firmware";
+          description = "Toucan2 halves firmware";
           license = nixpkgs.lib.licenses.mit;
           platforms = nixpkgs.lib.platforms.all;
         };

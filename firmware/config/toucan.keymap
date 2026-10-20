@@ -1,5 +1,5 @@
-// Toucan2 keymap v2 — custom letters + accent prefix. Source of truth for the dongle,
-// KEYMAP.md and the trainer (trainer/gen.mjs parses this file).
+// Toucan2 keymap v2 — the Walid layout + accent prefix. Source of truth for the firmware
+// (left half = central), KEYMAP.md and the trainer (trainer/gen.mjs parses this file).
 //
 // OS layout must be "US International" (dead keys) on every machine:
 //   é ç ü  = AltGr + letter          è ê ë à â ù û î ï ô = dead key, then letter

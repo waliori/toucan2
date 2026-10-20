@@ -6,8 +6,8 @@ manifest:
       url-base: https://github.com/beekeeb
     - name: caksoylar
       url-base: https://github.com/caksoylar
-    - name: carrefinho
-      url-base: https://github.com/carrefinho
+    - name: t-ogura
+      url-base: https://github.com/t-ogura
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -49,9 +49,9 @@ manifest:
     - name: zmk-rgbled-widget
       remote: caksoylar
       revision: 8756cb7b8114069fa3c25c6f6c990f24988fceff  # v0.3
-    # Prospector dongle screen (layer name, peripheral batteries, connection status)
+    # Prospector scanner protocol: the central broadcasts its status in BLE advertisements
     - name: prospector-zmk-module
-      remote: carrefinho
-      revision: 77a852293532879c992847e01db27abe4f94fa9f  # main 2026-02-17, ZMK v0.3 line
+      remote: t-ogura
+      revision: 72a71aeea816eb0f86ffc5b108b267076ce5f0af  # v2.2.3 (keyboard side builds on the ZMK v0.3 line)
   self:
     path: config

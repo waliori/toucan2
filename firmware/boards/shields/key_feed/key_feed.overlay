@@ -1,0 +1,13 @@
+// Add-on shield for the central: a second USB CDC ACM port (next to Studio's) that carries the
+// Zephyr log, i.e. the live key feed read by trainer/ ("feed: K <pos> <1|0>", "feed: L <layer> <1|0>").
+/ {
+    chosen {
+        zephyr,console = &feed_uart;
+    };
+};
+
+&zephyr_udc0 {
+    feed_uart: feed_uart {
+        compatible = "zephyr,cdc-acm-uart";
+    };
+};
