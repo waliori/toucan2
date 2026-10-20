@@ -70,6 +70,10 @@
   #lesson-map button.done { color: var(--ok); border-color: var(--ok); }
   #lesson-map button b { color: var(--next); font-weight: 400; }
   #spark { vertical-align: middle; margin-left: 6px; }
+  #targetbox { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; }
+  #target { width: 90px; accent-color: var(--next); }
+  #targetn { width: 4ch; font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--key-edge); text-align: right; -moz-appearance: textfield; }
+  #targetn::-webkit-inner-spin-button, #targetn::-webkit-outer-spin-button { -webkit-appearance: none; }
   .tools select { font: inherit; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--key-edge); border-radius: 6px; padding: 5px 6px; }
   #hint b { color: var(--next); font-weight: 500; }
   #paste { display: none; width: min(78ch, 100%); min-height: 120px; background: var(--panel); color: var(--ink); border: 1px solid var(--key-edge); border-radius: 8px; padding: 12px; font: 15px/1.5 var(--mono); }
@@ -136,7 +140,7 @@
     <button id="boardbtn" aria-pressed="true" title="Show or hide the keyboard (Ctrl+B)">Board: shown</button>
     <button id="sound" aria-pressed="false" title="Short click on every mistake">Sound</button>
     <button id="statsbtn" title="Your statistics, export and import (Ctrl+I)">Stats</button>
-    <select id="target" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy"></select>
+    <label id="targetbox" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy. Drag, or type any value."><input type="range" id="target" min="15" max="300" step="1"> <input type="number" id="targetn" min="15" max="999"> wpm</label>
     <select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select>
     <button id="restart" title="New text (Esc)">New text</button>
     <button id="sync" aria-pressed="false" title="Sync your progress between devices with a secret code (see README)">Sync</button>
@@ -561,7 +565,7 @@
     return pool.find((c) => c.layer === shownLayer) || pool.find((c) => c.layer === 0) || pool[0];
   }
   document.addEventListener("keydown", (e) => {
-    if (e.target === $("#paste") || $("#stats").open) return;
+    if (e.target === $("#paste") || e.target === $("#targetn") || $("#stats").open) return;
     setMods(e);
     if (e.code === "ShiftLeft") shiftDown.left = true; if (e.code === "ShiftRight") shiftDown.right = true;
     if (e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
@@ -692,8 +696,15 @@
   $("#statsbtn").addEventListener("click", openStats);
   $("#export").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: "application/json" })); a.download = `toucan-trainer-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); });
   $("#import").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== "object" || !("toucan.keys" in o)) throw 0; adopt(o, true); } catch { alert("Not a trainer export."); } });
-  for (const v of [20, 25, 30, 35, 40, 50, 60]) { const o = document.createElement("option"); o.value = v; o.textContent = `target ${v} wpm`; o.selected = v === targetWpm; $("#target").appendChild(o); }
-  $("#target").addEventListener("change", (e) => { targetWpm = Number(e.target.value); localStorage.setItem("toucan.target", targetWpm); paintMap(); paintHeat(); e.target.blur(); });
+  const setTarget = (v, src) => {   // slider 15-300, number box takes anything >= 15
+    v = Math.max(15, Math.round(Number(v) || 0)); if (!v) return;
+    targetWpm = v; localStorage.setItem("toucan.target", v); $("#target").value = v; if (src !== $("#targetn")) $("#targetn").value = v; paintMap(); paintHeat();
+  };
+  setTarget(targetWpm);
+  $("#target").addEventListener("input", (e) => setTarget(e.target.value, e.target));
+  $("#target").addEventListener("change", (e) => e.target.blur());
+  $("#targetn").addEventListener("input", (e) => { if (Number(e.target.value) >= 15) setTarget(e.target.value, e.target); });
+  $("#targetn").addEventListener("change", (e) => { setTarget(e.target.value); e.target.blur(); });
   paintStreak();
   $("#paste").addEventListener("change", newText);
   textEl.addEventListener("click", () => textEl.focus());

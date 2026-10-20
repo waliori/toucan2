@@ -39,6 +39,11 @@
   kd({ key: "i", code: "KeyI", ctrlKey: true }); await sleep(30); out.stats = $("#stats").open + " " + $("#stats-body").querySelectorAll("table").length + " tables, " + $("#stats-body").textContent.slice(0, 40); $("#stats").close();
   kd({ key: "ArrowRight", code: "ArrowRight", ctrlKey: true }); await sleep(30); out.ctrlArrows = $("#lesson-name").textContent.slice(0, 30) + " | " + location.search;
   out.layouts = [...$("#layout").options].map((o) => o.value).join(",");
+  // target slider and free number box stay in sync and persist; typing in the box does not feed the trainer
+  $("#target").value = 120; $("#target").dispatchEvent(new Event("input")); const t1 = $("#targetn").value + "/" + localStorage.getItem("toucan.target");
+  $("#targetn").value = 450; $("#targetn").dispatchEvent(new Event("input")); const t2 = $("#target").value + "/" + localStorage.getItem("toucan.target");
+  const before = $("#text").textContent; $("#targetn").focus(); $("#targetn").dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "7", code: "Digit7" })); const t3 = $("#text").textContent === before; $("#targetn").blur();
+  out.target = `${t1} ${t2} typingIsolated=${t3}`;
   out.errors = errs;
   return out;
 })()

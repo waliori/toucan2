@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 __pycache__/
 .DS_Store
 # private text (chat exports and the corpora built from them): never commit
