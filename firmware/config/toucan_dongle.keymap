@@ -1,0 +1,180 @@
+// Toucan2 keymap v2 — custom letters + accent prefix. Source of truth for the dongle,
+// KEYMAP.md and the trainer (trainer/gen.mjs parses this file).
+//
+// OS layout must be "US International" (dead keys) on every machine:
+//   é ç ü  = AltGr + letter          è ê ë à â ù û î ï ô = dead key, then letter
+//   ' " ` ^ are sent as "dead key + space" so they stay plain.
+//
+// Accent prefix = TAP the left Ctrl thumb (holding it is still Ctrl), then the letter:
+//   1 tap: e→é a→à u→ù i→î o→ô c→ç      2 taps: e→è a→â u→û i→ï
+//   3 taps: e→ê u→ü                      4 taps: e→ë          (Shift held = capital)
+//
+// Positions: row0 0-11, row1 12-23, row2 24-35, thumbs 36-38 (left) 39-41 (right).
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/pointing.h>
+
+#define BASE 0
+#define NAV  1
+#define SYM  2
+#define ADJ  3
+#define MOU  4
+#define AC1  5
+#define AC2  6
+#define AC3  7
+#define AC4  8
+
+// dead key + letter, with a Shift-aware capital variant (mod-morph masks Shift so the dead key stays plain)
+#define DEAD(id, dk, letter, text)                                                          \
+    id##_lc: id##_lc { compatible = "zmk,behavior-macro"; #binding-cells = <0>;          \
+        bindings = <&kp dk &kp letter>; };                                                    \
+    id##_uc: id##_uc { compatible = "zmk,behavior-macro"; #binding-cells = <0>;          \
+        bindings = <&kp dk &kp LS(letter)>; };                                                \
+    id: id { compatible = "zmk,behavior-mod-morph"; #binding-cells = <0>;                \
+        display-name = text; bindings = <&id##_lc>, <&id##_uc>; mods = <(MOD_LSFT|MOD_RSFT)>; };
+
+// dead key + space = the plain character
+#define PLAIN(id, dk, text)                                                                 \
+    id: id { compatible = "zmk,behavior-macro"; #binding-cells = <0>; display-name = text; \
+        bindings = <&kp dk &kp SPACE>; };
+
+/ {
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        tri_layer { if-layers = <NAV SYM>; then-layer = <ADJ>; };
+    };
+
+    behaviors {
+        // one-shot accent layer: stays armed until the next key, or 5 s
+        slx: sticky_accent_layer {
+            compatible = "zmk,behavior-sticky-key";
+            #binding-cells = <1>;
+            display-name = "Accent prefix";
+            bindings = <&mo>;
+            release-after-ms = <5000>;
+            ignore-modifiers;
+        };
+        // left Ctrl thumb: hold = Ctrl, tap = accent prefix
+        ctl_acc: ctl_acc {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            display-name = "Ctrl / accent";
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&kp>, <&slx>;
+        };
+
+        PLAIN(apos,  SQT,     "apostrophe")
+        PLAIN(dquot, LS(SQT), "dbl quote")
+        PLAIN(grave, GRAVE,   "backtick")
+        PLAIN(caret, LS(N6),  "caret")
+
+        DEAD(a_grave, GRAVE,   A, "a grave")
+        DEAD(a_circ,  LS(N6),  A, "a circ")
+        DEAD(e_grave, GRAVE,   E, "e grave")
+        DEAD(e_circ,  LS(N6),  E, "e circ")
+        DEAD(e_trema, LS(SQT), E, "e trema")
+        DEAD(i_circ,  LS(N6),  I, "i circ")
+        DEAD(i_trema, LS(SQT), I, "i trema")
+        DEAD(o_circ,  LS(N6),  O, "o circ")
+        DEAD(u_grave, GRAVE,   U, "u grave")
+        DEAD(u_circ,  LS(N6),  U, "u circ")
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        base {
+            display-name = "BASE";
+            bindings = <
+&kp TAB   &kp B &kp W &kp L &kp D &kp Q      &kp Z   &kp O &kp Y     &kp COMMA &kp K &kp BSPC
+&kp LSHFT &kp C &kp S &kp N &kp T &kp V      &kp DOT &kp A &kp E     &kp I     &kp H &kp LALT
+&kp ESC   &kp P &kp G &kp R &kp M &kp J      &apos   &kp X &kp MINUS &kp U     &kp F &kp RSHFT
+             &ctl_acc LCTRL AC1 &mo NAV &kp SPACE      &kp RET &mo SYM &kp LGUI
+            >;
+        };
+
+        nav {
+            display-name = "NAV";
+            bindings = <
+&trans &kp N1         &kp N2   &kp N3    &kp N4    &kp N5      &kp N6   &kp N7    &kp N8   &kp N9    &kp N0     &kp BSPC
+&trans &kp LGUI       &kp LALT &kp LCTRL &kp LSHFT &trans      &kp LEFT &kp DOWN  &kp UP   &kp RIGHT &kp DEL    &trans
+&trans &studio_unlock &trans   &trans    &trans    &trans      &kp HOME &kp PG_DN &kp PG_UP &kp END  &caps_word &trans
+                                &trans &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        sym {
+            display-name = "SYM";
+            bindings = <
+&trans &kp EXCL &kp AT    &kp HASH &kp DLLR &kp PRCNT      &caret    &kp AMPS  &kp STAR &kp LPAR &kp RPAR &kp BSPC
+&trans &dquot   &kp COLON &kp LPAR &kp RPAR &kp QMARK      &kp MINUS &kp EQUAL &kp LBKT &kp RBKT &kp BSLH &trans
+&trans &kp SEMI &kp FSLH  &kp LT   &kp GT   &kp PIPE       &kp UNDER &kp PLUS  &kp LBRC &kp RBRC &grave   &trans
+                               &trans &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        adj {
+            display-name = "ADJ";
+            bindings = <
+&bootloader &trans &kp F7 &kp F8 &kp F9 &kp F12      &kp C_VOL_DN &kp C_MUTE   &kp C_VOL_UP &kp C_PP     &kp C_NEXT   &trans
+&sys_reset  &trans &kp F4 &kp F5 &kp F6 &kp F11      &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &trans
+&trans      &trans &kp F1 &kp F2 &kp F3 &kp F10      &bt BT_CLR   &out OUT_TOG &kp C_BRI_DN &kp C_BRI_UP &trans       &trans
+                                &trans &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        mou {
+            display-name = "MOU";
+            bindings = <
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+                   &mkp MCLK &mkp LCLK &mkp RCLK      &mkp LCLK &mkp RCLK &mkp MCLK
+            >;
+        };
+
+        ac1 {
+            display-name = "ACC 1";
+            bindings = <
+&trans &trans &trans &trans &trans &trans      &trans &o_circ      &trans &trans  &trans &trans
+&trans &kp RA(COMMA) &trans &trans &trans &trans   &trans &a_grave &kp RA(E) &i_circ &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans       &trans &u_grave &trans &trans
+                            &slx AC2 &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        ac2 {
+            display-name = "ACC 2";
+            bindings = <
+&trans &trans &trans &trans &trans &trans      &trans &trans  &trans   &trans   &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &a_circ &e_grave &i_trema &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans  &trans   &u_circ  &trans &trans
+                            &slx AC3 &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        ac3 {
+            display-name = "ACC 3";
+            bindings = <
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans  &trans    &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &e_circ &trans    &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans  &kp RA(Y) &trans &trans
+                            &slx AC4 &trans &trans      &trans &trans &trans
+            >;
+        };
+
+        ac4 {
+            display-name = "ACC 4";
+            bindings = <
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans   &trans &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &e_trema &trans &trans &trans
+&trans &trans &trans &trans &trans &trans      &trans &trans &trans   &trans &trans &trans
+                            &slx AC1 &trans &trans      &trans &trans &trans
+            >;
+        };
+    };
+};

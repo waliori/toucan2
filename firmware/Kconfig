@@ -1,0 +1,4 @@
+config ZMK_KEY_FEED
+    bool "Stream key positions and layer changes on the USB logging port (for trainer/)"
+    depends on ZMK_USB_LOGGING
+    default n

@@ -1,0 +1,57 @@
+manifest:
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    - name: beekeeb
+      url-base: https://github.com/beekeeb
+    - name: caksoylar
+      url-base: https://github.com/caksoylar
+    - name: carrefinho
+      url-base: https://github.com/carrefinho
+  projects:
+    - name: zmk
+      remote: zmkfirmware
+      revision: acfd8e5ea76cf23ad1c9b6b99848f97a95224257  # v0.3-branch (same line beekeeb builds from)
+      import: app/west.yml
+    - name: zephyr
+      remote: zmkfirmware
+      revision: dacab4875df72109b96cc8977547a0dc04875bcd  # v3.5.0+zmk-fixes
+      import:
+        name-blocklist:
+          - ci-tools
+          - hal_altera
+          - hal_cypress
+          - hal_infineon
+          - hal_microchip
+          - hal_nxp
+          - hal_openisa
+          - hal_silabs
+          - hal_xtensa
+          - hal_st
+          - hal_ti
+          - loramac-node
+          - mcuboot
+          - mcumgr
+          - net-tools
+          - openthread
+          - edtt
+          - trusted-firmware-m
+    # Toucan2 shield (left/right halves) + its trackpad driver and zoom processor
+    - name: zmk-keyboard-toucan2
+      remote: beekeeb
+      revision: 6882c95bec5be89988e90feb621f78a7511e9ed7  # main 2026-07-28
+    - name: zmk_driver_azoteq
+      remote: beekeeb
+      revision: c329f309b7481e5723603550b15f48e24d0c8a6a  # main 2026-07-11
+    - name: zmk-input-zoom
+      remote: beekeeb
+      revision: 91bbe0c0e02145da50c9df798489479d28be1804  # main 2026-06-23
+    - name: zmk-rgbled-widget
+      remote: caksoylar
+      revision: 8756cb7b8114069fa3c25c6f6c990f24988fceff  # v0.3
+    # Prospector dongle screen (layer name, peripheral batteries, connection status)
+    - name: prospector-zmk-module
+      remote: carrefinho
+      revision: 77a852293532879c992847e01db27abe4f94fa9f  # main 2026-02-17, ZMK v0.3 line
+  self:
+    path: config

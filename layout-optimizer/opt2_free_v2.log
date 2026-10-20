@@ -1,0 +1,40 @@
+seed 0: score 25.533
+  v b l m q   z o y , k
+  c s r t w   . a e i h
+  p g n d j   ' x - u f
+seed 1: score 25.538
+  k , y o z   q d l w b
+  h i e a .   v t n s c
+  f u - x '   j m r g p
+seed 2: score 26.176
+  k , . y q   w p d l b
+  h i a e -   g t s r n
+  x u o f '   v m c j z
+seed 3: score 25.771
+  k ' f o ,   q m r g v
+  u i e a .   w t n s p
+  h y - x z   j d l c b
+seed 4: score 25.972
+  z j m p v   - f , . k
+  n r t s w   ' e o i h
+  b l d c g   q y a u x
+seed 5: score 25.538
+  b w l d q   z o y , k
+  c s n t v   . a e i h
+  p g r m j   ' x - u f
+seed 6: score 25.905
+  k , x - q   j d l w b
+  h i a e .   v t n s c
+  f u o y '   z m r g p
+seed 7: score 25.630
+  b u - x '   q m r g w
+  h i e a z   v t n s c
+  k , y o .   j d l f p
+
+=== ranking: 25.53 25.54 25.54 25.63 25.77 25.91 25.97 26.18
+
+=== full metrics (65/33/2 weighting)
+Custom-free  sfb  1.39  sfs  4.66  sciss 0.42  lsb 0.41  redir  2.78  rollIn 15.73  alt 69.84  home  58.3  pinky  12.9  L/R 50.9/49.1  effort 1.636  score   9.37
+Graphite     sfb  1.73  sfs  4.18  sciss 1.00  lsb 1.31  redir  2.06  rollIn 12.20  alt 68.69  home  62.5  pinky  15.9  L/R 48.9/51.1  effort 1.632  score  15.85
+Ergo-L       sfb  1.33  sfs  5.89  sciss 0.65  lsb 3.32  redir  6.30  rollIn 21.07  alt 55.81  home  65.4  pinky  14.5  L/R 54.5/45.5  effort 1.637  score  16.22
+QWERTY       sfb  6.63  sfs  7.82  sciss 5.38  lsb 7.21  redir  6.93  rollIn 20.55  alt 50.97  home  31.0  pinky  11.2  L/R 58.0/42.0  effort 2.129  score  46.26

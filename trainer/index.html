@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan Trainer</title>
+<script src="keymap.js"></script>
+<style>
+  :root {
+    --bg: #0e1217; --panel: #131920; --key: #212a35; --key-edge: #2d3844; --key-hi: #2c3745;
+    --ink: #d9e0e8; --ink-dim: #6d7987; --ink-faint: #3b4652;
+    --next: #f3b53f; --ok: #9ad39a; --err: #e46f79; --cur: #f3b53f;
+    --l1: #6db3ef; --l2: #c38cf7; --l3: #ffa657; --l4: #7fd7c4; --l5: #f28cb0;
+    --mono: "JetBrains Mono", "Fira Code", "Cascadia Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); display: flex; flex-direction: column; min-height: 100vh; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--next); outline-offset: 2px; }
+
+  header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; padding: 18px 28px 0; gap: 16px; }
+  .stats { font-family: var(--mono); font-size: 14px; color: var(--ink-dim); display: grid; gap: 4px; }
+  .stats b { color: var(--ink); font-weight: 500; }
+  .modes { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .modes button { padding: 6px 12px; border-radius: 6px; color: var(--ink-dim); border: 1px solid transparent; }
+  .modes button[aria-pressed="true"] { color: var(--ink); background: var(--panel); border-color: var(--key-edge); }
+  .tools { display: flex; gap: 6px; justify-content: end; flex-wrap: wrap; }
+  .tools button, .tools label { padding: 6px 10px; border-radius: 6px; color: var(--ink-dim); border: 1px solid var(--key-edge); }
+  .tools button[aria-pressed="true"] { color: var(--ink); border-color: var(--next); }
+  .sub { grid-column: 2; text-align: center; color: var(--ink-dim); font-size: 13px; margin-top: -6px; }
+
+  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 28px; gap: 10px; }
+  #lesson-bar { width: min(78ch, 100%); display: flex; justify-content: space-between; align-items: baseline; color: var(--ink-dim); font-size: 13px; }
+  #lesson-bar .letters { font-family: var(--mono); letter-spacing: .12em; color: var(--ink); }
+  #progress { width: min(78ch, 100%); height: 3px; background: var(--ink-faint); border-radius: 2px; overflow: hidden; }
+  #progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .15s; }
+  #text { width: min(78ch, 100%); font-family: var(--mono); font-size: 26px; line-height: 1.75; color: var(--ink-faint); white-space: pre-wrap; word-break: break-word; min-height: 3.5em; outline: 0; }
+  #text span { border-radius: 3px; }
+  #text .ok { color: var(--ink); }
+  #text .err { color: var(--err); background: rgba(228,111,121,.14); }
+  #text .cur { box-shadow: inset 0 -3px 0 var(--cur); color: var(--ink-dim); }
+  #text.done .cur { box-shadow: none; }
+  #hint { min-height: 1.4em; color: var(--ink-dim); font-size: 14px; text-align: center; }
+  #hint .stars { color: var(--next); letter-spacing: .1em; font-size: 18px; vertical-align: -2px; margin-right: 8px; }
+  #hint .weak { color: var(--err); }
+  #lesson-map { width: min(78ch, 100%); display: flex; gap: 4px; flex-wrap: wrap; }
+  #lesson-map button { flex: 1; min-width: 46px; padding: 4px 2px; border-radius: 6px; border: 1px solid var(--key-edge); color: var(--ink-dim); font: 11px/1.3 var(--mono); }
+  #lesson-map button[aria-current="true"] { border-color: var(--next); color: var(--ink); }
+  #lesson-map button.done { color: var(--ok); border-color: var(--ok); }
+  #lesson-map button b { color: var(--next); font-weight: 400; }
+  #spark { vertical-align: middle; margin-left: 6px; }
+  .tools select { font: inherit; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--key-edge); border-radius: 6px; padding: 5px 6px; }
+  #hint b { color: var(--next); font-weight: 500; }
+  #paste { display: none; width: min(78ch, 100%); min-height: 120px; background: var(--panel); color: var(--ink); border: 1px solid var(--key-edge); border-radius: 8px; padding: 12px; font: 15px/1.5 var(--mono); }
+
+  footer { padding: 0 28px 22px; }
+  #board-wrap { position: relative; max-width: 1180px; margin: 0 auto; }
+  #layer-tag { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 13px; letter-spacing: .08em; color: var(--ink-dim); display: flex; gap: 14px; align-items: center; }
+  #layer-tag .name { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--key-edge); color: var(--ink); transition: background .12s, color .12s, border-color .12s; }
+  #layer-tag .name.l1 { background: var(--l1); color: #06202f; border-color: var(--l1); }
+  #layer-tag .name.l2 { background: var(--l2); color: #230b3a; border-color: var(--l2); }
+  #layer-tag .name.l3 { background: var(--l3); color: #3a1c00; border-color: var(--l3); }
+  #layer-tag .name.l4 { background: var(--l4); color: #003a2f; border-color: var(--l4); }
+  #layer-tag .name.l5 { background: var(--l5); color: #3a0a1c; border-color: var(--l5); }
+  #layer-tag .mods span { opacity: .35; margin-left: 6px; }
+  #layer-tag .mods span.on { opacity: 1; color: var(--ink); }
+  svg { width: 100%; height: auto; display: block; }
+  .key rect { fill: var(--key); stroke: var(--key-edge); stroke-width: 2; transition: fill .08s, stroke .08s; }
+  .key text { fill: var(--ink); font-family: var(--sans); font-size: 30px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .key text.small { font-size: 22px; }
+  .key.trans rect { fill: #171d25; stroke: #222b35; }
+  .key.trans text { fill: var(--ink-faint); }
+  .key.next rect { stroke: var(--next); stroke-width: 4; fill: #3a3020; }
+  .key.next text { fill: #fff; }
+  .key.down rect { fill: var(--next); stroke: var(--next); }
+  .key.down text { fill: #1a1200; }
+  .key.down.wrong rect { fill: var(--err); stroke: var(--err); }
+  .key.heat rect { stroke: var(--err); }
+  .fdot { opacity: .9; }
+  #empty { color: var(--ink-dim); text-align: center; }
+  @media (max-width: 800px) { header { grid-template-columns: 1fr; } .tools, .modes { justify-content: start; } #text { font-size: 20px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="stats">
+    <div>Accuracy <b id="acc">–</b></div>
+    <div>Speed <b id="wpm">0</b> wpm</div>
+    <div>Time <b id="time">00:00</b></div>
+    <div>Streak <b id="streak">0</b> d · <b id="today">0</b> min today<svg id="spark" width="110" height="22" aria-label="Speed history"></svg></div>
+  </div>
+  <nav class="modes" aria-label="Training mode">
+    <button data-mode="lesson" aria-pressed="true">Lessons</button>
+    <button data-mode="words-en" aria-pressed="false">English words</button>
+    <button data-mode="words-fr" aria-pressed="false">French words</button>
+    <button data-mode="words-mix" aria-pressed="false">Mixed</button>
+    <button data-mode="layers" aria-pressed="false">Numbers &amp; symbols</button>
+    <button data-mode="text" aria-pressed="false">Your text</button>
+  </nav>
+  <div class="tools">
+    <button id="prev" title="Previous lesson">‹ lesson</button>
+    <button id="nextl" title="Next lesson">lesson ›</button>
+    <button id="heat" aria-pressed="false" title="Show your error heat map on the board">Errors on board</button>
+    <button id="mastery" aria-pressed="false" title="Colour each key by how well you know it (red = new, green = at target speed)">Mastery on board</button>
+    <button id="hints" aria-pressed="true" title="Auto: a key keeps its label and immediate highlight while you learn it; once known, its label disappears and the hint comes only after a 1 s hesitation. Always: full labels. Hidden: no board at all.">Hints: auto</button>
+    <select id="target" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy"></select>
+    <button id="restart" title="New text (Esc)">New text</button>
+    <button id="feed" aria-pressed="false" title="Connect the dongle's key-feed serial port: the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
+  </div>
+  <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Esc: new text.</div>
+</header>
+
+<main>
+  <div id="lesson-map" aria-label="Lessons"></div>
+  <div id="lesson-bar"><span id="lesson-name"></span><span class="letters" id="lesson-letters"></span></div>
+  <div id="progress"><i></i></div>
+  <div id="text" tabindex="0" aria-label="Text to type"></div>
+  <textarea id="paste" placeholder="Paste or write any text here, then click outside the box and start typing."></textarea>
+  <div id="hint"></div>
+</main>
+
+<footer>
+  <div id="board-wrap">
+    <div id="layer-tag"><span class="name" id="layer-name">BASE</span><span class="mods" id="mods"><span data-m="Shift">Shift</span><span data-m="Control">Ctrl</span><span data-m="Alt">Alt</span><span data-m="Meta">Super</span></span></div>
+    <svg id="board" viewBox="0 0 1400 460" aria-label="Keyboard"></svg>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const T = window.TOUCAN;
+  const $ = (s) => document.querySelector(s);
+  const LAYER_CLASS = ["", "l1", "l2", "l3", "l4", "l5", "l5", "l5", "l5"];
+  const FINGER = [0,0,1,2,3,3, 4,4,5,6,7,7];            // per column, row keys
+  const FINGER_NAME = ["left pinky","left ring","left middle","left index","right index","right middle","right ring","right pinky"];
+  const FINGER_COLOR = ["#e8a0bf","#c9a0e8","#a0c4e8","#a0e8d0","#a0e8d0","#a0c4e8","#c9a0e8","#e8a0bf"];
+  const fingerOf = (pos) => pos < 36 ? FINGER[pos % 12] : (pos < 39 ? 8 : 9); // 8/9 = thumbs
+  const fingerName = (pos) => pos < 36 ? FINGER_NAME[FINGER[pos % 12]] : (pos < 39 ? "left thumb" : "right thumb");
+
+  // ---------- reverse index: char -> ways to type it; event.code -> candidates ----------
+  const ways = new Map();      // char -> [{layer,pos,shift}]
+  const byCode = new Map();    // code -> [{layer,pos,shift}]
+  const layerKeyPos = {};      // layer id -> thumb position that activates it (on base)
+  const stickyTaps = {};       // accent layer id -> number of prefix taps that arm it
+  let prefixPos = -1;          // the key whose tap arms the first accent layer
+  T.layers[0].keys.forEach((k, pos) => { if (k.kind === "layer") layerKeyPos[k.layer] = pos; if (k.tap?.kind === "sticky") { prefixPos = pos; stickyTaps[k.tap.layer] = 1; } });
+  for (let l = Number(Object.keys(stickyTaps)[0]), n = 1; prefixPos >= 0 && n < 8; n++) {   // follow the tap chain AC1 -> AC2 -> ...
+    const nxt = T.layers.find((L) => L.id === l)?.keys[prefixPos];
+    if (!nxt || nxt.kind !== "sticky" || stickyTaps[nxt.layer]) break;
+    stickyTaps[nxt.layer] = n + 1; l = nxt.layer;
+  }
+  T.layers.forEach((L) => L.keys.forEach((k, pos) => {
+    if (k.kind !== "key") return;
+    const e = { layer: L.id, pos, shift: false, bshift: !!k.shift, code: k.code, taps: stickyTaps[L.id] }; // bshift: the firmware sends Shift itself; taps: accent prefix taps
+    if (k.char !== undefined) { if (!ways.has(k.char)) ways.set(k.char, []); ways.get(k.char).push(e); }
+    if (k.code) { if (!byCode.has(k.code)) byCode.set(k.code, []); byCode.get(k.code).push(e); }
+  }));
+  // uppercase letters = shift + lowercase
+  for (const [ch, list] of [...ways]) if (/^\p{Ll}$/u.test(ch) && !ways.has(ch.toUpperCase())) ways.set(ch.toUpperCase(), list.map((w) => ({ ...w, shift: true })));
+  const shiftPositions = T.layers[0].keys.map((k, i) => (k.kind === "key" && /Shift/.test(k.code)) ? i : -1).filter((i) => i >= 0);
+  const bestWay = (ch) => { const l = ways.get(ch); if (!l) return null; return l.slice().sort((a, b) => a.layer - b.layer || a.pos - b.pos)[0]; };
+
+  // ---------- per-key skill (keybr-style): speed confidence x accuracy, ramped by sample count ----------
+  const KS = JSON.parse(localStorage.getItem("toucan.keys") || "{}");   // char -> {n: correct presses, e: errors, ms: smoothed time per press}
+  let targetWpm = Number(localStorage.getItem("toucan.target") || 30);
+  let hintMode = localStorage.getItem("toucan.hints") || "auto";   // auto: labels and highlight fade per key | always | off: board hidden
+  const targetMs = () => 60000 / (targetWpm * 5);
+  const conf = (ch) => { const k = KS[ch]; if (!k || !k.n) return 0; return Math.min(targetMs() / k.ms, Math.min(1, (k.n / (k.n + k.e)) / 0.95)) * Math.min(1, k.n / 12); };
+  function record(ch, ok, dt) {
+    const k = KS[ch] || (KS[ch] = { n: 0, e: 0, ms: targetMs() * 2 });
+    if (ok) { k.n++; if (dt) k.ms = k.ms * 0.8 + Math.min(dt, 2500) * 0.2; } else k.e++;
+  }
+  const saveKS = () => localStorage.setItem("toucan.keys", JSON.stringify(KS));
+  const weakest = (chars, n) => [...new Set(chars)].map((c) => [c, conf(c)]).sort((a, b) => a[1] - b[1]).slice(0, n);
+  const stars = (acc, wpm) => acc < 95 ? 0 : 1 + (acc >= 98) + (wpm >= targetWpm);
+
+  // ---------- board ----------
+  const svg = $("#board");
+  const NS = "http://www.w3.org/2000/svg";
+  const keyEls = [];
+  let shownLayer = 0;
+  function buildBoard() {
+    const minX = Math.min(...T.phys.map((p) => p.x)) - 10, maxX = Math.max(...T.phys.map((p) => p.x + p.w)) + 10;
+    const minY = Math.min(...T.phys.map((p) => p.y)) - 40, maxY = Math.max(...T.phys.map((p) => p.y + p.h)) + 50;
+    svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+    T.phys.forEach((p, i) => {
+      const g = document.createElementNS(NS, "g"); g.classList.add("key"); g.dataset.pos = i;
+      if (p.r) g.setAttribute("transform", `rotate(${p.r} ${p.rx} ${p.ry})`);
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("x", p.x + 4); r.setAttribute("y", p.y + 4); r.setAttribute("width", p.w - 8); r.setAttribute("height", p.h - 8); r.setAttribute("rx", 10);
+      const t = document.createElementNS(NS, "text"); t.setAttribute("x", p.x + p.w / 2); t.setAttribute("y", p.y + p.h / 2);
+      const d = document.createElementNS(NS, "circle"); d.classList.add("fdot"); d.setAttribute("cx", p.x + p.w - 16); d.setAttribute("cy", p.y + 16); d.setAttribute("r", 4);
+      const f = fingerOf(i); d.setAttribute("fill", f < 8 ? FINGER_COLOR[f] : "#8a94a0");
+      g.append(r, t, d); svg.appendChild(g); keyEls.push(g);
+    });
+    showLayer(0);
+  }
+  function showLayer(id) {
+    shownLayer = id;
+    const L = T.layers.find((l) => l.id === id);
+    keyEls.forEach((g, i) => {
+      const k = L.keys[i]; const t = g.querySelector("text");
+      const label = k.kind === "trans" ? "" : k.label;
+      g.dataset.label = label; g.dataset.char = k.char ?? ""; t.classList.toggle("small", label.length > 2);
+      g.classList.toggle("trans", k.kind === "trans");
+    });
+    relabel();
+    const tag = $("#layer-name"); tag.textContent = L.name; tag.className = "name " + (LAYER_CLASS[id] || "");
+    paintHeat();
+  }
+  // in auto mode a key you know (confidence >= KNOWN) loses its label: it comes back while it is the hint or pressed
+  const KNOWN = 0.7;
+  function relabel() {
+    keyEls.forEach((g) => {
+      const hide = hintMode !== "always" && g.dataset.char && conf(g.dataset.char) >= KNOWN && !g.classList.contains("next") && !g.classList.contains("down");
+      g.querySelector("text").textContent = hide ? "" : g.dataset.label;
+    });
+  }
+  const heat = JSON.parse(localStorage.getItem("toucan.heat") || "{}"); // pos -> errors
+  let heatOn = false, masteryOn = false;
+  function paintHeat() {
+    const max = Math.max(1, ...Object.values(heat));
+    const L = T.layers.find((l) => l.id === shownLayer);
+    keyEls.forEach((g, i) => {
+      const n = heat[i] || 0; g.classList.toggle("heat", heatOn && n > 0);
+      const ch = L.keys[i].char; const c = masteryOn && ch !== undefined && KS[ch] ? conf(ch) : null;
+      g.querySelector("rect").style.fill = heatOn && n ? `rgba(228,111,121,${0.15 + 0.6 * n / max})` : c !== null ? `hsl(${Math.round(120 * Math.min(1, c))} 45% 28%)` : "";
+    });
+  }
+
+  // ---------- layer / modifier state from incoming keys ----------
+  const down = new Set();   // positions currently held
+  let feedOn = false, lastFeedPos = -1, feedPort = null;   // live feed from the dongle (see bottom)
+  const feedLayers = new Set();
+  let layerTimer = 0;
+  function flashLayer(id) {
+    if (feedOn) return;   // the dongle tells us the real layer
+    clearTimeout(layerTimer);
+    if (id !== 0) { showLayer(id); layerTimer = setTimeout(() => { if (!expectedLayer()) showLayer(0); }, 1500); }
+    else if (!expectedLayer()) showLayer(0);
+  }
+  function setMods(e) {
+    for (const el of document.querySelectorAll("#mods span")) el.classList.toggle("on", e.getModifierState(el.dataset.m));
+  }
+
+  // ---------- typing engine ----------
+  const textEl = $("#text");
+  let target = "", idx = 0, marks = [], typed = [], startT = 0, keystrokes = 0, wrong = 0, done = false, timer = 0;
+  // [name, allowed chars, gate]: the lesson is mastered when every gate char reaches confidence 1 (target speed, 95%+ accuracy)
+  const LESSONS = [
+    ["Home row", "csntaeih"], ["Add r l o d", "csntaeihrlod"], ["Add m g y u", "csntaeihrlodmgyu"],
+    ["Add w p x k", "csntaeihrlodmgyuwpxk"], ["Add b v z j q f", "abcdefghijklmnopqrstuvwxyz", "bvzjqf"],
+    ["Punctuation , . ' -", "abcdefghijklmnopqrstuvwxyz,.'-", ",.'-"], ["Accents (prefix tap)", "é à è ê ç", "éàèêç"], ["Capitals", "ABC", ""], ["Numbers (NAV layer)", "0123456789"], ["Symbols (SYM layer)", "!@#$%^&*()\"':?;/<>|-=[]\\_+{}`"],
+  ];
+  const gateOf = (i) => (LESSONS[i][2] ?? LESSONS[i][1]).replace(/ /g, "");
+  const mastered = (i) => { const g = gateOf(i); return g ? [...g].every((c) => conf(c) >= 1) : (best[i] || 0) >= 2; };
+  const best = JSON.parse(localStorage.getItem("toucan.stars") || "{}");   // lesson -> best stars
+  let lesson = Number(localStorage.getItem("toucan.lesson") || 0);
+  let mode = "lesson";
+  const rnd = (a) => a[Math.floor(Math.random() * a.length)];
+  const words = { en: T.words.en, fr: T.words.fr, mix: T.words.en.concat(T.words.fr) };
+  // weighted pick: a word full of weak keys is up to 4x as likely as one made of mastered keys
+  const weight = (w) => [...w].reduce((s, c) => s + 1 + 3 * (1 - Math.min(1, conf(c.toLowerCase()))), 0) / w.length;
+  function picker(list) {
+    const ws = list.map(weight); const total = ws.reduce((a, b) => a + b, 0);
+    return () => { let r = Math.random() * total; for (let i = 0; i < list.length; i++) { r -= ws[i]; if (r <= 0) return list[i]; } return list[list.length - 1]; };
+  }
+  const N = 16;   // words per text: about 45 s, short loops beat long ones
+  function wordsWith(allowed, pool, n) {
+    const ok = pool.filter((w) => [...w].every((c) => allowed.includes(c)));
+    if (ok.length >= 12) { const pick = picker(ok); return Array.from({ length: n }, pick).join(" "); }
+    const out = [];
+    for (let i = 0; i < n; i++) { let w = ""; const len = 3 + Math.floor(Math.random() * 3); for (let j = 0; j < len; j++) w += rnd(allowed); out.push(w); }
+    return out.join(" ");
+  }
+  function makeText() {
+    const pool = words.mix;
+    if (mode === "lesson") {
+      const [name, letters] = LESSONS[lesson];
+      $("#lesson-name").textContent = `Lesson ${lesson + 1} of ${LESSONS.length} · ${name}`; $("#lesson-letters").textContent = letters.length > 12 && !/[0-9!]/.test(letters) ? "" : letters;
+      if (name.startsWith("Accents")) return Array.from({ length: N - 2 }, picker(T.words.fr_acc.length ? T.words.fr_acc : ["été", "à", "déjà", "très", "être", "ça"])).join(" ");
+      if (name === "Capitals") { const pick = picker(pool); return Array.from({ length: N }, () => { const w = pick(); return Math.random() < .5 ? w[0].toUpperCase() + w.slice(1) : w; }).join(" "); }
+      if (name.startsWith("Numbers")) return Array.from({ length: N - 2 }, () => Math.random() < .35 ? rnd(["3la", "7ta", "9bel", "3andi", "wa7ed", "sa7a", "2026", "3", "7", "9"]) : String(Math.floor(Math.random() * 9999))).join(" ");
+      if (name.startsWith("Symbols")) return Array.from({ length: N - 2 }, picker(["(ok)", "a-b", "x = y", "50%", "\"quoted\"", "c'est", "a: b", "why?", "[1]", "{x}", "a/b", "hi!", "@me", "#tag", "1 + 2", "a < b", "x_y", "c:\\dir", "a | b", "~", "`code`", "$5", "&&", "*"])).join(" ");
+      if (name.startsWith("Punctuation")) return wordsWith(letters, pool, N).split(" ").map((w) => { const r = Math.random(); return r < .25 ? w + "," : r < .45 ? w + "." : r < .55 ? w + "'s" : r < .65 ? "l'" + w : r < .75 ? w + "-" + rnd(["ci", "là", "up", "on"]) : w; }).join(" ");
+      return wordsWith(letters, pool, N);
+    }
+    $("#lesson-name").textContent = { "words-en": "English words from your own writing", "words-fr": "French words from your own writing", "words-mix": "French and English mixed", layers: "Numbers, symbols and punctuation", text: "Your text" }[mode] || "";
+    $("#lesson-letters").textContent = "";
+    if (mode === "words-en") return Array.from({ length: 30 }, () => rnd(words.en)).join(" ");
+    if (mode === "words-fr") return Array.from({ length: 30 }, () => rnd(words.fr)).join(" ");
+    if (mode === "words-mix") return Array.from({ length: 30 }, () => rnd(pool)).join(" ");
+    if (mode === "layers") return Array.from({ length: 24 }, () => Math.random() < .5 ? String(Math.floor(Math.random() * 999)) : rnd(["(ok)", "a-b", "x = y", "50%", "\"yes\"", "c'est", "a: b", "why?", "[1]", "{x}", "a/b", "hi!", "@me", "#tag", "3la", "7ta", "9bel"])).join(" ");
+    if (mode === "text") return ($("#paste").value || "Paste your text in the box above.").replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").trim();
+    return "";
+  }
+  function render() {
+    textEl.innerHTML = "";
+    for (let i = 0; i < target.length; i++) {
+      const s = document.createElement("span"); const ch = target[i];
+      s.textContent = ch === "\n" ? "↵\n" : ch;
+      if (i < idx) { s.className = marks[i] ? "ok" : "err"; if (!marks[i]) { const t = typed[i]; s.textContent = (t === " " ? "␣" : t === "\n" ? "↵" : t === "\t" ? "⇥" : t) + (ch === "\n" ? "\n" : ""); s.title = `expected ${ch === " " ? "space" : ch}`; } }
+      if (i === idx) s.className = "cur";
+      textEl.appendChild(s);
+    }
+    $("#progress i").style.width = (100 * idx / Math.max(1, target.length)) + "%";
+    const cur = textEl.querySelector(".cur"); if (cur) cur.scrollIntoView({ block: "nearest" });
+    paintNext();
+  }
+  const hintLayer = (id) => { if (!feedOn) showLayer(id); };   // with the live feed the board shows the real layer, not the expected one
+  let hintTimer = 0;
+  function paintNext() {
+    clearTimeout(hintTimer); keyEls.forEach((g) => g.classList.remove("next")); relabel();
+    if (done) return;
+    const ch = target[idx]; const w = bestWay(ch);
+    if (!w) { $("#hint").textContent = ""; return; }
+    // a key you already know is not highlighted at once: recall it, the hint comes after a 1 s hesitation
+    if (hintMode !== "always" && conf(ch) >= KNOWN) { $("#hint").innerHTML = "&nbsp;"; hintTimer = setTimeout(() => showHint(ch, w), 1000); } else showHint(ch, w);
+  }
+  function showHint(ch, w) {
+    const parts = [];
+    if (w.taps) { hintLayer(w.layer); keyEls[prefixPos].classList.add("next"); parts.push(`tap the <b>accent prefix</b> (left thumb Ctrl)${w.taps > 1 ? ` <b>×${w.taps}</b>` : ""}, then`); }
+    else if (w.layer !== 0) { hintLayer(w.layer); keyEls[layerKeyPos[w.layer]]?.classList.add("next"); parts.push(`hold <b>${T.layers[w.layer].name}</b> (${fingerName(layerKeyPos[w.layer])})`); }
+    else if (shownLayer !== 0 && !layerTimer) hintLayer(0);
+    if (w.shift) { const leftHand = (w.pos % 12) < 6 && w.pos < 36; const sp = shiftPositions.filter((p) => ((p % 12) < 6) !== leftHand); (sp.length ? sp : shiftPositions).forEach((p) => keyEls[p].classList.add("next")); parts.push(`hold <b>${leftHand ? "right" : "left"} Shift</b>`); }
+    keyEls[w.pos].classList.add("next");
+    const label = ch === " " ? "space" : ch === "\n" ? "enter" : ch;
+    parts.push(`<b>${label}</b> with ${fingerName(w.pos)}`);
+    $("#hint").innerHTML = w.taps ? parts[0] + " " + parts.slice(1).join(" + ") : parts.join(" + ");
+    relabel();
+  }
+  const expectedLayer = () => { const w = !done && bestWay(target[idx]); return w && w.layer !== 0 ? w.layer : 0; };
+  function newText() {
+    target = makeText(); idx = 0; marks = []; typed = []; startT = 0; keystrokes = 0; wrong = 0; done = false;
+    clearInterval(timer); textEl.classList.remove("done"); $("#time").textContent = "00:00"; $("#wpm").textContent = "0"; $("#acc").textContent = "–";
+    render(); textEl.focus({ preventScroll: true });
+  }
+  function tick() {
+    const s = (Date.now() - startT) / 1000; $("#time").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+    const correct = marks.slice(0, idx).filter(Boolean).length; $("#wpm").textContent = s > 1 ? Math.round((correct / 5) / (s / 60)) : "0";
+    $("#acc").textContent = keystrokes ? (100 * (keystrokes - wrong) / keystrokes).toFixed(1) + "%" : "–";
+  }
+  const today = () => new Date().toISOString().slice(0, 10);
+  const days = JSON.parse(localStorage.getItem("toucan.days") || "{}");   // date -> seconds practised
+  function paintStreak() {
+    let n = 0; const d = new Date(); if (!days[today()]) d.setDate(d.getDate() - 1);
+    while (days[d.toISOString().slice(0, 10)]) { n++; d.setDate(d.getDate() - 1); }
+    $("#streak").textContent = n; $("#today").textContent = Math.round((days[today()] || 0) / 60);
+  }
+  function paintSpark() {
+    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]").filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).slice(-30).map((h) => Number(h.wpm) || 0);
+    const sp = $("#spark"); if (hist.length < 2) { sp.innerHTML = ""; return; }
+    const max = Math.max(...hist, 1), pts = hist.map((v, i) => `${(i * 108 / (hist.length - 1) + 1).toFixed(1)},${(21 - 19 * v / max).toFixed(1)}`).join(" ");
+    sp.innerHTML = `<polyline points="${pts}" fill="none" stroke="#6d7987" stroke-width="1.5"/><circle cx="${pts.split(" ").pop().split(",")[0]}" cy="${pts.split(" ").pop().split(",")[1]}" r="2" fill="#f3b53f"/>`;
+  }
+  const nextIsNewLesson = () => mode === "lesson" && mastered(lesson) && lesson < LESSONS.length - 1;
+  function finish() {
+    done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
+    const secs = (Date.now() - startT) / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
+    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-200)));
+    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); paintSpark(); saveKS();
+    const st = stars(acc, wpm), prev = hist.slice(0, -1).filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).map((h) => Number(h.wpm) || 0);
+    const pb = prev.length && wpm > Math.max(...prev);
+    let msg = `<span class="stars">${"★".repeat(st)}${"☆".repeat(3 - st)}</span> ${wpm} wpm${pb && prev.length ? " <b>personal best</b>" : ""} · ${acc.toFixed(1)}%`;
+    if (mode === "lesson") {
+      if (st > (best[lesson] || 0)) { best[lesson] = st; localStorage.setItem("toucan.stars", JSON.stringify(best)); }
+      const weak = weakest([...gateOf(lesson)].filter((c) => conf(c) < 1), 3);
+      if (nextIsNewLesson()) msg += ` · lesson mastered, <b>Enter</b> for the next one`;
+      else if (weak.length) msg += ` · still slow: <span class="weak">${weak.map(([c, v]) => `${c === " " ? "space" : c} ${Math.round(100 * v)}%`).join(", ")}</span> · <b>Enter</b> again`;
+      else msg += ` · <b>Enter</b> for another text`;
+      paintMap();
+    } else msg += ` · <b>Enter</b> for another text`;
+    $("#hint").innerHTML = msg;
+  }
+  let lastKeyT = 0;
+  function typeChar(ch) {
+    if (done) return;
+    const now = Date.now();
+    if (!startT) { startT = now; timer = setInterval(tick, 500); lastKeyT = 0; }
+    keystrokes++;
+    const ok = ch === target[idx]; marks[idx] = ok; typed[idx] = ch;
+    record(target[idx], ok, lastKeyT ? now - lastKeyT : 0); lastKeyT = now;
+    if (!ok) { wrong++; const w = bestWay(target[idx]); if (w) { heat[w.pos] = (heat[w.pos] || 0) + 1; localStorage.setItem("toucan.heat", JSON.stringify(heat)); if (heatOn) paintHeat(); } }
+    idx++;
+    if (idx >= target.length) { render(); finish(); return; }
+    render();
+  }
+  function backspace() { if (done || idx === 0) return; idx--; marks.length = idx; typed.length = idx; render(); }
+
+  // ---------- key events ----------
+  // US-International dead keys: event.code (+ = with Shift) -> combining mark
+  const DEAD_OF = { "Backquote": "\u0300", "Backquote+": "\u0303", "Digit6+": "\u0302", "Quote": "\u0301", "Quote+": "\u0308" };
+  let pendingDead = null;
+  const isDeadFor = (ch, e) => !!ch && [...ch.normalize("NFD")].includes(DEAD_OF[e.code + (e.shiftKey ? "+" : "")]);
+  function resolve(e) {
+    const cands = byCode.get(e.code) || [];
+    if (!cands.length) return null;
+    const exp = !done && bestWay(target[idx]);
+    const match = cands.filter((c) => c.bshift === e.shiftKey || !/^(Key|Digit|Minus|Equal|Bracket|Backslash|Semicolon|Quote|Backquote|Comma|Period|Slash)/.test(e.code));
+    const pool = match.length ? match : cands;
+    if (exp) { const m = pool.find((c) => c.pos === exp.pos && c.layer === exp.layer); if (m) return m; }
+    return pool.find((c) => c.layer === shownLayer) || pool.find((c) => c.layer === 0) || pool[0];
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.target === $("#paste")) return;
+    setMods(e);
+    let key = e.key;
+    if (key === "Dead" || (DEAD_OF[e.code + (e.shiftKey ? "+" : "")] && isDeadFor(target[idx], e))) {   // first half of a dead-key accent
+      pendingDead = DEAD_OF[e.code + (e.shiftKey ? "+" : "")] || "\u0301"; return;
+    }
+    if (pendingDead && key.length === 1) {                        // compose like the OS would (Chrome only does it inside text fields)
+      const mark = pendingDead; pendingDead = null;
+      if (key.normalize("NFD").length === 1) { const c = (key + mark).normalize("NFC"); if (c.length === 1) key = c; }
+    }
+    const r = feedOn ? null : resolve(e);   // with the feed the board is driven by the dongle, not inferred from the OS event
+    if (r) { down.add(r.pos); keyEls[r.pos].classList.add("down"); flashLayer(r.layer); relabel(); }
+    const altgr = e.getModifierState("AltGraph") || (e.ctrlKey && e.altKey);   // é ç ü arrive as AltGr + letter
+    if ((e.ctrlKey || e.metaKey || e.altKey) && !altgr) return;   // let shortcuts through
+    if (key === "Escape") { e.preventDefault(); newText(); return; }
+    if (key === "Backspace") { e.preventDefault(); backspace(); return; }
+    if (key === "Enter") { e.preventDefault(); if (done) { if (nextIsNewLesson()) setLesson(lesson + 1); else newText(); } else typeChar("\n"); return; }
+    if (key === "Tab") { e.preventDefault(); if (!done) typeChar("\t"); return; }
+    if (key.length === 1) { e.preventDefault(); const wrongPos = r ? r.pos : feedOn ? lastFeedPos : -1; if (wrongPos >= 0 && target[idx] !== key) keyEls[wrongPos].classList.add("wrong"); typeChar(key); }
+  });
+  document.addEventListener("keyup", (e) => {
+    setMods(e);
+    const cands = byCode.get(e.code) || [];
+    cands.forEach((c) => { down.delete(c.pos); keyEls[c.pos].classList.remove("down", "wrong"); });
+    relabel();
+  });
+  window.addEventListener("blur", () => { if (feedOn) return; keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); });
+
+  // ---------- live feed: the dongle's USB logging port carries "feed: K <pos> <1|0>" / "feed: L <layer> <1|0>" ----------
+  function feedLine(line) {
+    const m = /feed: ([KL]) (\d+) ([01])/.exec(line); if (!m) return;
+    const n = Number(m[2]), on = m[3] === "1";
+    if (m[1] === "K") {
+      const g = keyEls[n]; if (!g) return;
+      if (on) { down.add(n); lastFeedPos = n; g.classList.add("down"); } else { down.delete(n); g.classList.remove("down", "wrong"); }
+    } else {
+      if (on) feedLayers.add(n); else feedLayers.delete(n);
+      showLayer(feedLayers.size ? Math.max(...feedLayers) : 0);
+    }
+    relabel();
+  }
+  async function feedOpen(port) {
+    try {
+      await port.open({ baudRate: 115200 }); feedPort = port; feedOn = true; feedLayers.clear();
+      $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Live feed: on";
+      const reader = port.readable.pipeThrough(new TextDecoderStream()).getReader(); let buf = "";
+      for (;;) { const { value, done: end } = await reader.read(); if (end) break; buf += value; const lines = buf.split("\n"); buf = lines.pop(); lines.forEach(feedLine); }
+    } catch (err) { console.warn("feed", err); }
+    feedOn = false; feedPort = null; $("#feed").setAttribute("aria-pressed", "false"); $("#feed").textContent = "Live feed";
+    try { await port.close(); } catch {}
+  }
+  $("#feed").addEventListener("click", async () => {
+    if (!navigator.serial) { $("#hint").textContent = "WebSerial needs Chrome (or Edge) on http://127.0.0.1 or https."; return; }
+    if (feedPort) { try { await feedPort.close(); } catch {} return; }   // reading loop ends and resets the button
+    try { const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x1d50 }] }); feedOpen(port); } catch {}   // the dongle shows two ports: pick the one that is not Studio's (press a key: this one talks)
+  });
+  if (navigator.serial) { navigator.serial.getPorts().then((ps) => { if (ps.length) feedOpen(ps[0]); }); navigator.serial.addEventListener("connect", (e) => { if (!feedPort) feedOpen(e.target); }); }
+
+  // ---------- controls ----------
+  function paintMap() {
+    const map = $("#lesson-map"); map.innerHTML = "";
+    LESSONS.forEach(([name], i) => {
+      const b = document.createElement("button"); const st = best[i] || 0;
+      b.innerHTML = `${i + 1}<br><b>${"★".repeat(st)}</b>${"☆".repeat(3 - st)}`; b.title = name + (mastered(i) ? " · mastered" : "");
+      b.classList.toggle("done", mastered(i)); b.setAttribute("aria-current", String(i === lesson && mode === "lesson"));
+      b.addEventListener("click", () => setLesson(i)); map.appendChild(b);
+    });
+  }
+  function setMode(m) {
+    mode = m; document.querySelectorAll(".modes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    $("#paste").style.display = m === "text" ? "block" : "none";
+    $("#prev").style.visibility = $("#nextl").style.visibility = m === "lesson" ? "visible" : "hidden";
+    $("#lesson-map").style.display = m === "lesson" ? "flex" : "none";
+    paintMap(); paintSpark(); newText();
+  }
+  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); paintSpark(); newText(); } }
+  document.querySelectorAll(".modes button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  $("#prev").addEventListener("click", () => setLesson(lesson - 1));
+  $("#nextl").addEventListener("click", () => setLesson(lesson + 1));
+  $("#restart").addEventListener("click", newText);
+  $("#heat").addEventListener("click", () => { heatOn = !heatOn; $("#heat").setAttribute("aria-pressed", String(heatOn)); paintHeat(); });
+  $("#mastery").addEventListener("click", () => { masteryOn = !masteryOn; $("#mastery").setAttribute("aria-pressed", String(masteryOn)); paintHeat(); });
+  const HINT_LABEL = { auto: "Hints: auto", always: "Hints: always", off: "Board: hidden" };
+  function applyHintMode() { $("#hints").textContent = HINT_LABEL[hintMode]; $("#hints").setAttribute("aria-pressed", String(hintMode !== "always")); document.querySelector("footer").style.display = hintMode === "off" ? "none" : ""; paintNext(); }
+  $("#hints").addEventListener("click", () => { hintMode = { auto: "always", always: "off", off: "auto" }[hintMode]; localStorage.setItem("toucan.hints", hintMode); applyHintMode(); });
+  applyHintMode();
+  for (const v of [20, 25, 30, 35, 40, 50, 60]) { const o = document.createElement("option"); o.value = v; o.textContent = `target ${v} wpm`; o.selected = v === targetWpm; $("#target").appendChild(o); }
+  $("#target").addEventListener("change", (e) => { targetWpm = Number(e.target.value); localStorage.setItem("toucan.target", targetWpm); paintMap(); paintHeat(); e.target.blur(); });
+  paintStreak();
+  $("#paste").addEventListener("change", newText);
+  textEl.addEventListener("click", () => textEl.focus());
+
+  buildBoard();
+  setMode("lesson");
+})();
+</script>
+</body>
+</html>
