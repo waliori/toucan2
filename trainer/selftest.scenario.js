@@ -22,12 +22,23 @@
   const known = [...document.querySelectorAll(".key")].filter((g) => g.dataset.char).length;
   out.labelsAuto = labels() + "/" + known;
   $("#hints").click(); out.labelsAlways = labels() + " " + $("#hints").textContent;
-  $("#hints").click(); out.boardOff = getComputedStyle(document.querySelector("footer")).display + " " + $("#hints").textContent;
+  $("#boardbtn").click(); out.boardOff = getComputedStyle(document.querySelector("footer")).display + " " + $("#boardbtn").textContent;
+  kd({ key: "b", code: "KeyB", ctrlKey: true }); out.boardCtrlB = getComputedStyle(document.querySelector("footer")).display + " " + $("#boardbtn").textContent;
   $("#hints").click(); out.backToAuto = $("#hints").textContent;
   // every lesson generates text without errors
   out.lessons = [];
   for (const b of [...$("#lesson-map").children]) { b.click(); await sleep(30); out.lessons.push($("#lesson-name").textContent.slice(16) + ": " + text().slice(0, 50)); }
-  for (const m of ["words-en", "words-fr", "words-mix", "layers"]) { document.querySelector(`[data-mode="${m}"]`).click(); await sleep(30); out.lessons.push(m + ": " + text().split(" ").length + " words"); }
+  for (const m of ["words-en", "words-fr", "words-mix", "layers", "sentences", "weak", "burst"]) { document.querySelector(`[data-mode="${m}"]`).click(); await sleep(30); out.lessons.push(m + ": " + text().split(" ").length + " words · " + $("#lesson-name").textContent.slice(0, 40)); }
+  out.url = location.search;
+  // error replay + pause: a wrong key, then a 5.5 s break, in a short sentence text
+  document.querySelector('[data-mode="sentences"]').click(); await sleep(30);
+  { const t = text(); await press(t[0] === "a" ? "b" : "a"); kd({ key: "Backspace", code: "Backspace" }); await press(t[0]); await sleep(5600); for (let i = 1; i < t.length; i++) await press(t[i]); await sleep(60); }
+  out.replay = $("#hint").querySelector(".replay")?.textContent.slice(0, 60); out.pausedTime = $("#time").textContent;
+  // burst keeps running past the first key, stats dialog renders, lesson link works
+  document.querySelector('[data-mode="burst"]').click(); await sleep(30); await press(text()[0]); await sleep(1200); out.burstRunning = !$("#text").classList.contains("done");
+  kd({ key: "i", code: "KeyI", ctrlKey: true }); await sleep(30); out.stats = $("#stats").open + " " + $("#stats-body").querySelectorAll("table").length + " tables, " + $("#stats-body").textContent.slice(0, 40); $("#stats").close();
+  kd({ key: "ArrowRight", code: "ArrowRight", ctrlKey: true }); await sleep(30); out.ctrlArrows = $("#lesson-name").textContent.slice(0, 30) + " | " + location.search;
+  out.layouts = [...$("#layout").options].map((o) => o.value).join(",");
   out.errors = errs;
   return out;
 })()

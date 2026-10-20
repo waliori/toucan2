@@ -40,7 +40,15 @@ Modelled on keybr / TypingClub rather than fixed drills:
 - **Weak keys come up more.** Texts are real words from your own corpus, sampled so that a word made of weak keys is up to 4× as likely as one made of mastered keys. New letters in a lesson start at 0, so they dominate until they catch up.
 - **Short loops.** 16 words per text (about 45 s). After each: stars (★ 95 %+ accuracy, ★★ 98 %+, ★★★ at target speed), personal best, the keys still below target.
 - **Mastery gate.** Enter moves to the next lesson only once every key the lesson introduces is green; otherwise it serves another text. The lesson map shows best stars per lesson; `‹ lesson` / `lesson ›` or a click skips freely.
-- **The board fades key by key.** While a key is new it keeps its label and lights up at once. Once you know it (confidence 0.7) its label disappears from the board and the highlight plus finger hint come only after a 1 s hesitation, so you recall first and read second. `Hints` cycles auto → always (full labels) → board hidden.
+- **The board fades key by key.** While a key is new it keeps its label and lights up at once. Once you know it (confidence 0.7) its label disappears from the board and the highlight plus finger hint come only after a 1 s hesitation, so you recall first and read second. `Hints` switches auto ↔ always (full labels); `Board` (Ctrl+B) hides the keyboard entirely.
+- **Warm-up.** The first time a lesson introduces keys you have never typed, the text is just those keys, three times each, so you find them before words start.
+- **Modes beyond the lessons.** *Sentences*: real sentences in both languages with capitals, punctuation and accents. *Weak pairs*: words built from your eight slowest letter pairs (measured on every text). *Speed burst*: 30 s against a target 10 wpm above yours. *Your text*: anything pasted.
+- **After each text** you get stars, the keys still below target, every missed word with what you pressed for what (and which key, when the board knew), and a count of capitals typed with the same-hand Shift.
+- **The clock ignores breaks.** Any gap over 5 s between two keys counts as 5 s, so a tab switch does not wreck the speed.
+- **Stats** (Ctrl+I): per-key speed, accuracy and mastery, finger load, slowest pairs, speed by day, and export / import of the progress file.
+- **Other layouts.** The layout menu puts QWERTY, Colemak-DH, Graphite, Gallium, Canary, Sturdy or Ergo-L on the 30 core keys (lessons are then generated from the layout: home row, then letters by frequency). Thumbs, modifiers and the NAV/SYM/accent layers stay as the firmware has them. Stats are per character, so switching mixes them.
+- **Shortcuts.** Tab or Esc: new text. Ctrl+←/→: lesson. Ctrl+↑/↓: mode. Ctrl+B: board. Ctrl+I: stats. The address bar always holds a link to the current view (`?mode=lesson&lesson=3`), so a lesson can be shared.
+- **Sound** adds a short click on mistakes, off by default. The page follows the system light/dark preference.
 - **Streak and history.** Days practised in a row, minutes today, and a sparkline of speed for the current lesson or mode.
 
 Everything is stored in the browser (localStorage: keys, stars, streak, history, error heat map).

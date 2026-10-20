@@ -11,7 +11,7 @@ export default {
     }
     if (req.method === "PUT") {
       const body = await req.text();
-      if (body.length > 65536) return new Response("too big", { status: 413 });
+      if (body.length > 262144) return new Response("too big", { status: 413 });
       try { if (typeof JSON.parse(body) !== "object") throw 0; } catch { return new Response("bad json", { status: 400 }); }
       await env.PROGRESS.put(m[1], body);
       return new Response("ok");
