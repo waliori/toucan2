@@ -36,6 +36,7 @@ Accents need the OS on the US International layout, like the keyboard itself: th
 
 Modelled on keybr / TypingClub rather than fixed drills:
 
+- **Target speed.** The slider in the toolbar goes from 15 to 300 wpm; the number next to it accepts any value if you want more. Everything below (mastery, stars, burst pace) follows it.
 - **Per-key skill.** Every key has a confidence = min(target speed ÷ your smoothed time for it, accuracy ÷ 95%), ramped in over the first 12 presses. `Mastery on board` paints it (red = new, green = at target). Pick the target speed in the toolbar (default 30 wpm).
 - **Weak keys come up more.** Texts are real words from your own corpus, sampled so that a word made of weak keys is up to 4× as likely as one made of mastered keys. New letters in a lesson start at 0, so they dominate until they catch up.
 - **Short loops.** 16 words per text (about 45 s). After each: stars (★ 95 %+ accuracy, ★★ 98 %+, ★★★ at target speed), personal best, the keys still below target.
