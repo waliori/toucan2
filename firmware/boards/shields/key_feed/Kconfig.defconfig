@@ -1,13 +1,6 @@
 if SHIELD_KEY_FEED
 
-config ZMK_USB_LOGGING
-    default y
-
 config ZMK_KEY_FEED
-    default y
-
-# keep ZMK's own debug chatter off the feed port
-config ZMK_LOGGING_MINIMAL
     default y
 
 endif

@@ -1,4 +1,8 @@
 config ZMK_KEY_FEED
-    bool "Stream key positions and layer changes on the USB logging port (for trainer/)"
-    depends on ZMK_USB_LOGGING
+    bool "Stream key positions and layer changes on a dedicated USB serial port (for trainer/)"
+    select SERIAL
+    select UART_INTERRUPT_DRIVEN
+    select UART_LINE_CTRL
+    select USB_DEVICE_STACK
+    select USB_CDC_ACM
     default n

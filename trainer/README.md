@@ -21,7 +21,7 @@ namespace (`worker.mjs`, `wrangler.toml`); the local `python3 -m http.server` co
 `keymap.js` is generated from the firmware keymap (`firmware/config/toucan.keymap`):
 `node gen.mjs <corpus_dir>` (corpus_dir = folder with local_en.txt / local_fr.txt and, if present, local_fr_restored.txt from layout-optimizer). Rerun after changing the keymap.
 
-**Live feed.** `Live feed` connects the left half's key-feed serial port over USB (Chrome WebSerial, page must be on 127.0.0.1 or https).
+**Live feed.** `Live feed` connects the left half's key-feed serial port over USB (cable in) (Chrome WebSerial, page must be on 127.0.0.1 or https).
 The board then mirrors the real keyboard: keys light as they are pressed on either half, held layers and the sticky accent
 layers show at once, and a wrong character marks the key you actually hit. The left half has two serial ports with the same
 name; the feed is the first one (lower ttyACM number). If nothing lights when you press a key, disconnect and pick the other.
