@@ -49,10 +49,12 @@ The ports are root-only until `sudo chmod a+rw /dev/ttyACM*` (or a udev rule for
   profile, then pair from the computer ("Toucan", Just Works, no code). USB/BLE (X on that layer) picks the output when
   both are connected; BTclr (apostrophe) forgets the current profile. Paired on 2026-10-20 with the NixOS desktop,
   an Android phone, a Windows laptop and a NixOS ThinkPad.
-- If pairing fails: clear the profile (BTclr) and remove the keyboard on the computer, then try again from the
-  computer's Bluetooth GUI and accept its prompt. After several failed attempts the keyboard may stop advertising
-  until it is switched off and on. Scripted `bluetoothctl pair` on the desktop's Realtek dongle failed the Secure
-  Connections key check every time; the GUI route worked once the keyboard had been fully reset.
+- If pairing fails: remove the keyboard on the computer, clear the profile on the keyboard (BTclr), then pair again
+  from the computer's Bluetooth GUI and accept its prompt. After several failed attempts the keyboard may stop
+  advertising until it is switched off and on. Mind the two innermost right-hand keys on ADJ: period (home row) is
+  profile 0, apostrophe (below it) is BTclr and wipes the active profile's bond.
+- `CONFIG_BT_SMP_ALLOW_UNAUTH_OVERWRITE` implies `ZMK_BLE_PASSKEY_ENTRY` in ZMK v0.3 (hosts then ask for a code to be
+  typed on the keyboard, and BlueZ's passkey path fails); `toucan_left.conf` sets passkey entry off explicitly.
 - The Prospector status broadcast (`CONFIG_ZMK_STATUS_ADVERTISEMENT`) stays off on this ZMK line: the module's legacy
   advertising fights ZMK's own and hosts cannot pair while it runs. `../scanner/` is built but not in use.
 
