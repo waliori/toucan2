@@ -8,9 +8,11 @@ profiles). No dongle is needed; the Prospector runs the separate listener firmwa
 - `config/toucan_left.conf`, `config/toucan_right.conf` — per-half options (sleep, battery, macro timing, status
   advertisement for the Prospector). The matrix, trackpad and nice!view come from beekeeb's module (`config/west.yml`).
 - `boards/shields/key_feed/` + `src/key_feed.c` — live key feed: every key position and layer change goes out as a line
-  on a second USB serial port of the left half (`feed: K <pos> <1|0>`, `feed: L <layer> <1|0>`); `trainer/` reads it
-  over WebSerial. Cabled, the left half therefore shows two serial ports: the feed is the first (USB interface 0,
-  e.g. `/dev/ttyACM0`), Studio the second (interface 3). `node studio-rpc/reset.mjs` without a path probes both.
+  on a dedicated USB serial port of the left half (`feed: K <pos> <1|0>`, `feed: L <layer> <1|0>`); `trainer/` reads it
+  over WebSerial. It writes straight to the port, only while something has it open, never through the Zephyr logger
+  (there is no USB logging in this firmware). Cabled, the left half shows two serial ports: the feed is the first
+  (USB interface 0, e.g. `/dev/ttyACM0`), Studio the second (interface 3). `node studio-rpc/reset.mjs` without a
+  path probes both.
 
 ## Build
 
@@ -18,6 +20,11 @@ profiles). No dongle is needed; the Prospector runs the separate listener firmwa
 cd firmware
 nix build            # result/zmk_left.uf2, result/zmk_right.uf2, result/zmk_reset.uf2 (settings reset)
 ```
+
+The flake compiles with **gcc-arm-embedded 12.3** (from nixpkgs nixos-24.05), the compiler generation ZMK v0.3 /
+Zephyr 3.5 is built with upstream. zmk-nix's default GCC 15 produced a firmware whose Bluetooth host link dropped every
+few seconds (HCI 0x28 "instant passed") while beekeeb's stock CI image held; GCC 12 fixed it. Keep it until the halves
+move to a ZMK line that supports newer compilers.
 
 First build downloads Zephyr + the ARM toolchain (slow once, cached after). `out/` keeps a dated copy of each flashed
 build (`result/` is a Nix store symlink and disappears on garbage collection).
@@ -38,8 +45,16 @@ The ports are root-only until `sudo chmod a+rw /dev/ttyACM*` (or a udev rule for
 ## Connect to a computer
 
 - USB cable on the left half: types over USB, charges the half, carries the feed and Studio.
-- Bluetooth: hold both middle thumbs (ADJ layer) and press BT0 to BT4 to choose a profile, then pair from the computer
-  ("Toucan"). USB/BLE on the same layer picks the output when both are connected; BTclr forgets the current profile.
+- Bluetooth: hold both middle thumbs (ADJ layer) and press BT0 to BT4 (right home row: period, A, E, I, H) to choose a
+  profile, then pair from the computer ("Toucan", Just Works, no code). USB/BLE (X on that layer) picks the output when
+  both are connected; BTclr (apostrophe) forgets the current profile. Paired on 2026-10-20 with the NixOS desktop,
+  an Android phone, a Windows laptop and a NixOS ThinkPad.
+- If pairing fails: clear the profile (BTclr) and remove the keyboard on the computer, then try again from the
+  computer's Bluetooth GUI and accept its prompt. After several failed attempts the keyboard may stop advertising
+  until it is switched off and on. Scripted `bluetoothctl pair` on the desktop's Realtek dongle failed the Secure
+  Connections key check every time; the GUI route worked once the keyboard had been fully reset.
+- The Prospector status broadcast (`CONFIG_ZMK_STATUS_ADVERTISEMENT`) stays off on this ZMK line: the module's legacy
+  advertising fights ZMK's own and hosts cannot pair while it runs. `../scanner/` is built but not in use.
 
 ## OS side
 

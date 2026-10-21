@@ -3,20 +3,26 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Zephyr 3.5 (ZMK v0.3) is built upstream with the Zephyr SDK's GCC 12; current nixpkgs only has 13-15
+    nixpkgs-gcc12.url = "github:NixOS/nixpkgs/nixos-24.05";
     zmk-nix = {
       url = "github:lilyinstarlight/zmk-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, zmk-nix }: let
+  outputs = { self, nixpkgs, nixpkgs-gcc12, zmk-nix }: let
     forAllSystems = nixpkgs.lib.genAttrs (nixpkgs.lib.attrNames zmk-nix.packages);
+    buildersFor = system: zmk-nix.lib.buildersFor (import nixpkgs {
+      inherit system;
+      overlays = [ (final: prev: { gcc-arm-embedded = nixpkgs-gcc12.legacyPackages.${system}.gcc-arm-embedded-12; }) ];
+    });
   in {
     packages = forAllSystems (system: rec {
       default = firmware;
 
       # nix build  ->  result/zmk_left.uf2, result/zmk_right.uf2 (flash these) and result/zmk_reset.uf2 (settings reset)
-      firmware = zmk-nix.legacyPackages.${system}.buildSplitKeyboard {
+      firmware = (buildersFor system).buildSplitKeyboard {
         name = "toucan2-firmware";
         src = nixpkgs.lib.sourceFilesBySuffices self [ ".board" ".c" ".cmake" "CMakeLists.txt" "Kconfig" ".conf" ".defconfig" ".dts" ".dtsi" ".json" ".keymap" ".overlay" ".shield" ".yml" "_defconfig" ];
 
