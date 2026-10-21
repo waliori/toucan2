@@ -55,8 +55,9 @@ The ports are root-only until `sudo chmod a+rw /dev/ttyACM*` (or a udev rule for
   profile 0, apostrophe (below it) is BTclr and wipes the active profile's bond.
 - `CONFIG_BT_SMP_ALLOW_UNAUTH_OVERWRITE` implies `ZMK_BLE_PASSKEY_ENTRY` in ZMK v0.3 (hosts then ask for a code to be
   typed on the keyboard, and BlueZ's passkey path fails); `toucan_left.conf` sets passkey entry off explicitly.
-- The Prospector status broadcast (`CONFIG_ZMK_STATUS_ADVERTISEMENT`) stays off on this ZMK line: the module's legacy
-  advertising fights ZMK's own and hosts cannot pair while it runs. `../scanner/` is built but not in use.
+- The Prospector runs `../scanner/` and shows the keyboard's status from the left half's broadcast
+  (`CONFIG_ZMK_STATUS_ADVERTISEMENT=y`). The broadcast can disturb pairing of a new host on this ZMK line: pair
+  with it switched off if a new host refuses, then switch it back on. Already-bonded hosts reconnect fine with it.
 
 ## OS side
 
