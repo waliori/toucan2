@@ -4,173 +4,225 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Walid layout trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <script src="keymap.js"></script>
 <style>
   :root {
-    --bg: #0e1217; --panel: #131920; --key: #212a35; --key-edge: #2d3844; --key-hi: #2c3745;
-    --ink: #d9e0e8; --ink-dim: #6d7987; --ink-faint: #3b4652;
-    --next: #f3b53f; --ok: #9ad39a; --err: #e46f79; --cur: #f3b53f;
+    --bg: #101113; --surface: #17181b; --raise: #1d1f23; --line: #26282d; --ink: #ecebe7; --dim: #8f9197; --pending: #7f8188; --faint: #45474d;
+    --key: #18191c; --keyline: #2a2c31; --key-trans: #141518; --accent: #f0b44c; --accent-ink: #1a1203; --accent-soft: rgba(240,180,76,.16);
+    --ok: #8fcf9a; --err: #ef7a80; --err-bg: rgba(239,122,128,.14); --scrim: rgba(0,0,0,.5); --shadow: 0 18px 50px rgba(0,0,0,.28);
     --l1: #6db3ef; --l2: #c38cf7; --l3: #ffa657; --l4: #7fd7c4; --l5: #f28cb0;
-    --key-trans: #171d25; --key-trans-edge: #222b35; --next-fill: #3a3020; --next-ink: #fff;
-    --mono: "JetBrains Mono", "Fira Code", "Cascadia Mono", ui-monospace, Menlo, Consolas, monospace;
-    --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "Geist Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: Geist, Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
+  :root.light, :root:not(.dark) .light-vars { }
+  @media (prefers-color-scheme: light) { :root:not(.dark) { --bg: #f5f3ee; --surface: #ffffff; --raise: #faf8f4; --line: #e3dfd6; --ink: #1c1b19; --dim: #66635d; --pending: #8a867e; --faint: #c4bfb4; --key: #ebe8e1; --keyline: #d6d1c6; --key-trans: #f1eee8; --accent: #9a6400; --accent-ink: #ffffff; --accent-soft: rgba(201,138,18,.16); --ok: #2f7d44; --err: #c23a44; --err-bg: rgba(194,58,68,.1); --scrim: rgba(40,35,25,.18); --shadow: 0 18px 50px rgba(40,35,25,.18); --l1: #2b7cc4; --l2: #8a4fd0; --l3: #c56a12; --l4: #1f8f78; --l5: #c4437a; } }
+  :root.light { --bg: #f5f3ee; --surface: #ffffff; --raise: #faf8f4; --line: #e3dfd6; --ink: #1c1b19; --dim: #66635d; --pending: #8a867e; --faint: #c4bfb4; --key: #ebe8e1; --keyline: #d6d1c6; --key-trans: #f1eee8; --accent: #9a6400; --accent-ink: #ffffff; --accent-soft: rgba(201,138,18,.16); --ok: #2f7d44; --err: #c23a44; --err-bg: rgba(194,58,68,.1); --scrim: rgba(40,35,25,.18); --shadow: 0 18px 50px rgba(40,35,25,.18); --l1: #2b7cc4; --l2: #8a4fd0; --l3: #c56a12; --l4: #1f8f78; --l5: #c4437a; }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); display: flex; flex-direction: column; min-height: 100vh; }
-  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-  dialog { max-width: 30rem; padding: 18px 22px; background: var(--panel); color: var(--ink); border: 1px solid var(--key-edge); border-radius: 10px; }
-  dialog::backdrop { background: rgba(0, 0, 0, .55); }
-  dialog p { margin: 0 0 14px; }
-  dialog form button, dialog .row button, dialog .row label { padding: 6px 16px; border-radius: 6px; border: 1px solid var(--key-edge); background: var(--key); cursor: pointer; }
-  dialog .row { display: flex; gap: 8px; justify-content: end; margin-top: 14px; }
-  #stats { width: min(64rem, 94vw); max-width: none; max-height: 90vh; overflow: auto; }
-  #stats h3 { font-size: 13px; font-weight: 500; color: var(--ink-dim); margin: 18px 0 8px; }
-  #stats .cols { display: flex; gap: 12px 36px; flex-wrap: wrap; align-items: flex-start; }
-  #stats .cols > section, #stats .cols > div { flex: 1 1 320px; min-width: 0; }
-  #stats [data-sec="board"] .chart { max-width: 820px; }
-  #stats .bigs { display: flex; gap: 10px 28px; flex-wrap: wrap; }
-  #stats .big b { display: block; font-size: 26px; font-weight: 600; line-height: 1.1; } #stats .big span { color: var(--ink-dim); font-size: 12px; }
-  .chart { max-width: 100%; height: auto; display: block; overflow: visible; }
-  .chart .grid { stroke: var(--key-edge); }
-  .chart .ax { fill: var(--ink-dim); font: 10px var(--mono); text-anchor: end; dominant-baseline: central; } .chart .ax.l { text-anchor: start; } .chart .ax.c { text-anchor: middle; }
-  .chart .lbl { fill: var(--ink); font: 12px var(--mono); dominant-baseline: central; } .chart .lbl.c { text-anchor: middle; }
-  .chart .tgt { stroke: var(--next); stroke-dasharray: 2 4; } .chart .tgtl { fill: var(--next); }
-  .chart .acc { fill: none; stroke: var(--ink-dim); stroke-dasharray: 3 3; } .chart .avg { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-  .chart circle:hover, .chart rect[data-tip]:hover, .chart g[data-tip]:hover rect { stroke: var(--ink); stroke-width: 1.5; }
-  .chart .day.today { stroke: var(--next); }
-  .chart.kb rect { stroke: var(--key-edge); stroke-width: 2; } .chart.kb text { fill: var(--ink); font: 28px var(--sans); text-anchor: middle; dominant-baseline: central; pointer-events: none; } .chart.kb text.v { font: 20px var(--mono); fill: var(--ink-dim); }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0 0 8px; } .chips .gap { flex: 1; }
-  .chip { padding: 2px 9px; border-radius: 999px; border: 1px solid var(--key-edge); color: var(--ink-dim); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
-  .chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; } .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--next); }
-  #stats .legend, #stats .empty { color: var(--ink-dim); font-size: 12px; margin: 4px 0 0; }
-  .lessons { display: flex; gap: 6px; flex-wrap: wrap; } .lcell { width: 44px; padding: 4px 0; text-align: center; border: 1px solid var(--key-edge); border-radius: 6px; font-size: 13px; }
-  .lcell small { display: block; color: var(--next); font-size: 9px; letter-spacing: 1px; min-height: 13px; }
-  #tip { position: fixed; z-index: 9; pointer-events: none; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 5px; font: 12px var(--mono); white-space: nowrap; }
-  #hint .replay { display: block; margin-top: 4px; font-size: 13px; }
-  #hint .replay b { color: var(--err); font-weight: 500; }
-  #time.paused { color: var(--ink-dim); }
-  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--next); outline-offset: 2px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; padding: 0; }
+  button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  kbd { font: 500 11px var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; color: var(--dim); white-space: nowrap; }
+  [hidden] { display: none !important; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes slidein { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-  header { display: grid; grid-template-columns: auto 1fr; align-items: center; padding: 14px 28px 0; gap: 10px 20px; }
-  .modes { grid-column: 1 / -1; grid-row: 1; }
-  .stats, .tools { grid-row: 2; }
-  .stats { font-family: var(--mono); font-size: 14px; color: var(--ink-dim); display: flex; gap: 18px; flex-wrap: wrap; }
-  .stats b { color: var(--ink); font-weight: 500; }
-  .modes { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-  .modes button { padding: 6px 12px; border-radius: 6px; color: var(--ink-dim); border: 1px solid transparent; }
-  .modes button[aria-pressed="true"] { color: var(--ink); background: var(--panel); border-color: var(--key-edge); }
-  .tools { display: flex; gap: 6px; justify-content: end; flex-wrap: wrap; }
-  .tools button, .tools label { padding: 6px 10px; border-radius: 6px; color: var(--ink-dim); border: 1px solid var(--key-edge); }
-  .tools button[aria-pressed="true"] { color: var(--ink); border-color: var(--next); }
-  .sub { grid-column: 1 / -1; grid-row: 3; text-align: center; color: var(--ink-dim); font-size: 13px; }
+  /* header */
+  header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; transition: opacity .5s; }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand > span { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand .sl { color: var(--faint); font-weight: 400; }
+  .pop { position: relative; }
+  #mode-btn { display: flex; align-items: center; gap: 8px; padding: 7px 10px 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; }
+  #mode-btn:hover { border-color: var(--faint); }
+  #mode-btn svg { color: var(--dim); }
+  .menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 21; width: 320px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); animation: rise .14s ease-out; }
+  .menu .mg { padding: 10px 10px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .menu button[data-mode] { display: flex; width: 100%; text-align: left; align-items: baseline; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+  .menu button[data-mode]:hover { background: var(--raise); }
+  .menu button[data-mode][aria-pressed="true"] { background: var(--raise); } .menu button[data-mode][aria-pressed="true"] span { color: var(--accent); }
+  .menu button[data-mode] span { font-size: 14px; font-weight: 500; } .menu button[data-mode] small { font-size: 12px; color: var(--dim); flex: 1; }
+  .menu .mf { display: flex; gap: 6px; align-items: center; padding: 10px 10px 4px; border-top: 1px solid var(--line); margin-top: 6px; font-size: 12px; color: var(--dim); }
+  #scrim { position: fixed; inset: 0; z-index: 20; }
+  .grow { flex: 1; }
+  .dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); } .dot i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+  .hb { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 14px; color: var(--dim); }
+  .hb:hover, .hb[aria-expanded="true"] { color: var(--ink); background: var(--surface); } .hb[aria-expanded="true"] { border-color: var(--line); }
 
-  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 28px; gap: 10px; }
-  #lesson-bar { width: min(78ch, 100%); display: flex; justify-content: space-between; align-items: baseline; color: var(--ink-dim); font-size: 13px; }
-  #lesson-bar .letters { font-family: var(--mono); letter-spacing: .12em; color: var(--ink); }
-  #progress { width: min(78ch, 100%); height: 3px; background: var(--ink-faint); border-radius: 2px; overflow: hidden; }
-  #progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .15s; }
-  #text { width: min(78ch, 100%); font-family: var(--mono); font-size: 26px; line-height: 1.75; color: var(--ink-faint); white-space: pre-wrap; word-break: break-word; min-height: 3.5em; outline: 0; }
-  #text span { border-radius: 3px; }
-  #text .ok { color: var(--ink); }
-  #text .err { color: var(--err); background: rgba(228,111,121,.14); }
-  #text .cur { box-shadow: inset 0 -3px 0 var(--cur); color: var(--ink-dim); }
-  #text.done .cur { box-shadow: none; }
-  #hint { min-height: 1.4em; color: var(--ink-dim); font-size: 14px; text-align: center; }
-  #hint .stars { color: var(--next); letter-spacing: .1em; font-size: 18px; vertical-align: -2px; margin-right: 8px; }
-  #hint .weak { color: var(--err); }
-  #lesson-map { width: min(78ch, 100%); display: flex; gap: 4px; flex-wrap: wrap; }
-  #lesson-map button { flex: 1; min-width: 46px; padding: 4px 2px; border-radius: 6px; border: 1px solid var(--key-edge); color: var(--ink-dim); font: 11px/1.3 var(--mono); }
-  #lesson-map button[aria-current="true"] { border-color: var(--next); color: var(--ink); }
-  #lesson-map button.done { color: var(--ok); border-color: var(--ok); }
-  #lesson-map button b { color: var(--next); font-weight: 400; }
-  #spark { vertical-align: middle; margin-left: 6px; }
-  #targetbox { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; }
-  #target { width: 90px; accent-color: var(--next); }
-  #targetn { width: 4ch; font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--key-edge); text-align: right; -moz-appearance: textfield; }
+  /* settings */
+  #settings { position: absolute; top: calc(100% + 8px); right: 0; z-index: 21; width: 360px; max-height: calc(100vh - 90px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); animation: rise .14s ease-out; }
+  #settings section { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line); } #settings section:last-child { border-bottom: 0; }
+  #settings h4 { margin: 0; font-size: 11px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .rowf { display: flex; align-items: center; gap: 12px; } .rowf > .t { flex: 1; min-width: 0; font-size: 14px; } .rowf small, .col small, .note { display: block; font-size: 12px; color: var(--dim); text-wrap: pretty; }
+  .col { display: flex; flex-direction: column; gap: 8px; } .col > .t { font-size: 14px; }
+  .switch { width: 38px; height: 22px; border-radius: 11px; padding: 2px; background: var(--line); display: flex; justify-content: flex-start; transition: background .12s; }
+  .switch i { width: 18px; height: 18px; border-radius: 50%; background: var(--dim); } .switch[aria-pressed="true"] { background: var(--accent); justify-content: flex-end; } .switch[aria-pressed="true"] i { background: var(--accent-ink); }
+  .seg { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 2px; padding: 2px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); }
+  .seg button { padding: 6px 0; border-radius: 6px; font-size: 13px; color: var(--dim); } .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+  #settings select, .in { padding: 6px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); font-size: 13px; }
+  #targetn { width: 56px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); text-align: right; font: 500 13px var(--mono); -moz-appearance: textfield; }
   #targetn::-webkit-inner-spin-button, #targetn::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .tools select { font: inherit; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--key-edge); border-radius: 6px; padding: 5px 6px; }
-  #hint b { color: var(--next); font-weight: 500; }
-  #paste { display: none; width: min(78ch, 100%); min-height: 120px; background: var(--panel); color: var(--ink); border: 1px solid var(--key-edge); border-radius: 8px; padding: 12px; font: 15px/1.5 var(--mono); }
+  #target { width: 100%; accent-color: var(--accent); }
+  .btn { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--raise); font-size: 13px; } .btn:hover { border-color: var(--faint); }
+  .btn.ghost { background: transparent; color: var(--dim); }
+  .primary { padding: 7px 14px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 500; }
+  #sync-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+  #sync-code { width: 100%; padding: 7px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); font: 12px var(--mono); letter-spacing: .02em; }
+  #sync-panel .btns { display: flex; gap: 6px; justify-content: flex-end; }
 
-  footer { padding: 0 28px 22px; }
-  #board-wrap { position: relative; max-width: 1180px; margin: 0 auto; }
-  #layer-tag { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 13px; letter-spacing: .08em; color: var(--ink-dim); display: flex; gap: 14px; align-items: center; }
-  #layer-tag .name { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--key-edge); color: var(--ink); transition: background .12s, color .12s, border-color .12s; }
-  #layer-tag .name.l1 { background: var(--l1); color: #06202f; border-color: var(--l1); }
-  #layer-tag .name.l2 { background: var(--l2); color: #230b3a; border-color: var(--l2); }
-  #layer-tag .name.l3 { background: var(--l3); color: #3a1c00; border-color: var(--l3); }
-  #layer-tag .name.l4 { background: var(--l4); color: #003a2f; border-color: var(--l4); }
-  #layer-tag .name.l5 { background: var(--l5); color: #3a0a1c; border-color: var(--l5); }
-  #layer-tag .mods span { opacity: .35; margin-left: 6px; }
-  #layer-tag .mods span.on { opacity: 1; color: var(--ink); }
-  svg { width: 100%; height: auto; display: block; }
-  .key rect { fill: var(--key); stroke: var(--key-edge); stroke-width: 2; transition: fill .08s, stroke .08s; }
-  .key text { fill: var(--ink); font-family: var(--sans); font-size: 30px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-  .key text.small { font-size: 22px; }
-  .key.trans rect { fill: var(--key-trans); stroke: var(--key-trans-edge); }
-  .key.trans text { fill: var(--ink-faint); }
-  .key.next rect { stroke: var(--next); stroke-width: 4; fill: var(--next-fill); }
-  .key.next text { fill: var(--next-ink); }
-  .key.down rect { fill: var(--next); stroke: var(--next); }
-  .key.down text { fill: #1a1200; }
+  /* main */
+  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 28px 20px; }
+  .wrap { width: 100%; max-width: 960px; display: flex; flex-direction: column; gap: 18px; }
+  #lesson-map { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; transition: opacity .5s; }
+  #lesson-map button { display: flex; flex-direction: column; gap: 7px; padding: 0 0 4px; text-align: left; }
+  #lesson-map button:hover { opacity: .8; }
+  #lesson-map i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
+  #lesson-map span { display: flex; align-items: baseline; gap: 8px; font: 500 11px var(--mono); color: var(--dim); } #lesson-map b { color: var(--accent); letter-spacing: .05em; font-weight: 400; }
+  #lesson-map button.some i { background: var(--dim); } #lesson-map button.done i { background: var(--ink); } #lesson-map button.done span { color: var(--ink); }
+  #lesson-map button[aria-current="true"] i { background: var(--accent); } #lesson-map button[aria-current="true"] span { color: var(--accent); }
+  .head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .head .ttl { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+  #lesson-name { font-size: 15px; font-weight: 500; white-space: nowrap; } #lesson-sub { font-size: 14px; color: var(--dim); }
+  #lesson-letters kbd { font: 500 13px var(--mono); padding: 1px 7px; border: 0; border-radius: 5px; background: var(--accent-soft); color: var(--accent); margin-right: 4px; }
+  .live { display: flex; gap: 18px; font: 400 14px var(--mono); color: var(--dim); } .live b { color: var(--ink); font-weight: 500; } #time.paused { color: var(--faint); }
+  #progress { height: 2px; border-radius: 2px; background: var(--line); overflow: hidden; } #progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .15s; }
+  #paste { width: 100%; min-height: 110px; padding: 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font: 15px/1.5 var(--mono); resize: vertical; color: var(--ink); }
+  #text { font: 400 clamp(22px, 2.7vw, 32px)/1.75 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--pending); min-height: 5.25em; letter-spacing: .005em; cursor: text; outline: 0; }
+  #text span { border-radius: 3px; } #text .ok { color: var(--ink); } #text .err { color: var(--err); background: var(--err-bg); } #text .cur { color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); } #text.done .cur { box-shadow: none; }
+  #hint { min-height: 28px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; color: var(--dim); flex-wrap: wrap; }
+  #hint b { color: var(--ink); font-weight: 500; } #hint kbd { font: 500 15px var(--mono); min-width: 28px; text-align: center; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--accent); color: var(--accent); }
+  #result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 4px; animation: rise .25s ease-out; }
+  #result .nums { display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  #result .nums > div { display: flex; flex-direction: column; align-items: center; gap: 2px; } #result .nums b { font: 500 52px/1 var(--mono); letter-spacing: -.02em; } #result .nums span { font-size: 13px; color: var(--dim); }
+  #result .nums b.stars { font: 400 30px/1 var(--sans); letter-spacing: .12em; color: var(--accent); padding-bottom: 8px; }
+  #result .pb { font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  #result .line { display: flex; align-items: baseline; gap: 8px 14px; flex-wrap: wrap; justify-content: center; font-size: 14px; color: var(--dim); max-width: 720px; } #result .line.dim { font-size: 13px; }
+  #result .wk { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line); font-family: var(--mono); } #result .wk b { color: var(--ink); font-weight: 500; } #result .wk i { font-style: normal; font-size: 12px; color: var(--err); }
+  #result .missed span { font-family: var(--mono); } #result .missed b { color: var(--ink); font-weight: 500; } #result .missed i { font-style: normal; color: var(--err); } #result .missed small { color: var(--faint); }
+  #result .btns { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  #result .btns button { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 9px; font-size: 14px; }
+  #result .btns .primary kbd { border: 0; background: rgba(0,0,0,.14); color: inherit; } #result .btns #restart { border: 1px solid var(--line); color: var(--dim); } #result .btns #restart:hover { color: var(--ink); } #result #restart kbd { border: 0; }
+
+  /* board */
+  footer { padding: 0 28px 26px; }
+  #board-wrap { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  #layer-tag { display: flex; align-items: center; gap: 12px; font: 500 12px var(--mono); letter-spacing: .06em; }
+  #layer-tag .name { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); transition: background .12s, color .12s, border-color .12s; }
+  #layer-tag .name.l1 { background: var(--l1); border-color: var(--l1); color: var(--bg); } #layer-tag .name.l2 { background: var(--l2); border-color: var(--l2); color: var(--bg); } #layer-tag .name.l3 { background: var(--l3); border-color: var(--l3); color: var(--bg); } #layer-tag .name.l4 { background: var(--l4); border-color: var(--l4); color: var(--bg); } #layer-tag .name.l5 { background: var(--l5); border-color: var(--l5); color: var(--bg); }
+  #layer-tag .mods span { color: var(--faint); margin-left: 6px; } #layer-tag .mods span.on { color: var(--ink); }
+  #board { width: 100%; height: auto; display: block; }
+  .key rect { fill: var(--key); stroke: var(--keyline); stroke-width: 1.5; transition: fill .1s, stroke .1s; }
+  .key text { fill: var(--ink); font-family: var(--sans); font-size: 28px; font-weight: 500; text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill .1s; }
+  .key text.small { font-size: 19px; }
+  .key.trans rect { fill: var(--key-trans); stroke: var(--line); } .key.trans text { fill: var(--faint); }
+  .key.next rect { stroke: var(--accent); stroke-width: 3.5; fill: var(--accent-soft); } .key.next text { fill: var(--accent); }
+  .key.down rect { fill: var(--accent); stroke: var(--accent); } .key.down text { fill: var(--accent-ink); }
   .key.down.wrong rect { fill: var(--err); stroke: var(--err); }
   .key.heat rect { stroke: var(--err); }
   .fdot { opacity: .9; }
-  #empty { color: var(--ink-dim); text-align: center; }
-  @media (max-width: 800px) { header { grid-template-columns: 1fr; } .tools, .modes { justify-content: start; } #text { font-size: 20px; } }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-  @media (prefers-color-scheme: light) {
-    :root { --bg: #f3f4f6; --panel: #ffffff; --key: #e4e8ee; --key-edge: #c5cdd8; --key-hi: #d6dce5; --ink: #1b222b; --ink-dim: #5a6573; --ink-faint: #aeb7c2;
-      --key-trans: #edf0f3; --key-trans-edge: #dde2e8; --next-fill: #fff0c8; --next-ink: #1b222b; --next: #d9930f; --cur: #d9930f; }
-    dialog::backdrop { background: rgba(0, 0, 0, .3); }
-  }
+
+  /* shortcuts */
+  .shortcuts { display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap; padding: 0 28px 18px; font-size: 12px; color: var(--dim); transition: opacity .5s; pointer-events: none; }
+  .shortcuts span { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+  body.zen header, body.zen #lesson-map { opacity: .12; } body.zen .shortcuts { opacity: 0; }
+
+  /* stats drawer */
+  dialog { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+  dialog::backdrop { background: var(--scrim); }
+  #nofeed { max-width: 30rem; padding: 18px 22px; border-radius: 10px; } #nofeed p { margin: 0 0 14px; } #nofeed form { display: flex; justify-content: end; }
+  #stats { position: fixed; top: 0; right: 0; bottom: 0; left: auto; margin: 0; width: min(600px, 100vw); max-width: none; height: 100vh; max-height: none; padding: 0; border-width: 0 0 0 1px; display: flex; flex-direction: column; animation: slidein .2s ease-out; }
+  #stats:not([open]) { display: none; }
+  #stats .top { display: flex; align-items: center; gap: 12px; padding: 18px 22px 0; } #stats .top b { font-size: 17px; font-weight: 600; flex: 1; }
+  #stats-close { padding: 4px 10px; border-radius: 7px; border: 1px solid var(--line); font: 500 11px var(--mono); color: var(--dim); }
+  #tabs { display: flex; gap: 4px; padding: 14px 22px 0; border-bottom: 1px solid var(--line); }
+  #tabs button { padding: 8px 12px 10px; font-size: 14px; color: var(--dim); } #tabs button[aria-pressed="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); }
+  #stats-body { flex: 1; overflow: auto; padding: 22px; } #stats-body [data-tab] { display: flex; flex-direction: column; gap: 28px; }
+  #stats h3 { margin: 0 0 10px; font-size: 14px; font-weight: 500; display: flex; align-items: baseline; gap: 10px; } #stats h3 span { font-size: 12px; font-weight: 400; color: var(--dim); flex: 1; text-align: right; }
+  #stats .bigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 12px; }
+  #stats .big b { display: block; font: 500 28px/1.1 var(--mono); } #stats .big span { font-size: 12px; color: var(--dim); }
+  #stats .row { display: flex; justify-content: flex-end; }
+  #stats .bottom { display: flex; gap: 8px; padding: 14px 22px; border-top: 1px solid var(--line); }
+  .chart { max-width: 100%; height: auto; display: block; overflow: visible; }
+  .chart .grid { stroke: var(--line); }
+  .chart .ax { fill: var(--dim); font: 10px var(--mono); text-anchor: end; dominant-baseline: central; } .chart .ax.l { text-anchor: start; } .chart .ax.c { text-anchor: middle; }
+  .chart .lbl { fill: var(--ink); font: 12px var(--mono); dominant-baseline: central; } .chart .lbl.c { text-anchor: middle; }
+  .chart .tgt { stroke: var(--accent); stroke-dasharray: 3 4; } .chart .tgtl { fill: var(--accent); }
+  .chart .acc { fill: none; stroke: var(--dim); stroke-dasharray: 3 3; } .chart .avg { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .chart circle:hover, .chart rect[data-tip]:hover, .chart g[data-tip]:hover rect { stroke: var(--ink); stroke-width: 1.5; }
+  .chart .day.today { stroke: var(--accent); }
+  .chart.kb rect { stroke: var(--keyline); stroke-width: 1.5; } .chart.kb text { fill: var(--ink); font: 500 28px var(--sans); text-anchor: middle; dominant-baseline: central; pointer-events: none; } .chart.kb text.v { font: 18px var(--mono); fill: var(--dim); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0 0 10px; } .chips .gap { flex: 1; }
+  .chip { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; } .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
+  #stats .legend, #stats .empty { color: var(--dim); font-size: 12px; margin: 6px 0 0; }
+  .lessons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .lcell { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); text-align: left; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lcell small { font: 500 12px var(--mono); color: var(--dim); } .lcell b { font-size: 11px; color: var(--accent); letter-spacing: .08em; min-height: 14px; font-weight: 400; } .lcell[aria-current="true"] { border-color: var(--accent); }
+  #tip { position: fixed; z-index: 40; pointer-events: none; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 5px; font: 12px var(--mono); white-space: nowrap; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (max-width: 800px) { header, main, footer, .shortcuts { padding-left: 16px; padding-right: 16px; } #settings { width: min(360px, calc(100vw - 32px)); } #lesson-map { grid-template-columns: repeat(5, minmax(0, 1fr)); } .menu { width: min(320px, calc(100vw - 32px)); } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <header>
-  <div class="stats">
-    <div>Accuracy <b id="acc">–</b></div>
-    <div>Speed <b id="wpm">0</b> wpm</div>
-    <div>Time <b id="time">00:00</b></div>
-    <div>Streak <b id="streak">0</b> d · <b id="today">0</b> min today<svg id="spark" width="110" height="22" aria-label="Speed history"></svg></div>
+  <div class="brand"><span>toucan</span><span class="sl">/</span>
+    <div class="pop">
+      <button id="mode-btn" aria-expanded="false" aria-haspopup="menu"><span id="mode-name">Lessons</span><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <div id="mode-menu" class="menu" hidden></div>
+    </div>
   </div>
-  <nav class="modes" aria-label="Training mode">
-    <button data-mode="lesson" aria-pressed="true">Lessons</button>
-    <button data-mode="words-en" aria-pressed="false">English words</button>
-    <button data-mode="words-fr" aria-pressed="false">French words</button>
-    <button data-mode="words-mix" aria-pressed="false">Mixed</button>
-    <button data-mode="layers" aria-pressed="false">Numbers &amp; symbols</button>
-    <button data-mode="sentences" aria-pressed="false">Sentences</button>
-    <button data-mode="weak" aria-pressed="false" title="Drill built from your slowest letter pairs">Weak pairs</button>
-    <button data-mode="burst" aria-pressed="false" title="30 seconds, as fast as you can">Speed burst</button>
-    <button data-mode="text" aria-pressed="false">Your text</button>
-  </nav>
-  <div class="tools">
-    <button id="prev" title="Previous lesson">‹ lesson</button>
-    <button id="nextl" title="Next lesson">lesson ›</button>
-    <button id="heat" aria-pressed="false" title="Show your error heat map on the board">Errors on board</button>
-    <button id="mastery" aria-pressed="false" title="Colour each key by how well you know it (red = new, green = at target speed)">Mastery on board</button>
-    <button id="hints" aria-pressed="true" title="Auto: a key keeps its label and immediate highlight while you learn it; once known, its label disappears and the hint comes only after a 1 s hesitation. Always: full labels.">Hints: auto</button>
-    <button id="boardbtn" aria-pressed="true" title="Show or hide the keyboard (Ctrl+B)">Board: shown</button>
-    <button id="sound" aria-pressed="false" title="Short click on every mistake">Sound</button>
-    <button id="statsbtn" title="Your statistics, export and import (Ctrl+I)">Stats</button>
-    <label id="targetbox" title="Target speed: a key counts as learned when you type it this fast with 95%+ accuracy. Drag, or type any value."><input type="range" id="target" min="15" max="300" step="1"> <input type="number" id="targetn" min="15" max="999"> wpm</label>
-    <select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select>
-    <button id="restart" title="New text (Esc)">New text</button>
-    <button id="sync" aria-pressed="false" title="Sync your progress between devices with a secret code (see README)">Sync</button>
-    <button id="feed" aria-pressed="false" title="Connect the keyboard's key-feed serial port (left half on USB): the board then shows the real keys and layers as you press them (Chrome, WebSerial)">Live feed</button>
+  <div class="grow"></div>
+  <span class="dot" id="feed-dot" hidden><i></i>Live feed</span>
+  <span class="dot" id="sync-dot" hidden><i></i>Synced</span>
+  <button class="hb" id="statsbtn" title="Statistics (Ctrl+I)"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 13V8M8 13V3M13 13V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Stats</span></button>
+  <div class="pop">
+    <button class="hb" id="settings-btn" aria-expanded="false" title="Settings (Ctrl+,)"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M2 5h7M12 5h2M2 11h2M7 11h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10.5" cy="5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="11" r="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Settings</span></button>
+    <div id="settings" hidden>
+      <section>
+        <h4>Keyboard</h4>
+        <div class="rowf"><div class="t">Show keyboard<small>Ctrl+B</small></div><button class="switch" id="boardbtn" aria-pressed="true" aria-label="Show keyboard"><i></i></button></div>
+        <div class="col"><div class="t">Colour keys by</div><div class="seg" id="overlay"><button type="button" data-v="none">Nothing</button><button type="button" data-v="errors" id="heat">Errors</button><button type="button" data-v="mastery" id="mastery">Mastery</button></div></div>
+        <div class="col"><div class="t">Hints</div><div class="seg" id="hintseg"><button type="button" data-v="auto">Auto</button><button type="button" data-v="always" id="hints">Always</button></div><small id="hint-desc"></small></div>
+        <div class="rowf"><div class="t">Layout</div><select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select></div>
+      </section>
+      <section>
+        <h4>Practice</h4>
+        <div class="col"><div class="rowf"><div class="t">Target speed</div><input type="number" id="targetn" min="15" max="999"><small>wpm</small></div><input type="range" id="target" min="15" max="150" step="1"><small>A key counts as learned at this speed with 95%+ accuracy.</small></div>
+        <div class="rowf"><div class="t">Click on mistakes</div><button class="switch" id="sound" aria-pressed="false" aria-label="Click on mistakes"><i></i></button></div>
+        <div class="rowf"><div class="t">Appearance</div><div class="seg" id="themeseg" style="width:190px"><button type="button" data-v="auto">Auto</button><button type="button" data-v="dark">Dark</button><button type="button" data-v="light">Light</button></div></div>
+      </section>
+      <section>
+        <h4>Devices</h4>
+        <div class="rowf"><div class="t">Sync<small id="sync-status"></small></div><button class="btn" id="sync">Set up</button></div>
+        <div id="sync-panel" hidden>
+          <small>Paste this code on your other device. Keep it private: anyone with it can read and overwrite your progress.</small>
+          <input id="sync-code" spellcheck="false" autocomplete="off">
+          <div class="btns"><button class="btn ghost" id="unlink" hidden>Unlink</button><button class="btn ghost" id="copy-sync">Copy</button><button class="primary" id="link-sync">Link device</button></div>
+        </div>
+        <div class="rowf"><div class="t">Live feed<small id="feed-status">Shows real key presses from the keyboard over USB. Chrome or Edge.</small></div><button class="btn" id="feed" aria-pressed="false">Connect</button></div>
+      </section>
+    </div>
   </div>
-  <div class="sub" id="sub">Type what you read, accuracy first. Backspace fixes a mistake. Enter after a text: next lesson once every key of it is green, otherwise another text. Tab or Esc: new text · Ctrl+←/→ lesson · Ctrl+↑/↓ mode · Ctrl+B board · Ctrl+I stats.</div>
+  <div id="scrim" hidden></div>
 </header>
 
 <main>
-  <div id="lesson-map" aria-label="Lessons"></div>
-  <div id="lesson-bar"><span id="lesson-name"></span><span class="letters" id="lesson-letters"></span></div>
-  <div id="progress"><i></i></div>
-  <div id="text" tabindex="0" aria-label="Text to type"></div>
-  <textarea id="paste" placeholder="Paste or write any text here, then click outside the box and start typing."></textarea>
-  <div id="hint"></div>
+  <div class="wrap">
+    <div id="lesson-map" aria-label="Lessons"></div>
+    <div class="head">
+      <div class="ttl"><span id="lesson-name"></span><span id="lesson-sub"></span><span id="lesson-letters"></span></div>
+      <div class="live"><span><b id="wpm">0</b> wpm</span><span><b id="acc">–</b></span><span id="time">00:00</span></div>
+    </div>
+    <div id="progress"><i></i></div>
+    <textarea id="paste" hidden placeholder="Paste or write any text, then click outside and start typing."></textarea>
+    <div id="text" tabindex="0" aria-label="Text to type"></div>
+    <div id="hint"></div>
+    <div id="result" hidden></div>
+  </div>
 </main>
 
 <footer>
@@ -179,16 +231,20 @@
     <svg id="board" viewBox="0 0 1400 460" aria-label="Keyboard"></svg>
   </div>
 </footer>
+<div class="shortcuts"><span><kbd>Esc</kbd>new text</span><span><kbd>Ctrl ←→</kbd>lesson</span><span><kbd>Ctrl ↑↓</kbd>mode</span><span><kbd>Ctrl B</kbd>keyboard</span><span><kbd>Ctrl I</kbd>stats</span><span><kbd>Ctrl ,</kbd>settings</span></div>
+<span class="sr">Streak <b id="streak">0</b> days, <b id="today">0</b> minutes today</span>
 
-<dialog id="stats">
+<dialog id="stats" aria-label="Statistics">
+  <div class="top"><b>Statistics</b><button type="button" id="stats-close">Esc</button></div>
+  <div id="tabs"><button type="button" data-tab="overview" aria-pressed="true">Overview</button><button type="button" data-tab="keys" aria-pressed="false">Keys</button><button type="button" data-tab="pairs" aria-pressed="false">Letter pairs</button><button type="button" data-tab="practice" aria-pressed="false">Practice</button></div>
   <div id="stats-body"></div>
   <div id="tip" hidden></div>
-  <form method="dialog" class="row"><button type="button" id="export">Export progress</button><label>Import<input type="file" id="import" accept="application/json" hidden></label><button>Close</button></form>
+  <div class="bottom"><button type="button" class="btn ghost" id="export">Export progress</button><label class="btn ghost">Import<input type="file" id="import" accept="application/json" hidden></label></div>
 </dialog>
 
 <dialog id="nofeed">
   <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard's USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
-  <form method="dialog"><button>OK</button></form>
+  <form method="dialog"><button class="btn">OK</button></form>
 </dialog>
 
 <script>
@@ -211,6 +267,27 @@
     [...LAYOUTS[layoutId][1]].forEach((ch, i) => { T.layers[0].keys[CORE[i]] = { kind: "key", char: ch, label: ch.toUpperCase(), code: codeOf[ch] }; });
   }
   const LAYER_CLASS = ["", "l1", "l2", "l3", "l4", "l5", "l5", "l5", "l5"];
+  // [id, name, group, description]: the mode menu, Ctrl+arrows order and the stats legend all come from here
+  const MODE_DEFS = [
+    ["lesson", "Lessons", "Learn", "New keys unlock as you master them"], ["weak", "Weak pairs", "Learn", "Your slowest letter pairs"],
+    ["words-en", "English words", "Practice", "From your own writing"], ["words-fr", "French words", "Practice", "From your own writing"],
+    ["words-mix", "Mixed", "Practice", "French and English"], ["sentences", "Sentences", "Practice", "Capitals, punctuation, accents"],
+    ["layers", "Numbers & symbols", "Practice", "NAV and SYM layers"], ["burst", "Speed burst", "Challenge", "30 seconds, flat out"], ["text", "Your text", "Challenge", "Paste anything"],
+  ];
+  const MODES = MODE_DEFS.map((m) => m[0]);
+  const modeName = Object.fromEntries(MODE_DEFS.map((m) => [m[0], m[1]]));
+  const modeDesc = Object.fromEntries(MODE_DEFS.map((m) => [m[0], m[3]]));
+  $("#mode-menu").innerHTML = ["Learn", "Practice", "Challenge"].map((g) => `<div class="mg">${g}</div>` + MODE_DEFS.filter((m) => m[2] === g).map((m) => `<button type="button" data-mode="${m[0]}" aria-pressed="false"><span>${m[1]}</span><small>${m[3]}</small></button>`).join("")).join("") + `<div class="mf"><kbd>Ctrl ↑↓</kbd> cycle modes</div>`;
+  // popovers: mode menu and settings; Esc or a click outside closes them
+  const pops = { modes: $("#mode-menu"), settings: $("#settings") };
+  function openPop(name) { for (const [k, el] of Object.entries(pops)) { el.hidden = k !== name; } $("#mode-btn").setAttribute("aria-expanded", String(name === "modes")); $("#settings-btn").setAttribute("aria-expanded", String(name === "settings")); $("#scrim").hidden = !name; }
+  const closePops = () => openPop(null);
+  $("#mode-btn").addEventListener("click", () => openPop(pops.modes.hidden ? "modes" : null));
+  $("#settings-btn").addEventListener("click", () => openPop(pops.settings.hidden ? "settings" : null));
+  $("#scrim").addEventListener("click", closePops);
+  // focus: while a text is being typed the chrome fades; moving the mouse brings it back
+  const zen = (on) => document.body.classList.toggle("zen", on);
+  document.addEventListener("mousemove", () => zen(false));
   const FINGER = [0,0,1,2,3,3, 4,4,5,6,7,7];            // per column, row keys
   const FINGER_NAME = ["left pinky","left ring","left middle","left index","right index","right middle","right ring","right pinky"];
   const FINGER_COLOR = ["#e8a0bf","#c9a0e8","#a0c4e8","#a0e8d0","#a0e8d0","#a0c4e8","#c9a0e8","#e8a0bf"];
@@ -278,13 +355,20 @@
       const srv = Number(o["toucan.updated"] || 0), loc = Number(localStorage.getItem("toucan.updated") || 0);
       if (force || srv > loc) adopt(o); else if (loc > srv) push(); } catch {} }
   const hex = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
-  $("#sync").setAttribute("aria-pressed", String(!!code));
-  $("#sync").addEventListener("click", () => {
-    const c = prompt("Sync code. Keep it private: anyone with it can read and overwrite your progress.\nCopy it to link another device, or paste the code from another device.", code || hex());
-    if (c === null) return; const v = c.trim().toLowerCase(); if (!/^[a-f0-9]{32}$/.test(v)) return alert("A sync code is 32 hex characters.");
-    if (v === code) return; const fresh = !code; code = v; localStorage.setItem("toucan.sync", code); $("#sync").setAttribute("aria-pressed", "true");
-    pull(!fresh);
+  function paintSync() {
+    $("#sync-status").textContent = code ? `On · ${code.slice(0, 6)}…` : "Off · progress stays on this device";
+    $("#sync").textContent = $("#sync-panel").hidden ? (code ? "Manage" : "Set up") : "Close";
+    $("#sync-dot").hidden = !code; $("#unlink").hidden = !code;
+  }
+  $("#sync").addEventListener("click", () => { const p = $("#sync-panel"); p.hidden = !p.hidden; if (!p.hidden && !$("#sync-code").value) $("#sync-code").value = code || hex(); paintSync(); });
+  $("#copy-sync").addEventListener("click", () => { try { navigator.clipboard.writeText($("#sync-code").value); } catch {} $("#copy-sync").textContent = "Copied"; setTimeout(() => { $("#copy-sync").textContent = "Copy"; }, 1400); });
+  $("#link-sync").addEventListener("click", () => {
+    const v = $("#sync-code").value.trim().toLowerCase(); if (!/^[a-f0-9]{32}$/.test(v)) return alert("A sync code is 32 hex characters.");
+    if (v === code) { $("#sync-panel").hidden = true; paintSync(); return; }
+    const fresh = !code; code = v; localStorage.setItem("toucan.sync", code); $("#sync-panel").hidden = true; paintSync(); pull(!fresh);
   });
+  $("#unlink").addEventListener("click", () => { code = null; localStorage.removeItem("toucan.sync"); $("#sync-code").value = ""; $("#sync-panel").hidden = true; paintSync(); });
+  paintSync();
   window.addEventListener("pagehide", () => push(true));
   pull();
   const weakest = (chars, n) => [...new Set(chars)].map((c) => [c, conf(c)]).sort((a, b) => a[1] - b[1]).slice(0, n);
@@ -417,11 +501,11 @@
     const pool = words.mix;
     if (mode === "lesson") {
       const [name, letters] = LESSONS[lesson];
-      $("#lesson-name").textContent = `Lesson ${lesson + 1} of ${LESSONS.length} · ${name}`; $("#lesson-letters").textContent = letters.length > 12 && !/[0-9!]/.test(letters) ? "" : letters;
+      head(`Lesson ${lesson + 1} of ${LESSONS.length}`, name.replace(/^Add .*/, "New keys"), lesson > 0 && LESSONS[lesson][2] && LESSONS[lesson][2].length <= 8 ? [...LESSONS[lesson][2].replace(/ /g, "")] : []);
       // warm-up: keys this lesson introduces that you have never typed are shown once, each pressed three times, before the real text
       const prevLetters = lesson ? LESSONS[lesson - 1][1] : "";
       const fresh = [...letters.replace(/ /g, "")].filter((c) => !prevLetters.includes(c) && !KS[c]?.n && c === c.toLowerCase());
-      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { previewed.add(lesson); $("#lesson-name").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
+      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { previewed.add(lesson); $("#lesson-sub").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
       if (name.startsWith("Accents")) return Array.from({ length: N - 2 }, picker(T.words.fr_acc.length ? T.words.fr_acc : ["été", "à", "déjà", "très", "être", "ça"])).join(" ");
       if (name === "Capitals") { const pick = picker(pool); return Array.from({ length: N }, () => { const w = pick(); return Math.random() < .5 ? w[0].toUpperCase() + w.slice(1) : w; }).join(" "); }
       if (name.startsWith("Numbers")) return Array.from({ length: N - 2 }, () => Math.random() < .35 ? rnd(["3la", "7ta", "9bel", "3andi", "wa7ed", "sa7a", "2026", "3", "7", "9"]) : String(Math.floor(Math.random() * 9999))).join(" ");
@@ -429,14 +513,13 @@
       if (name.startsWith("Punctuation")) return wordsWith(letters, pool, N).split(" ").map((w) => { const r = Math.random(); return r < .25 ? w + "," : r < .45 ? w + "." : r < .55 ? w + "'s" : r < .65 ? "l'" + w : r < .75 ? w + "-" + rnd(["ci", "là", "up", "on"]) : w; }).join(" ");
       return wordsWith(letters, pool, N);
     }
-    $("#lesson-name").textContent = { "words-en": "English words from your own writing", "words-fr": "French words from your own writing", "words-mix": "French and English mixed", layers: "Numbers, symbols and punctuation", text: "Your text", sentences: "Sentences · capitals, punctuation and accents", burst: `Speed burst · ${BURST_MS / 1000} s · aim for ${targetWpm + 10} wpm` }[mode] || "";
-    $("#lesson-letters").textContent = "";
+    head(modeName[mode], mode === "burst" ? `${BURST_MS / 1000} seconds · aim for ${targetWpm + 10} wpm` : modeDesc[mode], []);
     if (mode === "sentences") { const picks = new Set(); while (picks.size < 3) picks.add(rnd(SENTENCES)); return [...picks].join(" "); }
     if (mode === "burst") return Array.from({ length: 90 }, () => rnd(pool)).join(" ");
     if (mode === "weak") {
       const ps = weakPairs(8).map(([p]) => p);
-      if (!ps.length) { $("#lesson-name").textContent = "Weak pairs · nothing measured yet, type a few texts first"; return Array.from({ length: 24 }, () => rnd(pool)).join(" "); }
-      $("#lesson-name").textContent = "Weak pairs · " + ps.join(" "); $("#lesson-letters").textContent = "";
+      if (!ps.length) { head("Weak pairs", "Nothing measured yet, type a few texts first", []); return Array.from({ length: 24 }, () => rnd(pool)).join(" "); }
+      head("Weak pairs", "", ps);
       const withPair = pool.filter((w) => ps.some((p) => w.includes(p))); const pick = withPair.length >= 12 ? picker(withPair) : () => rnd(ps) + rnd(ps);
       return Array.from({ length: 24 }, () => Math.random() < .25 ? rnd(ps).repeat(2) : pick()).join(" ");
     }
@@ -446,6 +529,10 @@
     if (mode === "layers") return Array.from({ length: 24 }, () => Math.random() < .5 ? String(Math.floor(Math.random() * 999)) : rnd(["(ok)", "a-b", "x = y", "50%", "\"yes\"", "c'est", "a: b", "why?", "[1]", "{x}", "a/b", "hi!", "@me", "#tag", "3la", "7ta", "9bel"])).join(" ");
     if (mode === "text") return ($("#paste").value || "Paste your text in the box above.").replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").trim();
     return "";
+  }
+  function head(title, sub, keys) {
+    $("#lesson-name").textContent = title; $("#lesson-sub").textContent = sub;
+    $("#lesson-letters").innerHTML = keys.map((k) => `<kbd>${esc(k)}</kbd>`).join("");
   }
   function render() {
     textEl.innerHTML = "";
@@ -478,7 +565,7 @@
     if (w.shift) { const leftHand = (w.pos % 12) < 6 && w.pos < 36; const sp = shiftPositions.filter((p) => ((p % 12) < 6) !== leftHand); (sp.length ? sp : shiftPositions).forEach((p) => keyEls[p].classList.add("next")); parts.push(`hold <b>${leftHand ? "right" : "left"} Shift</b>`); }
     keyEls[w.pos].classList.add("next");
     const label = ch === " " ? "space" : ch === "\n" ? "enter" : ch;
-    parts.push(`<b>${label}</b> with ${fingerName(w.pos)}`);
+    parts.push(`<kbd>${esc(label)}</kbd> with ${fingerName(w.pos)}`);
     $("#hint").innerHTML = w.taps ? parts[0] + " " + parts.slice(1).join(" + ") : parts.join(" + ");
     relabel();
   }
@@ -490,6 +577,7 @@
     target = makeText(); idx = 0; marks = []; typed = []; startT = 0; keystrokes = 0; wrong = 0; done = false; pausedMs = 0; lastKeyT = 0; errs = []; sameShift = 0;
     if (mode === "burst") $("#progress i").style.width = "0%";
     clearInterval(timer); textEl.classList.remove("done"); $("#time").textContent = "00:00"; $("#wpm").textContent = "0"; $("#acc").textContent = "–";
+    $("#result").hidden = true; $("#hint").hidden = false; zen(false);
     render(); textEl.focus({ preventScroll: true });
   }
   function tick() {
@@ -507,41 +595,36 @@
     while (days[d.toISOString().slice(0, 10)]) { n++; d.setDate(d.getDate() - 1); }
     $("#streak").textContent = n; $("#today").textContent = Math.round((days[today()] || 0) / 60);
   }
-  function paintSpark() {
-    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]").filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).slice(-30).map((h) => Number(h.wpm) || 0);
-    const sp = $("#spark"); if (hist.length < 2) { sp.innerHTML = ""; return; }
-    const max = Math.max(...hist, 1), pts = hist.map((v, i) => `${(i * 108 / (hist.length - 1) + 1).toFixed(1)},${(21 - 19 * v / max).toFixed(1)}`).join(" ");
-    sp.innerHTML = `<polyline points="${pts}" fill="none" stroke="#6d7987" stroke-width="1.5"/><circle cx="${pts.split(" ").pop().split(",")[0]}" cy="${pts.split(" ").pop().split(",")[1]}" r="2" fill="#f3b53f"/>`;
-  }
   const nextIsNewLesson = () => mode === "lesson" && mastered(lesson) && lesson < LESSONS.length - 1;
   function finish() {
     done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
     const secs = elapsed() / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
     const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-600)));
-    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); paintSpark(); saveKS(); push();
+    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); saveKS(); push();
     const st = stars(acc, wpm), prev = hist.slice(0, -1).filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).map((h) => Number(h.wpm) || 0);
     const pb = prev.length && wpm > Math.max(...prev);
-    let msg = `<span class="stars">${"★".repeat(st)}${"☆".repeat(3 - st)}</span> ${wpm} wpm${pb && prev.length ? " <b>personal best</b>" : ""} · ${acc.toFixed(1)}%`;
+    let weak = [], next = "Next text", note = st === 3 ? "3 stars" : acc < 95 ? "aim for 95%+" : wpm < targetWpm ? `target ${targetWpm} wpm` : "";
     if (mode === "lesson") {
       if (st > (best[lesson] || 0)) { best[lesson] = st; localStorage.setItem("toucan.stars", JSON.stringify(best)); }
-      const weak = weakest([...gateOf(lesson)].filter((c) => conf(c) < 1), 3);
-      if (nextIsNewLesson()) msg += ` · lesson mastered, <b>Enter</b> for the next one`;
-      else if (weak.length) msg += ` · still slow: <span class="weak">${weak.map(([c, v]) => `${c === " " ? "space" : c} ${Math.round(100 * v)}%`).join(", ")}</span> · <b>Enter</b> again`;
-      else msg += ` · <b>Enter</b> for another text`;
+      weak = weakest([...gateOf(lesson)].filter((c) => conf(c) < 1), 3);
+      if (nextIsNewLesson()) { note = "lesson mastered"; next = `Lesson ${lesson + 2}`; } else if (weak.length) next = "Practise again";
       paintMap();
-    } else if (mode === "burst") msg += ` · ${marks.filter(Boolean).length} correct keys in ${BURST_MS / 1000} s · <b>Enter</b> to go again`;
-    else msg += ` · <b>Enter</b> for another text`;
-    if (sameShift) msg += ` · <span class="weak">same-hand Shift ×${sameShift}</span>, hold Shift with the other hand`;
-    if (errs.length) {   // replay: the missed words, what you pressed for what, and the key when the board knew it
-      const seen = new Set(); const show = (c) => c === " " ? "space" : c === "\n" ? "enter" : c;
-      const items = errs.filter((e) => !seen.has(e.i) && seen.add(e.i)).slice(0, 8).map((e) => {
-        let a = e.i, b = e.i; while (a > 0 && !/[ \n]/.test(target[a - 1])) a--; while (b < target.length && !/[ \n]/.test(target[b])) b++;
-        const label = e.pos >= 0 && e.pos !== bestWay(e.exp)?.pos ? e.label : "";
-        return `${esc(target.slice(a, b))}: <b>${esc(show(e.got))}</b> for ${esc(show(e.exp))}${label ? ` (${esc(label)} key)` : ""}`;
-      });
-      msg += `<span class="replay">missed ${errs.length}: ${items.join(" · ")}${errs.length > items.length ? " …" : ""}</span>`;
-    }
-    $("#hint").innerHTML = msg;
+    } else if (mode === "burst") { note = `${marks.filter(Boolean).length} correct keys in ${BURST_MS / 1000} s`; next = "Go again"; }
+    const show = (c) => c === " " ? "space" : c === "\n" ? "enter" : c;
+    const seen = new Set(); const items = errs.filter((e) => !seen.has(e.i) && seen.add(e.i)).slice(0, 8).map((e) => {   // replay: the missed words, what you pressed for what, and the key when the board knew it
+      let a = e.i, b = e.i; while (a > 0 && !/[ \n]/.test(target[a - 1])) a--; while (b < target.length && !/[ \n]/.test(target[b])) b++;
+      const label = e.pos >= 0 && e.pos !== bestWay(e.exp)?.pos ? e.label : "";
+      return `<span><b>${esc(target.slice(a, b))}</b> <i>${esc(show(e.got))}</i> for ${esc(show(e.exp))}${label ? ` <small>(${esc(label)} key)</small>` : ""}</span>`;
+    });
+    $("#result").innerHTML = `<div class="nums"><div><b>${wpm}</b><span>wpm</span></div><div><b>${acc.toFixed(1)}%</b><span>accuracy</span></div><div><b class="stars">${"★".repeat(st)}${"☆".repeat(3 - st)}</b><span>${esc(note)}</span></div></div>`
+      + (pb ? `<span class="pb">Personal best</span>` : "")
+      + (weak.length ? `<div class="line">Still below target ${weak.map(([c, v]) => `<span class="wk"><b>${esc(c === " " ? "space" : c)}</b><i>${Math.round(100 * v)}%</i></span>`).join("")}</div>` : "")
+      + (items.length ? `<div class="line missed">Missed ${errs.length} ${items.join("")}${errs.length > items.length ? " …" : ""}</div>` : "")
+      + (sameShift ? `<div class="line dim">Same-hand Shift ×${sameShift}. Hold Shift with the other hand.</div>` : "")
+      + `<div class="btns"><button type="button" id="advance" class="primary">${esc(next)}<kbd>Enter</kbd></button><button type="button" id="restart">New text<kbd>Esc</kbd></button></div>`;
+    $("#hint").hidden = true; $("#result").hidden = false; zen(false);
+    $("#advance").addEventListener("click", () => { if (nextIsNewLesson()) setLesson(lesson + 1); else newText(); });
+    $("#restart").addEventListener("click", newText);
   }
   const shiftDown = { left: false, right: false };   // which Shift the OS reports held (the feed uses the real key positions instead)
   const isUpper = (c) => c !== c.toLowerCase() && c === c.toUpperCase();
@@ -549,6 +632,7 @@
     if (done) return;
     const now = Date.now();
     if (!startT) { startT = now; timer = setInterval(tick, 500); lastKeyT = 0; }
+    zen(true);
     keystrokes++;
     if (lastKeyT && now - lastKeyT > 5000) pausedMs += now - lastKeyT - 5000;
     const ok = ch === target[idx]; marks[idx] = ok; typed[idx] = ch;
@@ -581,13 +665,15 @@
     return pool.find((c) => c.layer === shownLayer) || pool.find((c) => c.layer === 0) || pool[0];
   }
   document.addEventListener("keydown", (e) => {
-    if (e.target === $("#paste") || e.target === $("#targetn") || $("#stats").open) return;
+    if (e.key === "Escape" && !$("#stats").open && !$("#scrim").hidden) { e.preventDefault(); closePops(); return; }
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName) || $("#stats").open) return;
     setMods(e);
     if (e.code === "ShiftLeft") shiftDown.left = true; if (e.code === "ShiftRight") shiftDown.right = true;
     if (e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
-      const act = { ArrowLeft: () => setLesson(lesson - 1), ArrowRight: () => setLesson(lesson + 1), ArrowUp: () => cycleMode(-1), ArrowDown: () => cycleMode(1), KeyB: () => toggleBoard(), KeyI: openStats }[e.code];
+      const act = { ArrowLeft: () => setLesson(lesson - 1), ArrowRight: () => setLesson(lesson + 1), ArrowUp: () => cycleMode(-1), ArrowDown: () => cycleMode(1), KeyB: () => toggleBoard(), KeyI: openStats, Comma: () => openPop(pops.settings.hidden ? "settings" : null) }[e.code];
       if (act) { e.preventDefault(); act(); return; }
     }
+    if (!$("#scrim").hidden) return;   // a popover is open: keys go to it
     let key = e.key;
     if (key === "Dead" || (DEAD_OF[e.code + (e.shiftKey ? "+" : "")] && isDeadFor(target[idx], e))) {   // first half of a dead-key accent
       pendingDead = DEAD_OF[e.code + (e.shiftKey ? "+" : "")] || "\u0301"; return;
@@ -634,14 +720,14 @@
   async function feedOpen(port) {
     try {
       await port.open({ baudRate: 115200 }); feedPort = port; feedOn = true; feedLayers.clear();
-      $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Live feed: on";
+      $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Disconnect"; $("#feed-status").textContent = "Connected · the board shows your real keys and layers"; $("#feed-dot").hidden = false;
       feedReader = port.readable.pipeThrough(new TextDecoderStream()).getReader(); let buf = "";
       for (;;) { const { value, done: end } = await feedReader.read(); if (end) break; buf += value; const lines = buf.split("\n"); buf = lines.pop(); lines.forEach(feedLine); }
     } catch (err) { console.warn("feed", err); }
     try { feedReader?.releaseLock(); } catch {}
     feedOn = false; feedPort = null; feedReader = null; feedLayers.clear(); showLayer(0);
     keyEls.forEach((g) => g.classList.remove("down", "wrong")); down.clear(); relabel();
-    $("#feed").setAttribute("aria-pressed", "false"); $("#feed").textContent = "Live feed";
+    $("#feed").setAttribute("aria-pressed", "false"); $("#feed").textContent = "Connect"; $("#feed-status").textContent = "Shows real key presses from the keyboard over USB. Chrome or Edge."; $("#feed-dot").hidden = true;
     try { await port.close(); } catch {}
   }
   $("#feed").addEventListener("click", async () => {
@@ -655,43 +741,41 @@
   function paintMap() {
     const map = $("#lesson-map"); map.innerHTML = "";
     LESSONS.forEach(([name], i) => {
-      const b = document.createElement("button"); const st = best[i] || 0;
-      b.innerHTML = `${i + 1}<br><b>${"★".repeat(st)}</b>${"☆".repeat(3 - st)}`; b.title = name + (mastered(i) ? " · mastered" : "");
-      b.classList.toggle("done", mastered(i)); b.setAttribute("aria-current", String(i === lesson && mode === "lesson"));
+      const b = document.createElement("button"); const st = best[i] || 0, cur = i === lesson && mode === "lesson";
+      b.innerHTML = `<i></i><span>${i + 1}<b>${"★".repeat(st)}</b></span>`; b.title = `Lesson ${i + 1} · ${name}${mastered(i) ? " · mastered" : ""}`;
+      b.classList.toggle("done", mastered(i)); b.classList.toggle("some", !mastered(i) && st > 0); b.setAttribute("aria-current", String(cur));
       b.addEventListener("click", () => setLesson(i)); map.appendChild(b);
     });
   }
   function setMode(m) {
-    mode = m; document.querySelectorAll(".modes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
-    $("#paste").style.display = m === "text" ? "block" : "none";
-    $("#prev").style.visibility = $("#nextl").style.visibility = m === "lesson" ? "visible" : "hidden";
-    $("#lesson-map").style.display = m === "lesson" ? "flex" : "none";
-    paintMap(); paintSpark(); newText(); setUrl();
+    mode = m; document.querySelectorAll("#mode-menu button[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    $("#mode-name").textContent = modeName[m]; closePops();
+    $("#paste").hidden = m !== "text"; $("#lesson-map").hidden = m !== "lesson";
+    paintMap(); newText(); setUrl();
   }
-  const MODES = [...document.querySelectorAll(".modes button")].map((b) => b.dataset.mode);
   const cycleMode = (d) => setMode(MODES[(MODES.indexOf(mode) + d + MODES.length) % MODES.length]);
   const setUrl = () => history.replaceState(null, "", mode === "lesson" ? `?mode=lesson&lesson=${lesson + 1}` : `?mode=${mode}`);   // the address bar is always a link to this view
-  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); paintSpark(); newText(); setUrl(); } }
-  document.querySelectorAll(".modes button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
-  $("#prev").addEventListener("click", () => setLesson(lesson - 1));
-  $("#nextl").addEventListener("click", () => setLesson(lesson + 1));
-  $("#restart").addEventListener("click", newText);
-  $("#heat").addEventListener("click", () => { heatOn = !heatOn; $("#heat").setAttribute("aria-pressed", String(heatOn)); paintHeat(); });
-  $("#mastery").addEventListener("click", () => { masteryOn = !masteryOn; $("#mastery").setAttribute("aria-pressed", String(masteryOn)); paintHeat(); });
-  const HINT_LABEL = { auto: "Hints: auto", always: "Hints: always" };
-  function applyHintMode() { $("#hints").textContent = HINT_LABEL[hintMode]; $("#hints").setAttribute("aria-pressed", String(hintMode === "auto")); paintNext(); }
-  $("#hints").addEventListener("click", () => { hintMode = hintMode === "auto" ? "always" : "auto"; localStorage.setItem("toucan.hints", hintMode); applyHintMode(); });
-  applyHintMode();
-  function toggleBoard(v = !boardOn) { boardOn = v; localStorage.setItem("toucan.board", boardOn ? "1" : "0"); $("#boardbtn").setAttribute("aria-pressed", String(boardOn)); $("#boardbtn").textContent = boardOn ? "Board: shown" : "Board: hidden"; document.querySelector("footer").style.display = boardOn ? "" : "none"; }
+  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); newText(); setUrl(); } }
+  document.querySelectorAll("#mode-menu button[data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  // segmented controls: clicking the active option returns to the first one
+  const seg = (sel, get, set) => { const btns = [...document.querySelectorAll(sel + " button")]; const paint = () => btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === get()))); btns.forEach((b) => b.addEventListener("click", () => { set(b.dataset.v === get() && b !== btns[0] ? btns[0].dataset.v : b.dataset.v); paint(); })); paint(); return paint; };
+  seg("#overlay", () => heatOn ? "errors" : masteryOn ? "mastery" : "none", (v) => { heatOn = v === "errors"; masteryOn = v === "mastery"; paintHeat(); });
+  seg("#hintseg", () => hintMode, (v) => { hintMode = v; localStorage.setItem("toucan.hints", hintMode); $("#hint-desc").textContent = HINT_DESC[hintMode]; paintNext(); });
+  const HINT_DESC = { auto: "Keys you know lose their label and only light up after a 1 s hesitation.", always: "Every key keeps its label and lights up immediately." };
+  $("#hint-desc").textContent = HINT_DESC[hintMode];
+  const sw = (id, get) => $(id).setAttribute("aria-pressed", String(get()));
+  function toggleBoard(v = !boardOn) { boardOn = v; localStorage.setItem("toucan.board", boardOn ? "1" : "0"); sw("#boardbtn", () => boardOn); document.querySelector("footer").hidden = !boardOn; }
   $("#boardbtn").addEventListener("click", () => toggleBoard()); toggleBoard(boardOn);
-  const applySound = () => { $("#sound").setAttribute("aria-pressed", String(soundOn)); $("#sound").textContent = soundOn ? "Sound: on" : "Sound"; };
-  $("#sound").addEventListener("click", () => { soundOn = !soundOn; localStorage.setItem("toucan.sound", soundOn ? "1" : "0"); applySound(); clickSound(); }); applySound();
+  $("#sound").addEventListener("click", () => { soundOn = !soundOn; localStorage.setItem("toucan.sound", soundOn ? "1" : "0"); sw("#sound", () => soundOn); clickSound(); }); sw("#sound", () => soundOn);
+  // theme: auto follows the system, dark and light are explicit
+  let theme = localStorage.getItem("toucan.theme") || "auto";
+  const applyTheme = () => { document.documentElement.classList.toggle("light", theme === "light"); document.documentElement.classList.toggle("dark", theme === "dark"); };
+  seg("#themeseg", () => theme, (v) => { theme = v; localStorage.setItem("toucan.theme", v); applyTheme(); }); applyTheme();
   for (const [id, [name]] of Object.entries(LAYOUTS)) { const o = document.createElement("option"); o.value = id; o.textContent = name; o.selected = id === layoutId; $("#layout").appendChild(o); }
   $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.reload(); });
   // ---------- stats, export, import ----------
   // ---- Stats: inline SVG charts, one shared tooltip (data-tip), chips re-render their own section ----
   const S = { mode: "all", range: 0, metric: "mastery", pm: "speed" };
-  const modeName = Object.fromEntries([...document.querySelectorAll(".modes button")].map((b) => [b.dataset.mode, b.textContent]));
   const MODE_COL = ["var(--l1)", "var(--l2)", "var(--l3)", "var(--l4)", "var(--l5)", "var(--ok)", "var(--err)", "var(--next)", "var(--ink-dim)"];
   const modeCol = (m) => MODE_COL[Math.max(0, MODES.indexOf(m)) % MODE_COL.length];
   const hName = (h) => h.mode === "lesson" ? `Lesson ${Number(h.lesson) + 1}` : (modeName[h.mode] || h.mode);
@@ -797,7 +881,8 @@
     return svgOpen(330, list.length * rowH + 2) + list.map((k, i) => { const Y = i * rowH; return `<g data-tip="${esc(`${k.c} · ${k.n} presses · ${k.acc.toFixed(0)}% accuracy · ${k.wpm} wpm`)}"><rect x="0" y="${Y}" width="330" height="${rowH}" fill="transparent"/><text x="12" y="${Y + 9}" class="lbl c">${esc(k.c)}</text><rect x="28" y="${Y + 3}" width="${Math.max(2, 190 * k.conf)}" height="12" rx="2" fill="${hue(k.conf)}"/><text x="226" y="${Y + 9}" class="ax l">${k.wpm} wpm · ${k.acc.toFixed(0)}%</text></g>`; }).join("") + "</svg>";
   }
 
-  const lessonRow = () => `<div class="lessons">${LESSONS.map((l, i) => `<span class="lcell" data-tip="${esc(`Lesson ${i + 1} · ${l[0]} · ${best[i] ? "★".repeat(best[i]) : "not finished yet"}`)}">${i + 1}<small>${"★".repeat(best[i] || 0)}</small></span>`).join("")}</div>`;
+  const lessonRow = () => `<div class="lessons">${LESSONS.map((l, i) => `<button type="button" class="lcell" data-l="${i}" aria-current="${i === lesson && mode === "lesson"}"><small>${i + 1}</small>${esc(l[0].replace(/^Add /, "+ ").replace(/ \(.*/, ""))}<b>${"★".repeat(best[i] || 0)}</b></button>`).join("")}</div>`;
+  $("#stats-body").addEventListener("click", (e) => { const b = e.target.closest(".lcell"); if (b) { $("#stats").close(); setLesson(Number(b.dataset.l)); } });
 
   function openStats() {
     const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]");
@@ -805,18 +890,22 @@
     const last = hist.slice(-10).map((h) => +h.wpm || 0), avg = last.length ? Math.round(last.reduce((a, b) => a + b, 0) / last.length) : 0;
     const bestW = hist.reduce((m, h) => Math.max(m, +h.wpm || 0), 0);
     const keys = Object.entries(KS).filter(([c]) => !/\s/.test(c)).map(([c, k]) => ({ c, n: k.n, acc: 100 * k.n / (k.n + k.e), wpm: kwpm(k), conf: Math.min(1, conf(c)) })).sort((a, b) => a.conf - b.conf);
-    const big = (v, l) => `<div class="big"><b>${v}</b><span>${l}</span></div>`, sec = (id, title) => `<section data-sec="${id}"><h3>${title}</h3><div class="c"></div></section>`;
-    $("#stats-body").innerHTML = `<div class="bigs">${big(hist.length, "texts")}${big(Math.round(total / 60), "minutes")}${big(Object.keys(days).length, "days")}${big($("#streak").textContent, "day streak")}${big(avg, "wpm, last 10")}${big(bestW, "best wpm")}${big(`${keys.filter((k) => k.conf >= 1).length}/${keys.length}`, "keys at target")}</div>
-      ${sec("speed", "Speed and accuracy, text by text")}
-      ${sec("board", "Keys on the board")}
-      <div class="cols">${sec("cal", "Practice calendar")}${sec("fingers", "Finger load")}</div>
-      <div class="cols">${sec("pairs", "Letter pairs")}<div>${sec("keys", "Weakest keys")}${sec("lessons", "Lessons")}</div></div>`;
+    const big = (v, l) => `<div class="big"><b>${v}</b><span>${l}</span></div>`, sec = (id, title, aside = "") => `<section data-sec="${id}"><h3>${title}<span>${aside}</span></h3><div class="c"></div></section>`;
+    const hm = Math.floor(total / 3600), mm = Math.round(total / 60) % 60;
+    $("#stats-body").innerHTML = `<div data-tab="overview"><div class="bigs">${big(hist.length, "texts")}${big(hm ? `${hm}h ${mm}m` : `${mm}m`, "practised")}${big($("#streak").textContent, "day streak")}${big(avg, "wpm, last 10")}${big(bestW, "best wpm")}${big(`${keys.filter((k) => k.conf >= 1).length}/${keys.length}`, "keys at target")}</div>
+        ${sec("speed", "Speed, text by text", "dots per text · line: last 10 · dashed: accuracy")}${sec("lessons", "Lessons")}</div>
+      <div data-tab="keys" hidden>${sec("board", "Keys on the board")}${sec("keys", "Weakest keys")}</div>
+      <div data-tab="pairs" hidden>${sec("pairs", "Letter pairs", "row: first letter · column: the next one")}<div class="row"><button type="button" class="primary" id="drill">Drill these</button></div></div>
+      <div data-tab="practice" hidden>${sec("cal", "Practice calendar", "darker = more minutes")}${sec("fingers", "Finger load")}</div>`;
     const R = { speed: () => speedChart(hist), cal: () => calendar(hist), fingers: fingerChart, board: boardChart, pairs: pairChart, keys: () => keyBars(keys), lessons: lessonRow };
     const draw = (id) => { $(`#stats-body [data-sec="${id}"] .c`).innerHTML = R[id](); };
     Object.keys(R).forEach(draw);
     $("#stats-body").onclick = (e) => { const c = e.target.closest(".chip"); if (!c) return; const k = c.dataset.k; S[k] = k === "range" ? Number(c.dataset.v) : c.dataset.v; draw({ mode: "speed", range: "speed", metric: "board", pm: "pairs" }[k]); };
-    $("#stats").showModal();
+    $("#drill").addEventListener("click", () => { $("#stats").close(); setMode("weak"); });
+    if (!$("#stats").open) $("#stats").showModal();
   }
+  $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (!b) return; document.querySelectorAll("#tabs button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); document.querySelectorAll("#stats-body [data-tab]").forEach((p) => { p.hidden = p.dataset.tab !== b.dataset.tab; }); });
+  $("#stats-close").addEventListener("click", () => $("#stats").close());
   const tipEl = $("#tip");
   $("#stats").addEventListener("mousemove", (e) => {
     const t = e.target.closest ? e.target.closest("[data-tip]") : null; if (!t) { tipEl.hidden = true; return; }
@@ -827,7 +916,7 @@
   $("#statsbtn").addEventListener("click", openStats);
   $("#export").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: "application/json" })); a.download = `toucan-trainer-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); });
   $("#import").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== "object" || !("toucan.keys" in o)) throw 0; adopt(o, true); } catch { alert("Not a trainer export."); } });
-  const setTarget = (v, src) => {   // slider 15-300, number box takes anything >= 15
+  const setTarget = (v, src) => {   // slider 15-150, number box takes anything >= 15
     v = Math.max(15, Math.round(Number(v) || 0)); if (!v) return;
     targetWpm = v; localStorage.setItem("toucan.target", v); $("#target").value = v; if (src !== $("#targetn")) $("#targetn").value = v; paintMap(); paintHeat();
   };
@@ -838,6 +927,7 @@
   $("#targetn").addEventListener("change", (e) => { setTarget(e.target.value); e.target.blur(); });
   paintStreak();
   $("#paste").addEventListener("change", newText);
+  $("#lesson-map").hidden = false;
   textEl.addEventListener("click", () => textEl.focus());
 
   buildBoard();
