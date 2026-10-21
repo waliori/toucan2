@@ -33,7 +33,7 @@
   // error replay + pause: a wrong key, then a 5.5 s break, in a short sentence text
   document.querySelector('[data-mode="sentences"]').click(); await sleep(30);
   { const t = text(); await press(t[0] === "a" ? "b" : "a"); kd({ key: "Backspace", code: "Backspace" }); await press(t[0]); await sleep(5600); for (let i = 1; i < t.length; i++) await press(t[i]); await sleep(60); }
-  out.replay = $("#hint").querySelector(".replay")?.textContent.slice(0, 60); out.pausedTime = $("#time").textContent;
+  out.replay = $("#result .missed")?.textContent.slice(0, 60); out.pausedTime = $("#time").textContent;
   // burst keeps running past the first key, stats dialog renders, lesson link works
   document.querySelector('[data-mode="burst"]').click(); await sleep(30); await press(text()[0]); await sleep(1200); out.burstRunning = !$("#text").classList.contains("done");
   kd({ key: "i", code: "KeyI", ctrlKey: true }); await sleep(30);
