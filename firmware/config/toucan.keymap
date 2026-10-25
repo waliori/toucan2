@@ -46,6 +46,9 @@
     conditional_layers {
         compatible = "zmk,conditional-layers";
         tri_layer { if-layers = <NAV SYM>; then-layer = <ADJ>; };
+        // ADJ is a then-layer, so ZMK turns it off whenever its condition is false: &mo ADJ alone
+        // cannot hold it. In GAME the right middle thumb is &mo SYM and this rule opens ADJ from it.
+        game_adj { if-layers = <GAME SYM>; then-layer = <ADJ>; };
     };
 
     behaviors {
@@ -100,14 +103,14 @@
 
         // locked QWERTY for games (toggle: ADJ + bottom-left letter key). Plain keys only: no hold-tap,
         // no accent prefix. Left hand = WASD cluster + 1-5 (inner column and outer thumbs); right hand =
-        // QWERTY letters for menus/chat, right middle thumb = ADJ (F-keys, volume, BT, and the way out).
+        // QWERTY letters for menus/chat, right middle thumb = ADJ via the game_adj rule (F-keys, volume, BT, the way out).
         game {
             display-name = "GAME";
             bindings = <
 &kp TAB   &kp Q &kp W &kp E &kp R &kp N1      &kp Y &kp U &kp I     &kp O   &kp P    &kp BSPC
 &kp LSHFT &kp A &kp S &kp D &kp F &kp N2      &kp H &kp J &kp K     &kp L   &kp SEMI &kp LALT
 &kp LCTRL &kp Z &kp X &kp C &kp V &kp N3      &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp ESC
-                     &kp N4 &kp SPACE &kp N5      &kp RET &mo ADJ &kp LGUI
+                     &kp N4 &kp SPACE &kp N5      &kp RET &mo SYM &kp LGUI
             >;
         };
 
