@@ -306,7 +306,7 @@
     if (!nxt || nxt.kind !== "sticky" || stickyTaps[nxt.layer]) break;
     stickyTaps[nxt.layer] = n + 1; l = nxt.layer;
   }
-  T.layers.forEach((L) => L.keys.forEach((k, pos) => {
+  T.layers.forEach((L) => L.locked || L.keys.forEach((k, pos) => {   // locked = toggle-only layer (GAME), not a way to type
     if (k.kind !== "key") return;
     const e = { layer: L.id, pos, shift: false, bshift: !!k.shift, code: k.code, taps: stickyTaps[L.id] }; // bshift: the firmware sends Shift itself; taps: accent prefix taps
     if (k.char !== undefined) { if (!ways.has(k.char)) ways.set(k.char, []); ways.get(k.char).push(e); }

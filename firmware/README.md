@@ -45,6 +45,8 @@ The ports are root-only until `sudo chmod a+rw /dev/ttyACM*` (or a udev rule for
 ## Connect to a computer
 
 - USB cable on the left half: types over USB, charges the half, carries the feed and Studio.
+- Games: hold both middle thumbs (ADJ layer) and press the bottom-left letter key ("p") to lock the QWERTY GAME layer;
+  from it, hold the right middle thumb and press the same key to come back. See `KEYMAP.md`.
 - Bluetooth: hold both middle thumbs (ADJ layer) and press BT0 to BT4 (right home row: period, A, E, I, H) to choose a
   profile, then pair from the computer ("Toucan", Just Works, no code). USB/BLE (X on that layer) picks the output when
   both are connected; BTclr (apostrophe) forgets the current profile. Paired on 2026-10-20 with the NixOS desktop,
