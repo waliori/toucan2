@@ -47,7 +47,7 @@ BOOT = left half into its bootloader (for flashing). RESET = reboot the left hal
  Tab    Q  W  E  R  1      Y  U  I  O  P    Bksp
  Shift  A  S  D  F  2      H  J  K  L  ;    Alt
  Ctrl   Z  X  C  V  3      N  M  ,  .  /    Esc
-            4 Space 5     Enter ADJ Super
+            4 Space 5     Enter ADJ Super   (ADJ here = a second tri-layer rule GAME+SYM)
 ```
 Plain keys only: no hold-tap, no accent prefix, no NAV/SYM, so nothing can fire by accident mid-fight. Left hand is the
 WASD cluster with 1-3 on the inner column and 4-5 on the outer thumbs (potions); right hand is QWERTY for menus and chat.
