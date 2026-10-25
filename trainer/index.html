@@ -260,6 +260,9 @@
     sturdy: ["Sturdy", "vmlcpxfoujstrdy.naeizkqgwbh';,"], ergol: ["Ergo-L", "qcopwjmd'yasenflrtiuzx-vb.hg,k"],
   };
   const CORE = [...Array(36).keys()].filter((p) => p % 12 >= 1 && p % 12 <= 10);
+  // the firmware's locked game layer (QWERTY + 1-3 on the inner column) as a layout too, read from keymap.js
+  const gameLayer = T.layers.find((L) => L.locked);
+  if (gameLayer) LAYOUTS.game = [gameLayer.name + " (QWERTY for games)", CORE.map((p) => gameLayer.keys[p].char ?? " ").join("")];
   const layoutId = LAYOUTS[localStorage.getItem("toucan.layout")] ? localStorage.getItem("toucan.layout") : "custom";
   const coreString = LAYOUTS[layoutId][1] || CORE.map((p) => T.layers[0].keys[p].char ?? " ").join("");
   if (LAYOUTS[layoutId][1]) {
@@ -460,7 +463,7 @@
     const out = [["Home row", home]]; let acc = home;
     for (let i = 0; i < rest.length; i += 4) { const grp = rest.slice(i, i + 4).join(""); acc += grp; out.push([`Add ${[...grp].join(" ")}`, acc, grp]); }
     const punct = [...core].filter((c) => !/\p{L}/u.test(c) && c !== " ").join("");
-    if (punct) out.push([`Punctuation ${[...punct].join(" ")}`, acc + punct, punct]);
+    if (punct) out.push([`${/\d/.test(punct) ? "Other keys" : "Punctuation"} ${[...punct].join(" ")}`, acc + punct, punct]);
     return out;
   }
   const LESSONS = (LAYOUTS[layoutId][1] ? genericLessons(coreString) : HANDMADE).concat(TAIL);
