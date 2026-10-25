@@ -38,9 +38,21 @@ Studio unlock = NAV + bottom-left letter key (the "p" key).
 ```
  BOOT  -- F7 F8 F9 F12    VolDn  Mute  VolUp  Play  Next
  RESET -- F4 F5 F6 F11    BT0    BT1   BT2    BT3   BT4
- --    -- F1 F2 F3 F10    BTclr  USB/BLE BriDn BriUp --
+ --  GAME F1 F2 F3 F10    BTclr  USB/BLE BriDn BriUp --
 ```
-BOOT = left half into its bootloader (for flashing). RESET = reboot the left half. BT0-BT4 pick the host profile, BTclr forgets the current one, USB/BLE picks the output.
+BOOT = left half into its bootloader (for flashing). RESET = reboot the left half. BT0-BT4 pick the host profile, BTclr forgets the current one, USB/BLE picks the output. GAME (the bottom-left letter key, "p") toggles the game layer.
+
+## GAME (locked QWERTY for games, toggle = ADJ + the "p" key)
+```
+ Tab    Q  W  E  R  1      Y  U  I  O  P    Bksp
+ Shift  A  S  D  F  2      H  J  K  L  ;    Alt
+ Ctrl   Z  X  C  V  3      N  M  ,  .  /    Esc
+            4 Space 5     Enter ADJ Super
+```
+Plain keys only: no hold-tap, no accent prefix, no NAV/SYM, so nothing can fire by accident mid-fight. Left hand is the
+WASD cluster with 1-3 on the inner column and 4-5 on the outer thumbs (potions); right hand is QWERTY for menus and chat.
+The layer stays on across sleep and unplugging; the screens show "GAME" while it is. To leave: hold the right middle
+thumb (ADJ from this layer) and tap the same "p" key. ADJ also gives F1-F12, volume and the Bluetooth keys without leaving.
 ## MOU (auto while touching trackpad): thumbs = middle/left/right click.
 
 History: v1 (same letters, no accents) was applied over Studio RPC on 2026-10-19 before the firmware existed; see `studio-rpc/keymap_v1.mjs`.

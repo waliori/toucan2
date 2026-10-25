@@ -69,6 +69,7 @@ function decode(tok) {
     case "trans": return { kind: "trans", label: "" };
     case "kp": return decodeKp(p[0]);
     case "mo": return { kind: "layer", layer: num(p[0]), label: LAYER_NAMES[num(p[0])] || ("L" + p[0]) };
+    case "tog": return { kind: "layer", layer: num(p[0]), label: LAYER_NAMES[num(p[0])] || ("L" + p[0]), toggle: true };
     case "slx": case "sl": return { kind: "sticky", layer: num(p[0]), label: "ACC" + (num(p[0]) - defs.AC1 + 1) };
     case "ctl_acc": return { ...decodeKp(p[0]), tap: { kind: "sticky", layer: num(p[1]) } };
     case "studio_unlock": return { kind: "unlock", label: "Unlock" };
@@ -92,19 +93,23 @@ const layers = layerSrc.map((m, id) => {
   if (keys.length !== 42) throw new Error(`layer ${m[2]} has ${keys.length} keys`);
   return { id, name: m[2], keys };
 });
+// a layer only reachable by toggle (GAME) is not a way to type anything in normal use
+layers.forEach((L) => { if (layers.some((M) => M.keys.some((k) => k.toggle && k.layer === L.id))) L.locked = true; });
 
 // word lists from the corpus (by frequency). French uses the accent-restored file when present.
 const corpusDir = process.argv[2];
-const words = { en: [], fr: [], fr_acc: [] };
+// without a corpus dir, keep the word lists already in keymap.js (the corpus is private and not in the repo)
+const prev = (() => { try { const t = fs.readFileSync(new URL("./keymap.js", import.meta.url), "utf8"); return JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)).words; } catch { return null; } })();
+const words = (!corpusDir && prev) || { en: [], fr: [], fr_acc: [] };
 const listFrom = (file, re, min, n, filter = () => true) => {
   if (!corpusDir || !fs.existsSync(`${corpusDir}/${file}`)) return [];
   const txt = fs.readFileSync(`${corpusDir}/${file}`, "utf8").toLowerCase();
   const cnt = new Map(); for (const w of txt.match(re) || []) if (w.length <= 14 && filter(w)) cnt.set(w, (cnt.get(w) || 0) + 1);
   return [...cnt.entries()].filter(([, c]) => c >= min).sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
 };
-words.en = listFrom("local_en.txt", /[a-z]{2,}/g, 3, 2500);
+if (corpusDir) words.en = listFrom("local_en.txt", /[a-z]{2,}/g, 3, 2500);
 const frFile = fs.existsSync(`${corpusDir}/local_fr_restored.txt`) ? "local_fr_restored.txt" : "local_fr.txt";
-words.fr = listFrom(frFile, /[a-zàâçéèêëîïôùûü]{2,}/g, 3, 2500);
-words.fr_acc = listFrom(frFile, /[a-zàâçéèêëîïôùûü]+/g, 2, 500, (w) => /[àâçéèêëîïôùûü]/.test(w));
+if (corpusDir) words.fr = listFrom(frFile, /[a-zàâçéèêëîïôùûü]{2,}/g, 3, 2500);
+if (corpusDir) words.fr_acc = listFrom(frFile, /[a-zàâçéèêëîïôùûü]+/g, 2, 500, (w) => /[àâçéèêëîïôùûü]/.test(w));
 fs.writeFileSync(new URL("./keymap.js", import.meta.url), "window.TOUCAN = " + JSON.stringify({ phys: PHYS, layers, words }) + ";\n");
 console.log("keymap.js written:", layers.map((l) => l.name).join(" "), "; words en", words.en.length, "fr", words.fr.length, "fr_acc", words.fr_acc.length);

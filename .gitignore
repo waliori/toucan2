@@ -9,3 +9,7 @@ bak/
 
 # wrangler state
 trainer/.wrangler/
+
+# nix build output symlinks
+result
+result-*

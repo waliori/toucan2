@@ -18,14 +18,15 @@
 #include <dt-bindings/zmk/pointing.h>
 
 #define BASE 0
-#define NAV  1
-#define SYM  2
-#define ADJ  3
-#define MOU  4
-#define AC1  5
-#define AC2  6
-#define AC3  7
-#define AC4  8
+#define GAME 1
+#define NAV  2
+#define SYM  3
+#define ADJ  4
+#define MOU  5
+#define AC1  6
+#define AC2  7
+#define AC3  8
+#define AC4  9
 
 // dead key + letter, with a Shift-aware capital variant (mod-morph masks Shift so the dead key stays plain)
 #define DEAD(id, dk, letter, text)                                                          \
@@ -97,6 +98,19 @@
             >;
         };
 
+        // locked QWERTY for games (toggle: ADJ + bottom-left letter key). Plain keys only: no hold-tap,
+        // no accent prefix. Left hand = WASD cluster + 1-5 (inner column and outer thumbs); right hand =
+        // QWERTY letters for menus/chat, right middle thumb = ADJ (F-keys, volume, BT, and the way out).
+        game {
+            display-name = "GAME";
+            bindings = <
+&kp TAB   &kp Q &kp W &kp E &kp R &kp N1      &kp Y &kp U &kp I     &kp O   &kp P    &kp BSPC
+&kp LSHFT &kp A &kp S &kp D &kp F &kp N2      &kp H &kp J &kp K     &kp L   &kp SEMI &kp LALT
+&kp LCTRL &kp Z &kp X &kp C &kp V &kp N3      &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp ESC
+                     &kp N4 &kp SPACE &kp N5      &kp RET &mo ADJ &kp LGUI
+            >;
+        };
+
         nav {
             display-name = "NAV";
             bindings = <
@@ -122,7 +136,7 @@
             bindings = <
 &bootloader &trans &kp F7 &kp F8 &kp F9 &kp F12      &kp C_VOL_DN &kp C_MUTE   &kp C_VOL_UP &kp C_PP     &kp C_NEXT   &trans
 &sys_reset  &trans &kp F4 &kp F5 &kp F6 &kp F11      &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &trans
-&trans      &trans &kp F1 &kp F2 &kp F3 &kp F10      &bt BT_CLR   &out OUT_TOG &kp C_BRI_DN &kp C_BRI_UP &trans       &trans
+&trans      &tog GAME &kp F1 &kp F2 &kp F3 &kp F10      &bt BT_CLR   &out OUT_TOG &kp C_BRI_DN &kp C_BRI_UP &trans       &trans
                                 &trans &trans &trans      &trans &trans &trans
             >;
         };
