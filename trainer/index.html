@@ -467,7 +467,8 @@
     return out;
   }
   const LESSONS = (LAYOUTS[layoutId][1] ? genericLessons(coreString) : HANDMADE).concat(TAIL);
-  const previewed = new Set();   // lessons whose new keys were already shown once this session
+  const previewed = new Set();   // lessons whose new-key warm-up was typed to the end this session
+  let warmLesson = -1;           // lesson whose warm-up is on screen right now (counts as previewed only when finished)
   const SENTENCES = [
     "The quick brown fox jumps over the lazy dog.", "I'll send you the final version on Monday, before noon if I can.", "Why does this test fail only on the second run?",
     "She bought 12 apples, 3 lemons and a bag of rice.", "Don't forget: the meeting moved to Room 204.", "Our keyboard has 42 keys and two thumb clusters.",
@@ -523,14 +524,15 @@
     return out.join(" ");
   }
   function makeText() {
-    const pool = words.mix;
+    const pool = words.mix; warmLesson = -1;
     if (mode === "lesson") {
       const [name, letters] = LESSONS[lesson];
-      head(`Lesson ${lesson + 1} of ${LESSONS.length}`, name.replace(/^Add .*/, "New keys"), lesson > 0 && LESSONS[lesson][2] && LESSONS[lesson][2].length <= 8 ? [...LESSONS[lesson][2].replace(/ /g, "")] : []);
-      // warm-up: keys this lesson introduces that you have never typed are shown once, each pressed three times, before the real text
       const prevLetters = lesson ? LESSONS[lesson - 1][1] : "";
-      const fresh = [...letters.replace(/ /g, "")].filter((c) => !prevLetters.includes(c) && !KS[c]?.n && c === c.toLowerCase());
-      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { previewed.add(lesson); $("#lesson-sub").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
+      const intro = (LESSONS[lesson][2] || [...letters].filter((c) => !prevLetters.includes(c)).join("")).replace(/ /g, "");   // the keys this lesson adds
+      head(`Lesson ${lesson + 1} of ${LESSONS.length}`, name.replace(/^Add .*/, "New keys"), lesson > 0 && intro.length <= 8 ? [...intro] : []);
+      // warm-up: new keys you have barely typed are shown once, each pressed three times, before the real text (Esc or leaving brings it back until it is typed through)
+      const fresh = [...intro].filter((c) => (KS[c]?.n || 0) < 6 && c === c.toLowerCase());
+      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { warmLesson = lesson; $("#lesson-sub").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
       if (name.startsWith("Accents")) return Array.from({ length: N - 2 }, picker(T.words.fr_acc.length ? T.words.fr_acc : ["été", "à", "déjà", "très", "être", "ça"])).join(" ");
       if (name === "Capitals") { const pick = picker(pool); return Array.from({ length: N }, () => { const w = pick(); return Math.random() < .5 ? w[0].toUpperCase() + w.slice(1) : w; }).join(" "); }
       if (name.startsWith("Numbers")) return Array.from({ length: N - 2 }, () => Math.random() < .35 ? rnd(["3la", "7ta", "9bel", "3andi", "wa7ed", "sa7a", "2026", "3", "7", "9"]) : String(Math.floor(Math.random() * 9999))).join(" ");
@@ -624,6 +626,7 @@
   const nextIsNewLesson = () => mode === "lesson" && mastered(lesson) && lesson < LESSONS.length - 1;
   function finish() {
     done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
+    if (warmLesson >= 0) { previewed.add(warmLesson); warmLesson = -1; }
     const secs = elapsed() / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
     const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-600)));
     days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); saveKS(); push();
