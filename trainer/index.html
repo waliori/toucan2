@@ -804,7 +804,7 @@
   $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.reload(); });
   // ---------- stats, export, import ----------
   // ---- Stats: inline SVG charts, one shared tooltip (data-tip), chips re-render their own section ----
-  const S = { mode: "all", range: 0, metric: "mastery", pm: "speed" };
+  const S = { mode: "all", lesson: "all", range: 0, metric: "mastery", pm: "speed" };   // lesson: "all" or a lesson index (implies mode lesson)
   const MODE_COL = ["var(--l1)", "var(--l2)", "var(--l3)", "var(--l4)", "var(--l5)", "var(--ok)", "var(--err)", "var(--next)", "var(--ink-dim)"];
   const modeCol = (m) => MODE_COL[Math.max(0, MODES.indexOf(m)) % MODE_COL.length];
   const hName = (h) => h.mode === "lesson" ? `Lesson ${Number(h.lesson) + 1}` : (modeName[h.mode] || h.mode);
@@ -818,9 +818,12 @@
 
   function speedChart(hist) {
     const since = S.range ? Date.now() - S.range * 864e5 : 0;
-    const pts = hist.filter((h) => h.t >= since && (S.mode === "all" || h.mode === S.mode));
+    const pts = hist.filter((h) => h.t >= since && (S.mode === "all" || h.mode === S.mode) && (S.lesson === "all" || (h.mode === "lesson" && Number(h.lesson) === S.lesson)));
     const present = MODES.filter((m) => hist.some((h) => h.mode === m));
-    const chips = `<div class="chips">${chip("mode", "all", `all (${hist.length})`, S.mode === "all")}${present.map((m) => chip("mode", m, `${modeName[m]} (${hist.filter((h) => h.mode === m).length})`, S.mode === m, modeCol(m))).join("")}<span class="gap"></span>${[[0, "all time"], [30, "30 days"], [7, "7 days"]].map(([d, l]) => chip("range", d, l, S.range === d)).join("")}</div>`;
+    let chips = `<div class="chips">${chip("mode", "all", `all (${hist.length})`, S.mode === "all")}${present.map((m) => chip("mode", m, `${modeName[m]} (${hist.filter((h) => h.mode === m).length})`, S.mode === m, modeCol(m))).join("")}<span class="gap"></span>${[[0, "all time"], [30, "30 days"], [7, "7 days"]].map(([d, l]) => chip("range", d, l, S.range === d)).join("")}</div>`;
+    // second row: one chip per lesson that has texts (all lessons together, or one at a time)
+    const perLesson = LESSONS.map((_, i) => hist.filter((h) => h.mode === "lesson" && Number(h.lesson) === i).length);
+    if ((S.mode === "all" || S.mode === "lesson") && perLesson.some(Boolean)) chips += `<div class="chips">${chip("lesson", "all", "all lessons", S.lesson === "all")}${perLesson.map((n, i) => n ? chip("lesson", i, `L${i + 1} (${n})`, S.lesson === i) : "").join("")}</div>`;
     if (!pts.length) return chips + `<p class="empty">No texts in this range yet.</p>`;
     const W = 720, H = 230, L = 36, R = 44, T = 12, B = 26, w = W - L - R, hh = H - T - B;
     const top = Math.max(targetWpm, ...pts.map((h) => +h.wpm || 0)) * 1.12;
@@ -929,7 +932,9 @@
     const R = { speed: () => speedChart(hist), cal: () => calendar(hist), fingers: fingerChart, board: boardChart, pairs: pairChart, keys: () => keyBars(keys), lessons: lessonRow };
     const draw = (id) => { $(`#stats-body [data-sec="${id}"] .c`).innerHTML = R[id](); };
     Object.keys(R).forEach(draw);
-    $("#stats-body").onclick = (e) => { const c = e.target.closest(".chip"); if (!c) return; const k = c.dataset.k; S[k] = k === "range" ? Number(c.dataset.v) : c.dataset.v; draw({ mode: "speed", range: "speed", metric: "board", pm: "pairs" }[k]); };
+    $("#stats-body").onclick = (e) => { const c = e.target.closest(".chip"); if (!c) return; const k = c.dataset.k, v = c.dataset.v; S[k] = k === "range" || (k === "lesson" && v !== "all") ? Number(v) : v;
+      if (k === "lesson" && v !== "all") S.mode = "lesson"; if (k === "mode" && v !== "lesson" && v !== "all") S.lesson = "all";   // a lesson chip means lesson mode; another mode drops the lesson filter
+      draw({ mode: "speed", lesson: "speed", range: "speed", metric: "board", pm: "pairs" }[k]); };
     $("#drill").addEventListener("click", () => { $("#stats").close(); setMode("weak"); });
     if (!$("#stats").open) $("#stats").showModal();
   }
