@@ -872,11 +872,11 @@
         const v = S.metric === "mastery" ? m : S.metric === "speed" ? wpm / targetWpm : S.metric === "acc" ? (acc - 80) / 20 : null;
         if (v !== null) fill = hue(v); else { fill = "var(--err)"; op = heat[i] ? 0.2 + 0.8 * heat[i] / hmax : 0.06; }
         val = S.metric === "mastery" ? Math.round(100 * m) + "%" : S.metric === "speed" ? wpm : S.metric === "acc" ? acc.toFixed(0) + "%" : (heat[i] || 0);
-        tip = `${k0.label} · ${k.n + k.e} presses · ${acc.toFixed(0)}% accuracy · ${wpm} wpm · mastery ${Math.round(100 * m)}% · hit by mistake ${heat[i] || 0}×`;
+        tip = `${k0.label} · ${k.n + k.e} presses · ${acc.toFixed(0)}% accuracy · ${Math.round(k.ms)} ms per press (${wpm} wpm) · mastery ${Math.round(100 * m)}% · hit by mistake ${heat[i] || 0}×`;
       } else if (heat[i] && S.metric === "err") { fill = "var(--err)"; op = 0.2 + 0.8 * heat[i] / hmax; val = heat[i]; tip += ` · hit by mistake ${heat[i]}×`; }
       s += `<g${p.r ? ` transform="rotate(${p.r} ${p.rx} ${p.ry})"` : ""} data-tip="${esc(tip)}"><rect x="${p.x + 4}" y="${p.y + 4}" width="${p.w - 8}" height="${p.h - 8}" rx="10" fill="${fill}" fill-opacity="${op}"/><text x="${p.x + p.w / 2}" y="${p.y + p.h / 2 - (val !== "" ? 12 : 0)}">${esc(k0 && k0.label || "")}</text>${val !== "" ? `<text class="v" x="${p.x + p.w / 2}" y="${p.y + p.h / 2 + 18}">${val}</text>` : ""}</g>`;
     });
-    const legend = { mastery: "green = at target speed with 95%+ accuracy", speed: "wpm per key, green = at target", acc: "green = 100%, red = 80% or less", err: "how often the key was hit instead of another" }[S.metric];
+    const legend = { mastery: "green = at target speed with 95%+ accuracy", speed: "wpm per key (12000 ÷ ms per press), green = at target", acc: "green = 100%, red = 80% or less", err: "how often the key was hit instead of another" }[S.metric];
     return chips + `<svg class="chart kb" viewBox="${minX} ${minY} ${maxX - minX} ${maxY - minY}">${s}</svg><p class="legend">${legend}</p>`;
   }
 
