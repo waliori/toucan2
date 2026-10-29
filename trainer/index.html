@@ -951,7 +951,7 @@
     const bestW = hist.reduce((m, h) => Math.max(m, +h.wpm || 0), 0);
     const keys = Object.entries(KS).filter(([c]) => !/\s/.test(c)).map(([c, k]) => ({ c, n: k.n, acc: 100 * k.n / (k.n + k.e), wpm: kwpm(k), conf: Math.min(1, conf(c)) })).sort((a, b) => a.conf - b.conf);
     const big = (v, l) => `<div class="big"><b>${v}</b><span>${l}</span></div>`, sec = (id, title, aside = "") => `<section data-sec="${id}"><h3>${title}<span>${aside}</span></h3><div class="c"></div></section>`;
-    const hm = Math.floor(total / 3600), mm = Math.round(total / 60) % 60;
+    const tm = Math.round(total / 60), hm = Math.floor(tm / 60), mm = tm % 60;   // round once, then split: 1h59m40s is "2h 0m", not "1h 0m"
     $("#stats-body").innerHTML = `<div data-tab="overview"><div class="bigs">${big(hist.length, "texts")}${big(hm ? `${hm}h ${mm}m` : `${mm}m`, "practised")}${big($("#streak").textContent, "day streak")}${big(avg, "wpm, last 10")}${big(bestW, "best wpm")}${big(`${keys.filter((k) => k.conf >= 1).length}/${keys.length}`, "keys at target")}</div>
         ${sec("speed", "Speed, text by text", "dots per text · line: last 10 · dashed: accuracy")}${sec("lessons", "Lessons")}</div>
       <div data-tab="keys" hidden>${sec("board", "Keys on the board")}${sec("keys", "Weakest keys")}</div>
