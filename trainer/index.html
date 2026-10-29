@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <script src="keymap.js"></script>
+<script src="qr.js"></script>
 <style>
   :root {
     --bg: #101113; --surface: #17181b; --raise: #1d1f23; --line: #26282d; --ink: #ecebe7; --dim: #8f9197; --pending: #7f8188; --faint: #45474d;
@@ -72,6 +73,7 @@
   #sync-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
   #sync-code { width: 100%; padding: 7px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); font: 12px var(--mono); letter-spacing: .02em; }
   #sync-panel .btns { display: flex; gap: 6px; justify-content: flex-end; }
+  #sync-qr:empty { display: none; } #sync-qr svg { display: block; width: 168px; height: 168px; margin: 2px auto; background: #fff; border-radius: 8px; }
 
   /* main */
   main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 28px 20px; }
@@ -201,9 +203,10 @@
         <h4>Devices</h4>
         <div class="rowf"><div class="t">Sync<small id="sync-status"></small></div><button class="btn" id="sync">Set up</button></div>
         <div id="sync-panel" hidden>
-          <small>Paste this code on your other device. Keep it private: anyone with it can read and overwrite your progress.</small>
+          <small>Scan the QR with your phone, open the link, or paste the code on your other device. Keep it private: anyone with it can read your progress.</small>
+          <div id="sync-qr"></div>
           <input id="sync-code" spellcheck="false" autocomplete="off">
-          <div class="btns"><button class="btn ghost" id="unlink" hidden>Unlink</button><button class="btn ghost" id="copy-sync">Copy</button><button class="primary" id="link-sync">Link device</button></div>
+          <div class="btns"><button class="btn ghost" id="unlink" hidden>Unlink</button><button class="btn ghost" id="copy-sync">Copy code</button><button class="btn ghost" id="copy-link">Copy link</button><button class="primary" id="link-sync">Link device</button></div>
         </div>
         <div class="rowf"><div class="t">Live feed<small id="feed-status">Shows real key presses from the keyboard over USB. Chrome or Edge.</small></div><button class="btn" id="feed" aria-pressed="false">Connect</button></div>
       </section>
@@ -350,27 +353,49 @@
     try { actx ||= new AudioContext(); const o = actx.createOscillator(), g = actx.createGain(); o.type = "square"; o.frequency.value = 180; g.gain.value = 0.05; o.connect(g).connect(actx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.08); o.stop(actx.currentTime + 0.09); } catch {}
   }
 
-  // Sync: every toucan.* entry is mirrored as one JSON blob at /p/<code> (worker.mjs). The device with the
-  // newer toucan.updated stamp wins; entering a code on a new device adopts whatever that code holds.
+  // Sync: every toucan.* entry is mirrored as one JSON blob at /p/<code> (worker.mjs). Pulling merges the blob
+  // with this device (per-key max, histories joined, settings from the newer side), so nothing is lost when two
+  // devices practise in turn. A link ending in #sync=<code> (also shown as a QR) links a device in one tap.
   let code = localStorage.getItem("toucan.sync");
+  { const m = /[#&]sync=([a-f0-9]{32})\b/i.exec(location.hash); if (m) { code = m[1].toLowerCase(); localStorage.setItem("toucan.sync", code); history.replaceState(null, "", location.pathname + location.search); } }
+  const J = (t, d) => { try { return JSON.parse(t) ?? d; } catch { return d; } };
+  function merge(a, b) {   // a: this device, b: the server. Deterministic, so both sides converge after one round trip.
+    const ta = Number(a["toucan.updated"] || 0), tb = Number(b["toucan.updated"] || 0), m = ta >= tb ? { ...b, ...a } : { ...a, ...b };   // plain settings: newer side wins
+    const both = (k, f) => { if (!(k in a) && !(k in b)) return; m[k] = JSON.stringify(f(J(a[k], null), J(b[k], null))); };
+    const maxBy = (score) => (x, y) => { const r = { ...(x || {}) }; for (const i in y || {}) if (!(i in r) || score(y[i]) > score(r[i])) r[i] = y[i]; return r; };
+    both("toucan.keys", maxBy((k) => k.n + k.e)); both("toucan.pairs", maxBy((k) => k.n + k.e)); ["toucan.days", "toucan.stars", "toucan.heat"].forEach((k) => both(k, maxBy(Number)));
+    both("toucan.hist", (x, y) => { const seen = new Set(); return [...(x || []), ...(y || [])].filter((h) => !seen.has(h.t) && seen.add(h.t)).sort((p, q) => p.t - q.t).slice(-600); });
+    if ("toucan.lesson" in a || "toucan.lesson" in b) m["toucan.lesson"] = String(Math.max(Number(a["toucan.lesson"] || 0), Number(b["toucan.lesson"] || 0)));
+    m["toucan.updated"] = String(Math.max(ta, tb));
+    return m;
+  }
+  const same = (x, y) => JSON.stringify(Object.entries(x).sort()) === JSON.stringify(Object.entries(y).sort());
   const snapshot = () => Object.fromEntries(Object.keys(localStorage).filter((k) => k.startsWith("toucan.") && k !== "toucan.sync").map((k) => [k, localStorage.getItem(k)]));
   const adopt = (o, stamp) => { for (const k in snapshot()) localStorage.removeItem(k); for (const k in o) localStorage.setItem(k, o[k]); if (stamp) localStorage.setItem("toucan.updated", Date.now()); location.reload(); };
   async function push(keepalive) { if (!code) return; localStorage.setItem("toucan.updated", Date.now()); try { await fetch("/p/" + code, { method: "PUT", body: JSON.stringify(snapshot()), keepalive }); } catch {} }
-  async function pull(force) { if (!code) return; try { const o = await (await fetch("/p/" + code)).json(); if (!o) return push();
-      const srv = Number(o["toucan.updated"] || 0), loc = Number(localStorage.getItem("toucan.updated") || 0);
-      if (force || srv > loc) adopt(o); else if (loc > srv) push(); } catch {} }
+  async function pull() { if (!code) return; try { const o = await (await fetch("/p/" + code)).json(); if (!o) return push();
+      const loc = snapshot(), m = merge(loc, o);
+      if (!same(m, loc)) adopt(m); else if (!same(m, o)) push(); } catch {} }   // adopt reloads; the next pull then pushes the merged copy
   const hex = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
   function paintSync() {
     $("#sync-status").textContent = code ? `On · ${code.slice(0, 6)}…` : "Off · progress stays on this device";
     $("#sync").textContent = $("#sync-panel").hidden ? (code ? "Manage" : "Set up") : "Close";
     $("#sync-dot").hidden = !code; $("#unlink").hidden = !code;
   }
-  $("#sync").addEventListener("click", () => { const p = $("#sync-panel"); p.hidden = !p.hidden; if (!p.hidden && !$("#sync-code").value) $("#sync-code").value = code || hex(); paintSync(); });
-  $("#copy-sync").addEventListener("click", () => { try { navigator.clipboard.writeText($("#sync-code").value); } catch {} $("#copy-sync").textContent = "Copied"; setTimeout(() => { $("#copy-sync").textContent = "Copy"; }, 1400); });
+  const syncLink = () => location.origin + location.pathname + "#sync=" + $("#sync-code").value.trim().toLowerCase();
+  function paintQR() {   // the link as a QR, white card with a quiet zone so phone cameras read it in the dark theme too
+    const el = $("#sync-qr"); if (!/^[a-f0-9]{32}$/.test($("#sync-code").value.trim())) { el.innerHTML = ""; return; }
+    const M = qrMatrix(syncLink()), n = M.length;
+    el.innerHTML = `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" shape-rendering="crispEdges" role="img" aria-label="QR code of the sync link"><path fill="#000" d="${M.map((r, y) => r.map((d, x) => d ? `M${x} ${y}h1v1h-1z` : "").join("")).join("")}"/></svg>`;
+  }
+  $("#sync").addEventListener("click", () => { const p = $("#sync-panel"); p.hidden = !p.hidden; if (!p.hidden && !$("#sync-code").value) $("#sync-code").value = code || hex(); paintQR(); paintSync(); });
+  $("#sync-code").addEventListener("input", paintQR);
+  const copyBtn = (id, text, label) => $(id).addEventListener("click", () => { try { navigator.clipboard.writeText(text()); } catch {} $(id).textContent = "Copied"; setTimeout(() => { $(id).textContent = label; }, 1400); });
+  copyBtn("#copy-sync", () => $("#sync-code").value, "Copy code"); copyBtn("#copy-link", syncLink, "Copy link");
   $("#link-sync").addEventListener("click", () => {
     const v = $("#sync-code").value.trim().toLowerCase(); if (!/^[a-f0-9]{32}$/.test(v)) return alert("A sync code is 32 hex characters.");
     if (v === code) { $("#sync-panel").hidden = true; paintSync(); return; }
-    const fresh = !code; code = v; localStorage.setItem("toucan.sync", code); $("#sync-panel").hidden = true; paintSync(); pull(!fresh);
+    code = v; localStorage.setItem("toucan.sync", code); $("#sync-panel").hidden = true; paintSync(); pull();
   });
   $("#unlink").addEventListener("click", () => { code = null; localStorage.removeItem("toucan.sync"); $("#sync-code").value = ""; $("#sync-panel").hidden = true; paintSync(); });
   paintSync();

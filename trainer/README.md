@@ -10,27 +10,16 @@ keeps the dev files off the site).
 
 ## Sync between devices
 
-Progress lives in the browser (`localStorage`, every `toucan.*` key). **Sync** in the toolbar shows a secret 32-hex code:
-copy it, open the trainer on the other machine, click Sync and paste it. From then on each finished text (and closing the
-tab) uploads the whole state as one JSON blob to `/p/<code>`; opening the page downloads it if the server copy is newer
-(`toucan.updated` stamp, last writer wins). Pasting a code onto a device that already has progress replaces that progress
-with what the code holds, so link a new machine before practising on it. Anyone with the code can read or overwrite your
-stats, nothing else: keep it in a password manager, there is no account and no recovery. Storage is one Cloudflare KV
-namespace (`worker.mjs`, `wrangler.toml`); the local `python3 -m http.server` copy simply has no sync.
-
-`keymap.js` is generated from the firmware keymap (`firmware/config/toucan.keymap`):
-`node gen.mjs <corpus_dir>` (corpus_dir = folder with local_en.txt / local_fr.txt and, if present, local_fr_restored.txt from layout-optimizer). Rerun after changing the keymap.
-
-**Live feed.** `Live feed` connects the left half's key-feed serial port over USB (cable in) (Chrome WebSerial, page must be on 127.0.0.1 or https).
-The board then mirrors the real keyboard: keys light as they are pressed on either half, held layers and the sticky accent
-layers show at once, and a wrong character marks the key you actually hit. The left half has two serial ports with the same
-name; the feed is the first one (lower ttyACM number). If nothing lights when you press a key, disconnect and pick the other.
-The choice is remembered. The ports need
-read/write access: `sudo chmod a+rw /dev/ttyACM*` or a udev rule for USB id 1d50:615e.
-
-Without the feed the board is inferred from what the OS receives (works everywhere, but layers only show after the fact).
-
-Accents need the OS on the US International layout, like the keyboard itself: the trainer then sees é arrive as AltGr+E and à as dead key + A, and credits the right keys.
+Progress lives in the browser (`localStorage`, every `toucan.*` key). **Sync** in Settings → Devices shows a secret
+32-hex code, as text and as a QR of the link `…/#sync=<code>`: scan it with the phone, open the link on the other machine
+(the page reads the code and drops it from the address bar), or paste the code there. From then on each finished text (and
+closing the tab) uploads the whole state as one JSON blob to `/p/<code>`, and opening the page **merges** the server copy
+with the device's own: histories are joined by timestamp, each key, pair, day, star and heat count keeps the higher value,
+the lesson is the furthest reached, plain settings come from the side saved last. Two devices practising in turn therefore
+lose nothing; only two devices typing at the same second can still overwrite each other. Anyone with the code or the link
+can read or overwrite your stats, nothing else: keep it in a password manager, there is no account and no recovery.
+Storage is one Cloudflare KV namespace (`worker.mjs`, `wrangler.toml`); the local `python3 -m http.server` copy simply has
+no sync. The QR encoder is `qr.js` (byte mode, level L, versions 1-9, no dependency).
 
 ## The screen
 

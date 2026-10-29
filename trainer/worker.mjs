@@ -1,6 +1,6 @@
 // Progress sync: one JSON blob per secret code, GET /p/<code> reads it, PUT /p/<code> replaces it.
-// Everything else is served from the static assets (index.html, keymap.js). Last writer wins; the page
-// compares the toucan.updated stamp inside the blob.
+// Everything else is served from the static assets (index.html, keymap.js, qr.js). The page merges the blob
+// with its own progress before writing it back (see merge() in index.html).
 export default {
   async fetch(req, env) {
     const m = /^\/p\/([a-f0-9]{32})$/.exec(new URL(req.url).pathname);
