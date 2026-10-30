@@ -8,7 +8,7 @@ trainer/corpus/
 bak/
 
 # wrangler state
-trainer/.wrangler/
+.wrangler/
 
 # nix build output symlinks
 result
