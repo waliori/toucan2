@@ -10,6 +10,7 @@ Hallmark skill (theme Formwork); local only for now.
 - `styles.css` imports `tokens.css` and `base.css` (Hallmark scaffold). The first lines of `styles.css` are the design stamp.
 - `images/screens/` are captures of the hosted trainer (dark theme, 2x).
 - Serve: `python3 -m http.server 8777 --bind 127.0.0.1` here, then http://127.0.0.1:8777/
+- Deploy: from the repository root, `node dist.mjs && npx wrangler@latest deploy` puts this page at https://toucan.walior.it/ and the trainer at `/trainer/` (one Worker, see `wrangler.toml` there)
 
 - `images/screens/stats-*.png` are the trainer's Statistics drawer with the author's own progress (read from the browser's
   `toucan.*` localStorage on 2026-10-29, seeded into headless Chrome); the other captures run on a fresh profile.

@@ -4,9 +4,10 @@ Typing trainer for the Walid layout (WLD) on the Toucan2. Shows the board (ZMK S
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 
-Hosted copy: https://toucan-trainer.waliori.workers.dev (Cloudflare Worker, static assets + the sync endpoint below).
-Deploy a new version with `npx wrangler@latest deploy` from this folder (one-time `npx wrangler@latest login`; `.assetsignore`
-keeps the dev files off the site).
+Hosted copy: https://toucan.walior.it/trainer/ (the old https://toucan-trainer.waliori.workers.dev/ still answers). One Cloudflare
+Worker serves the whole project: the site at `/`, this trainer at `/trainer/`, the sync endpoint below at `/p/`. Deploy from the
+repository root: `node dist.mjs && npx wrangler@latest deploy` (one-time `npx wrangler@latest login`; `wrangler.toml` and `dist.mjs`
+live at the root, `dist.mjs` picks which files go up).
 
 ## Sync between devices
 

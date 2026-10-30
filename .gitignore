@@ -17,3 +17,6 @@ result-*
 # design-tool state and editor settings
 .hallmark/
 .vscode/
+
+# assembled by dist.mjs for wrangler deploy
+dist/
