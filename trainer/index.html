@@ -282,7 +282,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
 <span class="sr">Streak <b id="streak">0</b> days, <b id="today">0</b> minutes today</span>
 
 <dialog id="stats" aria-label="Statistics">
-  <div class="top"><b>Statistics</b><button type="button" class="btn" id="stats-close" title="Esc">Close</button></div>
+  <div class="top"><b>Statistics <span id="stats-layout"></span></b><button type="button" class="btn" id="stats-close" title="Esc">Close</button></div>
   <div id="tabs"><button type="button" data-tab="overview" aria-pressed="true">Overview</button><button type="button" data-tab="keys" aria-pressed="false">Keys</button><button type="button" data-tab="pairs" aria-pressed="false">Letter pairs</button><button type="button" data-tab="practice" aria-pressed="false">Practice</button></div>
   <div id="stats-body"></div>
   <div id="tip" hidden></div>
@@ -312,6 +312,8 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   if (gameLayer) LAYOUTS.game = [gameLayer.name + " (QWERTY for games)", CORE.map((p) => gameLayer.keys[p].char ?? " ").join("")];
   const layoutId = LAYOUTS[localStorage.getItem("toucan.layout")] ? localStorage.getItem("toucan.layout") : "custom";
   const coreString = LAYOUTS[layoutId][1] || CORE.map((p) => T.layers[0].keys[p].char ?? " ").join("");
+  // progress is per layout: Walid keeps the historical toucan.<name> keys, any other layout stores toucan.<layout>.<name>; settings stay shared
+  const K = (name) => "toucan." + (layoutId === "custom" ? "" : layoutId + ".") + name;
   if (LAYOUTS[layoutId][1]) {
     const codeOf = {}; T.layers.forEach((L) => L.keys.forEach((k) => { if (k.kind === "key" && k.char && !k.shift && !codeOf[k.char]) codeOf[k.char] = k.code; }));
     [...LAYOUTS[layoutId][1]].forEach((ch, i) => { T.layers[0].keys[CORE[i]] = { kind: "key", char: ch, label: ch.toUpperCase(), code: codeOf[ch] }; });
@@ -368,7 +370,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   const bestWay = (ch) => { const l = ways.get(ch); if (!l) return null; return l.slice().sort((a, b) => a.layer - b.layer || a.pos - b.pos)[0]; };
 
   // ---------- per-key skill (keybr-style): speed confidence x accuracy, ramped by sample count ----------
-  const KS = JSON.parse(localStorage.getItem("toucan.keys") || "{}");   // char -> {n: correct presses, e: errors, ms: smoothed time per press}
+  const KS = JSON.parse(localStorage.getItem(K("keys")) || "{}");   // char -> {n: correct presses, e: errors, ms: smoothed time per press}
   let targetWpm = Number(localStorage.getItem("toucan.target") || 30);
   let hintMode = localStorage.getItem("toucan.hints") || "auto";   // auto: labels and highlight fade per key | always | off: board hidden
   const targetMs = () => 60000 / (targetWpm * 5);
@@ -377,9 +379,9 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
     const k = KS[ch] || (KS[ch] = { n: 0, e: 0, ms: targetMs() * 2 });
     if (ok) { k.n++; if (dt) k.ms = k.ms * 0.8 + Math.min(dt, 2500) * 0.2; } else k.e++;
   }
-  const saveKS = () => { localStorage.setItem("toucan.keys", JSON.stringify(KS)); localStorage.setItem("toucan.pairs", JSON.stringify(BG)); };
+  const saveKS = () => { localStorage.setItem(K("keys"), JSON.stringify(KS)); localStorage.setItem(K("pairs"), JSON.stringify(BG)); };
   // letter pairs (bigrams) typed in a row: the "Weak pairs" drill and the stats page are built from the slowest ones
-  const BG = JSON.parse(localStorage.getItem("toucan.pairs") || "{}");   // "ab" -> {n, e, ms}
+  const BG = JSON.parse(localStorage.getItem(K("pairs")) || "{}");   // "ab" -> {n, e, ms}
   function recordPair(prev, ch, ok, dt) {
     const p = (prev + ch).toLowerCase(); if (!/^\p{L}{2}$/u.test(p)) return;
     const k = BG[p] || (BG[p] = { n: 0, e: 0, ms: targetMs() * 2 });
@@ -403,11 +405,13 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   const J = (t, d) => { try { return JSON.parse(t) ?? d; } catch { return d; } };
   function merge(a, b) {   // a: this device, b: the server. Deterministic, so both sides converge after one round trip.
     const ta = Number(a["toucan.updated"] || 0), tb = Number(b["toucan.updated"] || 0), m = ta >= tb ? { ...b, ...a } : { ...a, ...b };   // plain settings: newer side wins
-    const both = (k, f) => { if (!(k in a) && !(k in b)) return; m[k] = JSON.stringify(f(J(a[k], null), J(b[k], null))); };
     const maxBy = (score) => (x, y) => { const r = { ...(x || {}) }; for (const i in y || {}) if (!(i in r) || score(y[i]) > score(r[i])) r[i] = y[i]; return r; };
-    both("toucan.keys", maxBy((k) => k.n + k.e)); both("toucan.pairs", maxBy((k) => k.n + k.e)); ["toucan.days", "toucan.stars", "toucan.heat"].forEach((k) => both(k, maxBy(Number)));
-    both("toucan.hist", (x, y) => { const seen = new Set(); return [...(x || []), ...(y || [])].filter((h) => !seen.has(h.t) && seen.add(h.t)).sort((p, q) => p.t - q.t).slice(-600); });
-    if ("toucan.lesson" in a || "toucan.lesson" in b) m["toucan.lesson"] = String(Math.max(Number(a["toucan.lesson"] || 0), Number(b["toucan.lesson"] || 0)));
+    const join = (x, y) => { const seen = new Set(); return [...(x || []), ...(y || [])].filter((h) => !seen.has(h.t) && seen.add(h.t)).sort((p, q) => p.t - q.t).slice(-600); };
+    const RULES = [[/\.(keys|pairs)$/, maxBy((k) => k.n + k.e)], [/\.(days|stars|heat)$/, maxBy(Number)], [/\.hist$/, join]];   // progress keys, per layout: toucan.<name> or toucan.<layout>.<name>
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+      if (/\.lesson$/.test(k)) { m[k] = String(Math.max(Number(a[k] || 0), Number(b[k] || 0))); continue; }
+      const rule = RULES.find(([re]) => re.test(k)); if (rule) m[k] = JSON.stringify(rule[1](J(a[k], null), J(b[k], null)));
+    }
     m["toucan.updated"] = String(Math.max(ta, tb));
     return m;
   }
@@ -488,7 +492,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
       g.querySelector("text").textContent = hide ? "" : g.dataset.label;
     });
   }
-  const heat = JSON.parse(localStorage.getItem("toucan.heat") || "{}"); // pos -> errors
+  const heat = JSON.parse(localStorage.getItem(K("heat")) || "{}"); // pos -> errors
   let heatOn = false, masteryOn = false;
   function paintHeat() {
     const max = Math.max(1, ...Object.values(heat));
@@ -573,8 +577,8 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   const gateOf = (i) => (LESSONS[i][2] ?? LESSONS[i][1]).replace(/ /g, "");
   const BURST_MS = 30000;
   const mastered = (i) => { const g = gateOf(i); return g ? [...g].every((c) => conf(c) >= 1) : (best[i] || 0) >= 2; };
-  const best = JSON.parse(localStorage.getItem("toucan.stars") || "{}");   // lesson -> best stars
-  let lesson = Number(localStorage.getItem("toucan.lesson") || 0);
+  const best = JSON.parse(localStorage.getItem(K("stars")) || "{}");   // lesson -> best stars
+  let lesson = Number(localStorage.getItem(K("lesson")) || 0);
   let mode = "lesson";
   const rnd = (a) => a[Math.floor(Math.random() * a.length)];
   const words = { en: T.words.en, fr: T.words.fr, mix: T.words.en.concat(T.words.fr) };
@@ -685,7 +689,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
     $("#acc").textContent = keystrokes ? (100 * (keystrokes - wrong) / keystrokes).toFixed(1) + "%" : "";
   }
   const today = () => new Date().toISOString().slice(0, 10);
-  const days = JSON.parse(localStorage.getItem("toucan.days") || "{}");   // date -> seconds practised
+  const days = JSON.parse(localStorage.getItem(K("days")) || "{}");   // date -> seconds practised
   function paintStreak() {
     let n = 0; const d = new Date(); if (!days[today()]) d.setDate(d.getDate() - 1);
     while (days[d.toISOString().slice(0, 10)]) { n++; d.setDate(d.getDate() - 1); }
@@ -696,13 +700,13 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
     done = true; clearInterval(timer); tick(); textEl.classList.add("done"); paintNext();
     if (warmLesson >= 0) { previewed.add(warmLesson); warmLesson = -1; }
     const secs = elapsed() / 1000, acc = 100 * (keystrokes - wrong) / keystrokes, wpm = Number($("#wpm").textContent);
-    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem("toucan.hist", JSON.stringify(hist.slice(-600)));
-    days[today()] = (days[today()] || 0) + secs; localStorage.setItem("toucan.days", JSON.stringify(days)); paintStreak(); saveKS(); push();
+    const hist = JSON.parse(localStorage.getItem(K("hist")) || "[]"); hist.push({ t: Date.now(), mode, lesson, wpm, acc: acc.toFixed(1) }); localStorage.setItem(K("hist"), JSON.stringify(hist.slice(-600)));
+    days[today()] = (days[today()] || 0) + secs; localStorage.setItem(K("days"), JSON.stringify(days)); paintStreak(); saveKS(); push();
     const st = stars(acc, wpm), prev = hist.slice(0, -1).filter((h) => h.mode === mode && (mode !== "lesson" || h.lesson === lesson)).map((h) => Number(h.wpm) || 0);
     const pb = prev.length && wpm > Math.max(...prev);
     let weak = [], next = "Next text", note = st === 3 ? "3 stars" : acc < 95 ? "aim for 95%+" : wpm < targetWpm ? `target ${targetWpm} wpm` : "";
     if (mode === "lesson") {
-      if (st > (best[lesson] || 0)) { best[lesson] = st; localStorage.setItem("toucan.stars", JSON.stringify(best)); }
+      if (st > (best[lesson] || 0)) { best[lesson] = st; localStorage.setItem(K("stars"), JSON.stringify(best)); }
       weak = weakest([...gateOf(lesson)].filter((c) => conf(c) < 1), 3);
       if (nextIsNewLesson()) { note = "lesson mastered"; next = `Lesson ${lesson + 2}`; } else if (weak.length) next = "Practise again";
       paintMap();
@@ -740,7 +744,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
       const l = feedOn ? shiftPositions.some((p) => down.has(p) && p % 12 < 6) : shiftDown.left, r = feedOn ? shiftPositions.some((p) => down.has(p) && p % 12 >= 6) : shiftDown.right;
       if (w && ((leftLetter && l && !r) || (!leftLetter && r && !l))) sameShift++;
     }
-    if (!ok) { wrong++; errs.push({ i: idx, exp: target[idx], got: ch, pos, label }); clickSound(); const w = bestWay(target[idx]); if (w) { heat[w.pos] = (heat[w.pos] || 0) + 1; localStorage.setItem("toucan.heat", JSON.stringify(heat)); if (heatOn) paintHeat(); } }
+    if (!ok) { wrong++; errs.push({ i: idx, exp: target[idx], got: ch, pos, label }); clickSound(); const w = bestWay(target[idx]); if (w) { heat[w.pos] = (heat[w.pos] || 0) + 1; localStorage.setItem(K("heat"), JSON.stringify(heat)); if (heatOn) paintHeat(); } }
     idx++;
     if (idx >= target.length) { render(); finish(); return; }
     render();
@@ -857,7 +861,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   }
   const cycleMode = (d) => setMode(MODES[(MODES.indexOf(mode) + d + MODES.length) % MODES.length]);
   const setUrl = () => history.replaceState(null, "", mode === "lesson" ? `?mode=lesson&lesson=${lesson + 1}` : `?mode=${mode}`);   // the address bar is always a link to this view
-  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem("toucan.lesson", lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); newText(); setUrl(); } }
+  function setLesson(n) { lesson = Math.max(0, Math.min(LESSONS.length - 1, n)); localStorage.setItem(K("lesson"), lesson); if (mode !== "lesson") setMode("lesson"); else { paintMap(); newText(); setUrl(); } }
   document.querySelectorAll("#mode-menu button[data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
   // segmented controls: clicking the active option returns to the first one
   const seg = (sel, get, set) => { const btns = [...document.querySelectorAll(sel + " button")]; const paint = () => btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === get()))); btns.forEach((b) => b.addEventListener("click", () => { set(b.dataset.v === get() && b !== btns[0] ? btns[0].dataset.v : b.dataset.v); paint(); })); paint(); return paint; };
@@ -874,7 +878,8 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   const applyTheme = () => { document.documentElement.classList.toggle("light", theme === "light"); document.documentElement.classList.toggle("dark", theme === "dark"); };
   seg("#themeseg", () => theme, (v) => { theme = v; localStorage.setItem("toucan.theme", v); applyTheme(); }); applyTheme();
   for (const [id, [name]] of Object.entries(LAYOUTS)) { const o = document.createElement("option"); o.value = id; o.textContent = name; o.selected = id === layoutId; $("#layout").appendChild(o); }
-  $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.reload(); });
+  $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.replace(location.pathname); });   // no query: the new layout opens on its own saved lesson, not this one's
+  $("#stats-layout").textContent = "for " + LAYOUTS[layoutId][0].replace(/ \(.*/, "");   // progress and stats are per layout
   // ---------- stats, export, import ----------
   // ---- Stats: inline SVG charts, one shared tooltip (data-tip), chips re-render their own section ----
   let SP = null;   // the speed chart's series, for the hover
@@ -992,7 +997,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   $("#stats-body").addEventListener("click", (e) => { const b = e.target.closest(".lcell"); if (b) { $("#stats").close(); setLesson(Number(b.dataset.l)); } });
 
   function openStats() {
-    const hist = JSON.parse(localStorage.getItem("toucan.hist") || "[]");
+    const hist = JSON.parse(localStorage.getItem(K("hist")) || "[]");
     const total = Object.values(days).reduce((a, b) => a + b, 0);
     const last = hist.slice(-10).map((h) => +h.wpm || 0), avg = last.length ? Math.round(last.reduce((a, b) => a + b, 0) / last.length) : 0;
     const bestW = hist.reduce((m, h) => Math.max(m, +h.wpm || 0), 0);
@@ -1039,7 +1044,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   $("#stats").addEventListener("mouseleave", () => { tipEl.hidden = true; hideCross(); });
   $("#statsbtn").addEventListener("click", openStats);
   $("#export").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: "application/json" })); a.download = `toucan-trainer-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); });
-  $("#import").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== "object" || !("toucan.keys" in o)) throw 0; adopt(o, true); } catch { alert("Not a trainer export."); } });
+  $("#import").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== "object" || !Object.keys(o).some((k) => k.startsWith("toucan."))) throw 0; adopt(o, true); } catch { alert("Not a trainer export."); } });
   const setTarget = (v, src) => {   // slider 15-150, number box takes anything >= 15
     v = Math.max(15, Math.round(Number(v) || 0)); if (!v) return;
     targetWpm = v; localStorage.setItem("toucan.target", v); $("#target").value = v; if (src !== $("#targetn")) $("#targetn").value = v; paintMap(); paintHeat();
