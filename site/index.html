@@ -60,7 +60,7 @@
     <div class="tiles">
       <article class="tile tile--4 tile--plate">
         <p class="plate-figure"><b class="figure">65 <span>/</span> 33 <span>/</span> 2</b></p>
-        <p>English, French, Darija: the share of each language in the text the search was fed.</p>
+        <p>Of every 100 characters the search was fed, 65 were English, 33 French and 2 Darija.</p>
       </article>
       <article class="tile tile--4 tile--plate">
         <h3>The name on the board</h3>
@@ -106,13 +106,13 @@
             <p class="mix__key"><span><i class="mix__en"></i>English</span><span><i class="mix__fr"></i>French</span><span><i class="mix__dar"></i>Darija</span></p>
           </div>
           <p class="letters" aria-label="The eight most typed letters and their share"><span>e<small>13.0%</small></span><span>t<small>9.1%</small></span><span>a<small>8.0%</small></span><span>o<small>7.3%</small></span><span>i<small>7.0%</small></span><span>n<small>6.5%</small></span><span>s<small>6.5%</small></span><span>r<small>5.5%</small></span></p>
-          <p class="caption">The eight letters I type most, and their share of every keystroke.</p>
+          <p class="caption">The eight letters I type most. 13.0% means that thirteen of every hundred keystrokes are an e.</p>
         </div>
       </li>
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">2</b>Price every key</h3>
-          <p>Some keys are cheap to reach and some are not. The eight home keys, the ones under the fingers at rest, cost 1. Every other key costs 1 plus its distance from the finger’s home key, times a penalty for the weaker fingers: 1.6 under a pinky, 1.2 under a ring finger, 1.3 on the inner columns the index has to stretch to. The far corners cost 3.2.</p>
+          <p>Some keys are cheap to reach and some are not. The eight home keys, the ones under the fingers at rest, cost 1. Every other key costs 1 plus its distance from the finger’s home key, times a penalty for the weaker fingers: 1.6 under a pinky, 1.2 under a ring finger, 1.3 on the inner columns the index has to stretch to. So a key one step above its home key costs 1 + 1 = 2, and under a ring finger 2 × 1.2 = 2.4. The far corners cost 3.2.</p>
           <p>The positions come from beekeeb’s own firmware file for the Toucan2: where each column sits, which finger owns it, which key is its home.</p>
         </div>
         <div class="step__show">
@@ -123,8 +123,8 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">3</b>Define the score</h3>
-          <p>Reach is not the whole story: two letters in a row with the same finger are slow even on cheap keys. So the score adds up eight habits, each measured as a share of my letter pairs or triples, times a weight I chose. Lower is better.</p>
-          <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last term exists.</p>
+          <p>Reach is not the whole story: two letters in a row with the same finger are slow even on cheap keys. So the score also counts eight habits. For each one the program asks: of all the letter pairs (or triples) in my text, how many fall into this habit? That fraction is the habit’s share. Then I gave each habit a weight, a number that says how much it bothers me: 3 for two letters on one finger, 1.5 for scissors. Share times weight is the habit’s points, and the points add up to the score. Lower is better.</p>
+          <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last row exists.</p>
         </div>
         <div class="step__show">
           <table class="terms">
@@ -134,21 +134,21 @@
               <tr><td class="name">Same-finger skipgrams</td><td>same finger, one letter between</td><td class="num">0.8</td><td class="num">5.28</td></tr>
               <tr><td class="name">Scissors</td><td>neighbouring fingers, two rows apart</td><td class="num">1.5</td><td class="num">0.66</td></tr>
               <tr><td class="name">Lateral stretches</td><td>a reach to the inner column</td><td class="num">1.0</td><td class="num">0.51</td></tr>
-              <tr><td class="name">Redirects</td><td>one hand changes direction mid-word</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
-              <tr><td class="name">Rolls, in and out</td><td>fingers walk one way: a reward</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
-              <tr><td class="name">Travel</td><td>the step 2 cost, per keystroke</td><td class="num">8.0</td><td class="num">13.02</td></tr>
-              <tr><td class="name">Load</td><td>pinky share, hand balance, a cap per finger</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
+              <tr><td class="name">Redirects</td><td>one hand changes direction mid-word; 2.0 more when no index finger helps</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
+              <tr><td class="name">Rolls, in and out</td><td>fingers walk one way, towards the thumb or away: a reward, so negative</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
+              <tr><td class="name">Travel</td><td>the step 2 cost of a keystroke, averaged over all of them</td><td class="num">8.0</td><td class="num">13.02</td></tr>
+              <tr><td class="name">Load</td><td>pinkies above 13% of keystrokes, one hand above half, any finger above its cap</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
             </tbody>
             <tfoot><tr><td class="name">Score</td><td></td><td></td><td class="num">25.54</td></tr></tfoot>
           </table>
-          <p class="caption">Points = share × weight × 100: 1.39% on one finger × 3 = 4.18. They add up to the score.</p>
+          <p class="caption">Points = share × weight × 100. First row: 1.39 of every 100 letter pairs land on one finger (counted over my 700 commonest pairs; the full count further down says 1.35), times the weight 3, gives 4.18. Travel is the one row that is not a share: the average cost 1.627 times 8 gives 13.02. The eight rows add up to 25.54.</p>
         </div>
       </li>
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">4</b>Search by annealing</h3>
-          <p>There are 30! ways to place thirty letters, 2.65 × 10<sup>32</sup>, far too many to try. Simulated annealing searches such a space the way metal is cooled slowly to settle: start from a random board, swap two keys, score again. Better, keep it. Worse, keep it anyway with a probability that shrinks as the run cools, so the search can climb out of a dead end early and settles late.</p>
-          <p>Below, seed 5’s run: 60,000 swaps, the score falling from 132 to 25.5. Early, one worsening swap in six is kept; by the end, none. Eight runs from eight random starts scored 480,000 boards in all.</p>
+          <p>There are 30 × 29 × 28 × … × 1 ways to place thirty letters, 2.65 × 10<sup>32</sup>, far too many to try them all. Simulated annealing borrows from metalwork, where a metal is heated and cooled slowly so it settles without flaws: start from a random board, swap two keys, score again. Better, keep the swap. Worse, keep it anyway sometimes. How often depends on a number called the temperature, high at the start and falling through the run: hot, the search accepts many bad swaps and so can escape a dead end; cold, it only accepts improvements and settles.</p>
+          <p>Below, the run that started from random board number 5 (its seed): 60,000 swaps, the score falling from 132 to 25.5. Early, one worsening swap in six is kept; by the end, none. Eight runs from eight random starts, seeds 0 to 7, scored 480,000 boards in all.</p>
         </div>
         <div class="step__show">
           <figure class="anneal"><svg viewBox="0 0 1000 440" role="img" aria-label="Seed 5: the board's score over sixty thousand swaps, from 132 down to 25.5, with the best score so far">
@@ -163,8 +163,8 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">5</b>Pick, and say why</h3>
-          <p>Three of the eight runs finished within five thousandths of each other, which says the search had converged rather than landed by luck. Seed 1 is seed 5 mirrored, so I took the orientation with the vowels on the right hand, as most modern layouts do.</p>
-          <p>Seed 0 scores 0.005 better, but it puts r on a home key where seed 5 puts n, and I type n a fifth more often.</p>
+          <p>Three of the eight runs finished within 0.005 points of each other, on a score of 25.5. Three different random starts reaching the same place says the search had found the bottom rather than landed by luck. Seed 1 is seed 5 mirrored, left hand for right, so I took the orientation with the vowels on the right hand, as most modern layouts do.</p>
+          <p>Seed 0 scores 0.005 better, but it puts r on a home key where seed 5 puts n, and I type n a fifth more often than r.</p>
           <p>Among published layouts the analyzer recommended Graphite. I wanted one made for my words.</p>
         </div>
         <div class="step__show">
@@ -182,8 +182,8 @@
             <tbody>
               <tr><td class="name">Score</td><td class="num">25.533</td><td class="num">25.538</td></tr>
               <tr><td class="name">Same-finger bigrams</td><td class="num">1.39%</td><td class="num">1.35%</td></tr>
-              <tr><td class="name">Home row</td><td class="num">58.3%</td><td class="num">58.7%</td></tr>
-              <tr><td class="name">Travel</td><td class="num">1.636</td><td class="num">1.627</td></tr>
+              <tr><td class="name">Keystrokes on the home row</td><td class="num">58.3%</td><td class="num">58.7%</td></tr>
+              <tr><td class="name">Travel, cost per keystroke</td><td class="num">1.636</td><td class="num">1.627</td></tr>
             </tbody>
           </table>
         </div>
@@ -200,9 +200,9 @@
   <div class="container">
     <div class="head">
       <h2 id="measure-head">Measured against the layouts I almost chose</h2>
-      <p class="lead">Every layout run through the same analyzer on the same text. Lower is better, except home row, the share of keystrokes on the resting keys.</p>
+      <p class="lead">Every layout run through the same program on the same text. A percentage is how many of every hundred letter pairs fall into that habit, so lower is better. Home row is the share of keystrokes on the eight resting keys, so higher is better. Travel is the average step 2 cost of a keystroke.</p>
     </div>
-    <p class="measure__note">Colemak-DH wins the home row and the travel, then loses on everything two letters long: half again as many same-finger pairs, five times the inner-column stretches, twice the direction changes. The score column is the step 3 formula, the very thing the search was told to minimise, so it favours Walid by construction. Compare the percentage columns instead: they are plain counts.</p>
+    <p class="measure__note">Colemak-DH wins the home row and the travel, then loses on everything two letters long: half again as many same-finger pairs, five times the inner-column stretches, twice the direction changes. The score column is the step 3 formula, the very thing the search was told to minimise, so it favours Walid by construction. Compare the percentage columns instead: they are plain counts that no weight touches.</p>
     <table class="metrics">
       <thead><tr><th scope="col">Layout</th><th scope="col" class="num">Same-finger bigrams</th><th scope="col" class="num">Skipgrams</th><th scope="col" class="num">Redirects</th><th scope="col" class="num">Lateral stretches</th><th scope="col" class="num">Scissors</th><th scope="col" class="num">Home row</th><th scope="col" class="num">Travel</th><th scope="col" class="num">Score</th></tr></thead>
       <tbody>
@@ -270,10 +270,10 @@
     </div>
     <div class="pinned__panels">
       <div class="head"><h2 id="trainer-head">A trainer that knows which keys lag</h2></div>
-      <article class="panel" data-for="1"><h3>Speed times accuracy opens the next lesson</h3><p>Every key gets a score: how close your speed and accuracy on it are to the target. The next lesson opens once all the new keys are green.</p></article>
+      <article class="panel" data-for="1"><h3>Speed and accuracy open the next lesson</h3><p>For every key the trainer compares your speed on it with the target you set, and your accuracy on it with 95%. A key turns green once both are reached, and the next lesson opens when every new key is green.</p></article>
       <article class="panel" data-for="2"><h3>Chunks and weak pairs</h3><p>Common letter groups (tion, ment, ing) and the pairs you type slowly come back more often, until they stop being slow.</p></article>
       <article class="panel" data-for="3"><h3>The board mirrors the USB key presses</h3><p>Plugged in by USB, the keyboard reports each real press and the board lights the key you hit. Your progress follows you between machines with a secret code, no account.</p></article>
-      <article class="panel" data-for="4"><h3>My own numbers, twelve days in</h3><p>157 texts, 3 h 5 m, 30 wpm at best, 3 keys of 31 at target. Each dot a text, the line the last ten.</p></article>
+      <article class="panel" data-for="4"><h3>My own numbers, twelve days in</h3><p>157 texts, 3 h 5 m, 30 words a minute at best, 3 keys of 31 at target. Each dot is one text; the line is the average of the last ten.</p></article>
     </div>
   </div>
 </section>
