@@ -3,190 +3,230 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Typing trainer for the Walid layout on the Toucan2: lessons that follow your weak keys, chunks, sentences, your own text, and the stats behind them, in the browser.">
 <title>Walid layout trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Archivo:wght@400;500&family=Archivo+Narrow:wght@500&display=swap">
 <script src="keymap.js"></script>
 <script src="qr.js"></script>
 <style>
-  :root {
-    --bg: #101113; --surface: #17181b; --raise: #1d1f23; --line: #26282d; --ink: #ecebe7; --dim: #8f9197; --pending: #7f8188; --faint: #45474d;
-    --key: #18191c; --keyline: #2a2c31; --key-trans: #141518; --accent: #f0b44c; --accent-ink: #1a1203; --accent-soft: rgba(240,180,76,.16);
-    --ok: #8fcf9a; --err: #ef7a80; --err-bg: rgba(239,122,128,.14); --scrim: rgba(0,0,0,.5); --shadow: 0 18px 50px rgba(0,0,0,.28);
-    --l1: #6db3ef; --l2: #c38cf7; --l3: #ffa657; --l4: #7fd7c4; --l5: #f28cb0;
-    --mono: "Geist Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-    --sans: Geist, Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  :root.light, :root:not(.dark) .light-vars { }
-  @media (prefers-color-scheme: light) { :root:not(.dark) { --bg: #f5f3ee; --surface: #ffffff; --raise: #faf8f4; --line: #e3dfd6; --ink: #1c1b19; --dim: #66635d; --pending: #8a867e; --faint: #c4bfb4; --key: #ebe8e1; --keyline: #d6d1c6; --key-trans: #f1eee8; --accent: #9a6400; --accent-ink: #ffffff; --accent-soft: rgba(201,138,18,.16); --ok: #2f7d44; --err: #c23a44; --err-bg: rgba(194,58,68,.1); --scrim: rgba(40,35,25,.18); --shadow: 0 18px 50px rgba(40,35,25,.18); --l1: #2b7cc4; --l2: #8a4fd0; --l3: #c56a12; --l4: #1f8f78; --l5: #c4437a; } }
-  :root.light { --bg: #f5f3ee; --surface: #ffffff; --raise: #faf8f4; --line: #e3dfd6; --ink: #1c1b19; --dim: #66635d; --pending: #8a867e; --faint: #c4bfb4; --key: #ebe8e1; --keyline: #d6d1c6; --key-trans: #f1eee8; --accent: #9a6400; --accent-ink: #ffffff; --accent-soft: rgba(201,138,18,.16); --ok: #2f7d44; --err: #c23a44; --err-bg: rgba(194,58,68,.1); --scrim: rgba(40,35,25,.18); --shadow: 0 18px 50px rgba(40,35,25,.18); --l1: #2b7cc4; --l2: #8a4fd0; --l3: #c56a12; --l4: #1f8f78; --l5: #c4437a; }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
-  button, input, select, textarea { font: inherit; color: inherit; }
-  button { background: none; border: 0; cursor: pointer; padding: 0; }
-  button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  kbd { font: 500 11px var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; color: var(--dim); white-space: nowrap; }
-  [hidden] { display: none !important; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  @keyframes slidein { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Hallmark · shape: app screen · genre: editorial · theme: Formwork (by request: the site's own system, site/tokens.css) · redesign: full
+ * nav: the slab, the site's ink bar, wordmark, mode menu, Stats and Settings as bar links · signature: the Toucan2 board in cast keycaps as on the site's hero, the key to press in orange · states: typing, warm-up, result, paused clock, empty stats, no feed, sync set up and linked · formwork: cast, night pour in dark · modes: light+dark
+ * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · finish-review: subagent · 7 findings · 7 resolved (the text plate at two lines, the ring in ink in both pours, an 11px floor on chart type, the ring inside the phone gutter, one legend per chart, the board sized to the room left up to half the screen, no Ctrl chords or modifier strip on a phone) · gap: none · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: R, the old trainer had pills, three radii and two blurred shadows; every edge is now cast straight and the only depth is the hard shadow under the plates and the keycaps, none at night */
+/* Hallmark · waive 38iii · #stats h3 span is display:block, a second line at text-sm in the label face, one colour · the aside names the chart’s range or unit, which the gate’s own fix (a second line at a second size) allows */
+/* Hallmark · dismissed F4 · the ink fills on a pressed segment, chip and menu item are the current selection, the same recipe as the site’s layer switcher · the orange raised button is the page’s one primary, on the result and in the sync panel only */
+/* Hallmark · reworded: the script's middle-dot meta strings (legends, tooltips, the lesson subtitle) are comma-joined · 63 names them; the accuracy figure starts empty instead of a dash · 19 names it */
+@import url("./tokens.css");
+@import url("./base.css");
 
-  /* header */
-  header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; transition: opacity .5s; }
-  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .brand > span, .brand > a { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
-  .brand > a { color: inherit; text-decoration: none; }   /* back to the site (served at the parent path) */
-  .brand > a:hover { color: var(--accent); }
-  .brand .sl { color: var(--faint); font-weight: 400; }
-  .pop { position: relative; }
-  #mode-btn { display: flex; align-items: center; gap: 8px; padding: 7px 10px 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; }
-  #mode-btn:hover { border-color: var(--faint); }
-  #mode-btn svg { color: var(--dim); }
-  .menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 21; width: 320px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); animation: rise .14s ease-out; }
-  .menu .mg { padding: 10px 10px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
-  .menu button[data-mode] { display: flex; width: 100%; text-align: left; align-items: baseline; gap: 10px; padding: 8px 10px; border-radius: 8px; }
-  .menu button[data-mode]:hover { background: var(--raise); }
-  .menu button[data-mode][aria-pressed="true"] { background: var(--raise); } .menu button[data-mode][aria-pressed="true"] span { color: var(--accent); }
-  .menu button[data-mode] span { font-size: 14px; font-weight: 500; } .menu button[data-mode] small { font-size: 12px; color: var(--dim); flex: 1; }
-  .menu .mf { display: flex; gap: 6px; align-items: center; padding: 10px 10px 4px; border-top: 1px solid var(--line); margin-top: 6px; font-size: 12px; color: var(--dim); }
-  #scrim { position: fixed; inset: 0; z-index: 20; }
-  .grow { flex: 1; }
-  .dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); } .dot i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
-  .hb { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 14px; color: var(--dim); }
-  .hb:hover, .hb[aria-expanded="true"] { color: var(--ink); background: var(--surface); } .hb[aria-expanded="true"] { border-color: var(--line); }
+/* ---- the paper: speck grain across the page, multiplied by day, screened at night (texture.md § 1) ---- */
+body { position: relative; isolation: isolate; }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: var(--z-tooltip); mix-blend-mode: var(--grain-blend); opacity: var(--texture-opacity); background-size: 200px 200px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9 -4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
 
-  /* settings */
-  #settings { position: absolute; top: calc(100% + 8px); right: 0; z-index: 21; width: 360px; max-height: calc(100vh - 90px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); animation: rise .14s ease-out; }
-  #settings section { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line); } #settings section:last-child { border-bottom: 0; }
-  #settings h4 { margin: 0; font-size: 11px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
-  .rowf { display: flex; align-items: center; gap: 12px; } .rowf > .t { flex: 1; min-width: 0; font-size: 14px; } .rowf small, .col small, .note { display: block; font-size: 12px; color: var(--dim); text-wrap: pretty; }
-  .col { display: flex; flex-direction: column; gap: 8px; } .col > .t { font-size: 14px; }
-  .switch { width: 38px; height: 22px; border-radius: 11px; padding: 2px; background: var(--line); display: flex; justify-content: flex-start; transition: background .12s; }
-  .switch i { width: 18px; height: 18px; border-radius: 50%; background: var(--dim); } .switch[aria-pressed="true"] { background: var(--accent); justify-content: flex-end; } .switch[aria-pressed="true"] i { background: var(--accent-ink); }
-  .seg { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 2px; padding: 2px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); }
-  .seg button { padding: 6px 0; border-radius: 6px; font-size: 13px; color: var(--dim); } .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
-  #settings select, .in { padding: 6px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); font-size: 13px; }
-  #targetn { width: 56px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); text-align: right; font: 500 13px var(--mono); -moz-appearance: textfield; }
-  #targetn::-webkit-inner-spin-button, #targetn::-webkit-outer-spin-button { -webkit-appearance: none; }
-  #target { width: 100%; accent-color: var(--accent); }
-  .btn { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--raise); font-size: 13px; } .btn:hover { border-color: var(--faint); }
-  .btn.ghost { background: transparent; color: var(--dim); }
-  .primary { padding: 7px 14px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 500; }
-  #sync-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
-  #sync-code { width: 100%; padding: 7px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); font: 12px var(--mono); letter-spacing: .02em; }
-  #sync-panel .btns { display: flex; gap: 6px; justify-content: flex-end; }
-  #sync-qr:empty { display: none; } #sync-qr svg { display: block; width: 168px; height: 168px; margin: 2px auto; background: #fff; border-radius: 8px; }
+/* ---- type voice ---- */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; min-height: 100dvh; color: var(--color-ink-2); }
+button { background: none; border: 0; cursor: pointer; padding: 0; color: inherit; border-radius: 0; }
+button:disabled, .btn:disabled, .primary:disabled { opacity: 0.55; cursor: not-allowed; }
+input, select, textarea { color: inherit; border-radius: 0; }
+kbd { font: 500 var(--text-xs)/1.4 var(--font-outlier); padding: 0 var(--space-2xs); border: var(--rule-hair) solid var(--color-rule); border-bottom-width: 2px; background: var(--color-plate); color: var(--color-ink-2); white-space: nowrap; }
+@keyframes slidein { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-  /* main */
-  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 28px 20px; }
-  .wrap { width: 100%; max-width: 960px; display: flex; flex-direction: column; gap: 18px; }
-  #lesson-map { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; transition: opacity .5s; }
-  #lesson-map button { display: flex; flex-direction: column; gap: 7px; padding: 0 0 4px; text-align: left; }
-  #lesson-map button:hover { opacity: .8; }
-  #lesson-map i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
-  #lesson-map span { display: flex; align-items: baseline; gap: 8px; font: 500 11px var(--mono); color: var(--dim); } #lesson-map b { color: var(--accent); letter-spacing: .05em; font-weight: 400; }
-  #lesson-map button.some i { background: var(--dim); } #lesson-map button.done i { background: var(--ink); } #lesson-map button.done span { color: var(--ink); }
-  #lesson-map button[aria-current="true"] i { background: var(--accent); } #lesson-map button[aria-current="true"] span { color: var(--accent); }
-  .head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-  .head .ttl { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
-  #lesson-name { font-size: 15px; font-weight: 500; white-space: nowrap; } #lesson-sub { font-size: 14px; color: var(--dim); }
-  #lesson-letters kbd { font: 500 13px var(--mono); padding: 1px 7px; border: 0; border-radius: 5px; background: var(--accent-soft); color: var(--accent); margin-right: 4px; }
-  .live { display: flex; gap: 18px; font: 400 14px var(--mono); color: var(--dim); } .live b { color: var(--ink); font-weight: 500; } #time.paused { color: var(--faint); }
-  #progress { height: 2px; border-radius: 2px; background: var(--line); overflow: hidden; } #progress i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .15s; }
-  #paste { width: 100%; min-height: 110px; padding: 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font: 15px/1.5 var(--mono); resize: vertical; color: var(--ink); }
-  #text { font: 400 clamp(22px, 2.7vw, 32px)/1.75 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--pending); min-height: 5.25em; letter-spacing: .005em; cursor: text; outline: 0; }
-  #text span { border-radius: 3px; } #text .ok { color: var(--ink); } #text .err { color: var(--err); background: var(--err-bg); } #text .cur { color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); } #text.done .cur { box-shadow: none; }
-  #hint { min-height: 28px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; color: var(--dim); flex-wrap: wrap; }
-  #hint b { color: var(--ink); font-weight: 500; } #hint kbd { font: 500 15px var(--mono); min-width: 28px; text-align: center; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--accent); color: var(--accent); }
-  #result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 4px; animation: rise .25s ease-out; }
-  #result .nums { display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; justify-content: center; }
-  #result .nums > div { display: flex; flex-direction: column; align-items: center; gap: 2px; } #result .nums b { font: 500 52px/1 var(--mono); letter-spacing: -.02em; } #result .nums span { font-size: 13px; color: var(--dim); }
-  #result .nums b.stars { font: 400 30px/1 var(--sans); letter-spacing: .12em; color: var(--accent); padding-bottom: 8px; }
-  #result .pb { font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
-  #result .line { display: flex; align-items: baseline; gap: 8px 14px; flex-wrap: wrap; justify-content: center; font-size: 14px; color: var(--dim); max-width: 720px; } #result .line.dim { font-size: 13px; }
-  #result .wk { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line); font-family: var(--mono); } #result .wk b { color: var(--ink); font-weight: 500; } #result .wk i { font-style: normal; font-size: 12px; color: var(--err); }
-  #result .missed span { font-family: var(--mono); } #result .missed b { color: var(--ink); font-weight: 500; } #result .missed i { font-style: normal; color: var(--err); } #result .missed small { color: var(--faint); }
-  #result .btns { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
-  #result .btns button { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 9px; font-size: 14px; }
-  #result .btns .primary kbd { border: 0; background: rgba(0,0,0,.14); color: inherit; } #result .btns #restart { border: 1px solid var(--line); color: var(--dim); } #result .btns #restart:hover { color: var(--ink); } #result #restart kbd { border: 0; }
+/* ---- the slab: the site's ink bar is the shell ---- */
+header { display: flex; align-items: center; gap: var(--space-lg); min-height: 64px; padding-inline: var(--gutter); background: var(--color-bar); color: var(--color-bar-ink); transition: opacity var(--dur-long) var(--ease-out); }
+.brand { display: flex; align-items: center; gap: var(--space-lg); min-width: 0; }
+.brand > a { font: 700 var(--text-lg)/1 var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-display); color: inherit; text-decoration: none; padding-block: var(--space-xs); border-bottom: 2px solid transparent; }
+.brand > a:hover { border-bottom-color: var(--color-accent); }
+.brand > a:focus-visible, .hb:focus-visible, #mode-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+.pop { position: relative; }
+#mode-btn, .hb { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 44px; padding: 0; color: inherit; font: 500 var(--text-md)/1 var(--font-body); border-bottom: 2px solid transparent; transition: border-color var(--dur-micro) var(--ease-out); }
+#mode-btn:hover, .hb:hover { border-bottom-color: var(--color-accent); }
+#mode-btn:active, .hb:active { border-bottom-color: var(--color-accent-deep); }
+#mode-btn[aria-expanded="true"], .hb[aria-expanded="true"] { border-bottom-color: var(--color-accent); }
+#mode-btn svg { opacity: 0.7; }
+.grow { flex: 1; }
+.dot { font: 500 var(--text-sm)/1 var(--font-body); color: var(--color-accent); }
+.hb + .pop { margin-left: var(--space-xs); }
 
-  /* board */
-  footer { padding: 0 28px 26px; }
-  #board-wrap { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  #layer-tag { display: flex; align-items: center; gap: 12px; font: 500 12px var(--mono); letter-spacing: .06em; }
-  #layer-tag .name { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); transition: background .12s, color .12s, border-color .12s; }
-  #layer-tag .name.l1 { background: var(--l1); border-color: var(--l1); color: var(--bg); } #layer-tag .name.l2 { background: var(--l2); border-color: var(--l2); color: var(--bg); } #layer-tag .name.l3 { background: var(--l3); border-color: var(--l3); color: var(--bg); } #layer-tag .name.l4 { background: var(--l4); border-color: var(--l4); color: var(--bg); } #layer-tag .name.l5 { background: var(--l5); border-color: var(--l5); color: var(--bg); }
-  #layer-tag .mods span { color: var(--faint); margin-left: 6px; } #layer-tag .mods span.on { color: var(--ink); }
-  #board { width: 100%; height: auto; display: block; }
-  .key rect { fill: var(--key); stroke: var(--keyline); stroke-width: 1.5; transition: fill .1s, stroke .1s; }
-  .key text { fill: var(--ink); font-family: var(--sans); font-size: 28px; font-weight: 500; text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill .1s; }
-  .key text.small { font-size: 19px; }
-  .key.trans rect { fill: var(--key-trans); stroke: var(--line); } .key.trans text { fill: var(--faint); }
-  .key.next rect { stroke: var(--accent); stroke-width: 3.5; fill: var(--accent-soft); } .key.next text { fill: var(--accent); }
-  .key.down rect { fill: var(--accent); stroke: var(--accent); } .key.down text { fill: var(--accent-ink); }
-  .key.down.wrong rect { fill: var(--err); stroke: var(--err); }
-  .key.heat rect { stroke: var(--err); }
-  .fdot { opacity: .9; }
+/* the mode menu and the settings panel: plates hung from the bar */
+.menu, #settings { position: absolute; top: calc(100% + var(--space-xs)); z-index: var(--z-dropdown); background: var(--color-plate); color: var(--color-ink-2); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); }
+.menu { left: 0; width: 22rem; padding-block: var(--space-xs); }
+.menu .mg { padding: var(--space-sm) var(--space-md) var(--space-2xs); font: 500 var(--text-sm)/1.3 var(--font-body); color: var(--color-muted); }
+.menu button[data-mode] { display: flex; width: 100%; min-height: 36px; text-align: left; align-items: baseline; gap: var(--space-sm); padding: var(--space-xs) var(--space-md); color: var(--color-ink); }
+.menu button[data-mode]:hover { background: var(--color-paper-2); }
+.menu button[data-mode]:active { background: var(--color-paper-3); }
+.menu button[data-mode]:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.menu button[data-mode][aria-pressed="true"] { background: var(--color-ink); color: var(--color-plate-ink); } .menu button[data-mode][aria-pressed="true"] small { color: inherit; }
+.menu button[data-mode] span { font-size: var(--text-md); font-weight: 500; } .menu button[data-mode] small { font-size: var(--text-sm); color: var(--color-muted); flex: 1; }
+.menu .mf { display: flex; gap: var(--space-xs); align-items: center; padding: var(--space-sm) var(--space-md) var(--space-2xs); margin-top: var(--space-xs); border-top: var(--rule-hair) solid var(--color-paper-3); font-size: var(--text-sm); color: var(--color-muted); }
+#scrim { position: fixed; inset: 0; z-index: calc(var(--z-dropdown) - 1); }
 
-  /* shortcuts */
-  .shortcuts { display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap; padding: 0 28px 18px; font-size: 12px; color: var(--dim); transition: opacity .5s; pointer-events: none; }
-  .shortcuts span { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-  body.zen header, body.zen #lesson-map { opacity: .12; } body.zen .shortcuts { opacity: 0; }
+#settings { right: 0; width: 24rem; max-height: calc(100dvh - 88px); overflow: auto; }
+#settings section { padding: var(--space-md) var(--space-lg); display: grid; gap: var(--space-sm); border-bottom: var(--rule-hair) solid var(--color-paper-3); } #settings section:last-child { border-bottom: 0; }
+#settings h4 { margin: 0; font: 500 var(--text-sm)/1.3 var(--font-body); color: var(--color-muted); }
+.rowf { display: flex; align-items: center; gap: var(--space-sm); } .rowf > .t { flex: 1; min-width: 0; font-size: var(--text-sm); color: var(--color-ink); } .rowf small, .col small, .note { display: block; font-size: var(--text-sm); color: var(--color-muted); text-wrap: pretty; }
+.col { display: grid; gap: var(--space-xs); } .col > .t { font-size: var(--text-sm); color: var(--color-ink); }
+.switch { width: 44px; height: 24px; padding: var(--space-3xs); border: 2px solid var(--color-ink); background: var(--color-paper-2); display: flex; justify-content: flex-start; transition: background-color var(--dur-micro) var(--ease-out); }
+.switch i { width: 16px; height: 16px; background: var(--color-ink); } .switch[aria-pressed="true"] { background: var(--color-accent); justify-content: flex-end; }
+.switch:hover { background: var(--color-plate); } .switch[aria-pressed="true"]:hover { background: var(--color-accent); }
+.seg { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; }
+.seg button { min-height: 32px; padding: 0 var(--space-xs); margin-left: calc(-1 * var(--space-3xs)); border: 2px solid var(--color-ink); background: var(--color-paper); color: var(--color-ink); font: 500 var(--text-sm)/1 var(--font-body); } .seg button:first-child { margin-left: 0; }
+.seg button:hover { background: var(--color-plate); } .seg button:active { background: var(--color-paper-3); }
+.seg button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-plate-ink); }
+.seg button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; position: relative; z-index: var(--z-raised); }
+#settings select, .in, #targetn, #sync-code, #paste { min-height: 36px; padding: var(--space-2xs) var(--space-xs); border: 2px solid var(--color-ink); background: var(--color-paper-2); color: var(--color-ink); font-size: var(--text-sm); box-shadow: inset 0 2px 3px color-mix(in oklab, var(--color-ink) 30%, transparent); }
+#settings select:focus-visible, .in:focus-visible, #targetn:focus-visible, #sync-code:focus-visible, #paste:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+#targetn { width: 64px; text-align: right; font-family: var(--font-outlier); font-weight: 500; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+#targetn::-webkit-inner-spin-button, #targetn::-webkit-outer-spin-button { -webkit-appearance: none; }
+#target { width: 100%; min-height: 32px; accent-color: var(--color-accent); margin: 0; }
+#target:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+/* controls: the pair, Oswald capitals, raised and pressed-in (formwork.md § Controls) */
+.btn, #restart, .primary { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-xs); min-height: 36px; padding: 0 var(--space-md); font: 700 var(--text-sm)/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.01em; white-space: nowrap; }
+.btn, #restart { background: var(--color-paper-2); color: var(--color-ink); border: 2px solid var(--color-ink); box-shadow: inset 0 2px 3px color-mix(in oklab, var(--color-ink) 30%, transparent); transition: background-color var(--dur-micro) var(--ease-out); }
+.btn:hover, #restart:hover { background: var(--color-plate); } .btn:active, #restart:active { background: var(--color-paper-3); }
+.primary { background: var(--color-accent); color: var(--color-accent-ink); border: 2px solid var(--color-accent); box-shadow: 0 3px 0 var(--color-accent-deep); transition: translate var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out); }
+.primary:hover { background: color-mix(in oklab, var(--color-accent) 90%, var(--color-plate-ink)); }
+.primary:active { translate: 0 3px; box-shadow: 0 0 0 var(--color-accent-deep); }
+.btn:focus-visible, #restart:focus-visible, .primary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.btn kbd, #restart kbd, .primary kbd { border-color: currentColor; background: transparent; color: inherit; opacity: 0.8; }
+#sync-panel { display: grid; gap: var(--space-xs); padding-top: var(--space-sm); border-top: var(--rule-hair) solid var(--color-paper-3); }
+#sync-code { width: 100%; font-family: var(--font-outlier); letter-spacing: 0.02em; }
+#sync-panel .btns { display: flex; gap: var(--space-xs); justify-content: flex-end; flex-wrap: wrap; }
+#sync-qr:empty { display: none; } #sync-qr svg { display: block; width: 168px; height: 168px; margin: var(--space-2xs) auto; padding: var(--space-xs); background: var(--color-plate-ink); border: 2px solid var(--color-ink); }
 
-  /* stats drawer */
-  dialog { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
-  dialog::backdrop { background: var(--scrim); }
-  #nofeed { max-width: 30rem; padding: 18px 22px; border-radius: 10px; } #nofeed p { margin: 0 0 14px; } #nofeed form { display: flex; justify-content: end; }
-  #stats { position: fixed; top: 0; right: 0; bottom: 0; left: auto; margin: 0; width: min(600px, 100vw); max-width: none; height: 100vh; max-height: none; padding: 0; border-width: 0 0 0 1px; display: flex; flex-direction: column; animation: slidein .2s ease-out; }
-  #stats:not([open]) { display: none; }
-  #stats .top { display: flex; align-items: center; gap: 12px; padding: 18px 22px 0; } #stats .top b { font-size: 17px; font-weight: 600; flex: 1; }
-  #stats-close { padding: 4px 10px; border-radius: 7px; border: 1px solid var(--line); font: 500 11px var(--mono); color: var(--dim); }
-  #tabs { display: flex; gap: 4px; padding: 14px 22px 0; border-bottom: 1px solid var(--line); }
-  #tabs button { padding: 8px 12px 10px; font-size: 14px; color: var(--dim); } #tabs button[aria-pressed="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); }
-  #stats-body { flex: 1; overflow: auto; padding: 22px; } #stats-body [data-tab] { display: flex; flex-direction: column; gap: 28px; }
-  #stats h3 { margin: 0 0 10px; font-size: 14px; font-weight: 500; display: flex; align-items: baseline; gap: 10px; } #stats h3 span { font-size: 12px; font-weight: 400; color: var(--dim); flex: 1; text-align: right; }
-  #stats .bigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 12px; }
-  #stats .big b { display: block; font: 500 28px/1.1 var(--mono); } #stats .big span { font-size: 12px; color: var(--dim); }
-  #stats .row { display: flex; justify-content: flex-end; }
-  #stats .bottom { display: flex; gap: 8px; padding: 14px 22px; border-top: 1px solid var(--line); }
-  .chart { max-width: 100%; height: auto; display: block; overflow: visible; }
-  .chart .grid { stroke: var(--line); }
-  .chart .ax { fill: var(--dim); font: 10px var(--mono); text-anchor: end; dominant-baseline: central; } .chart .ax.l { text-anchor: start; } .chart .ax.c { text-anchor: middle; }
-  .chart .lbl { fill: var(--ink); font: 12px var(--mono); dominant-baseline: central; } .chart .lbl.c { text-anchor: middle; }
-  .chart .tgt { stroke: var(--accent); stroke-dasharray: 3 4; } .chart .tgtl { fill: var(--accent); }
-  .chart .acc { fill: none; stroke: var(--dim); stroke-dasharray: 3 3; } .chart .avg { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-  .chart circle:hover, .chart rect[data-tip]:hover, .chart g[data-tip]:hover rect { stroke: var(--ink); stroke-width: 1.5; }
-  .chart .day.today { stroke: var(--accent); }
-  .chart .cross { stroke: var(--ink); stroke-opacity: .4; stroke-dasharray: 2 3; pointer-events: none; } .chart .hl { fill: none; stroke: var(--ink); stroke-width: 2; pointer-events: none; }
-  .chart.kb rect { stroke: var(--keyline); stroke-width: 1.5; } .chart.kb text { fill: var(--ink); font: 500 28px var(--sans); text-anchor: middle; dominant-baseline: central; pointer-events: none; } .chart.kb text.v { font: 18px var(--mono); fill: var(--dim); }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0 0 10px; } .chips .gap { flex: 1; }
-  .chip { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
-  .chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; } .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
-  #stats .legend, #stats .empty { color: var(--dim); font-size: 12px; margin: 6px 0 0; }
-  .lessons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-  .lcell { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); text-align: left; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lcell small { font: 500 12px var(--mono); color: var(--dim); } .lcell b { font-size: 11px; color: var(--accent); letter-spacing: .08em; min-height: 14px; font-weight: 400; } .lcell[aria-current="true"] { border-color: var(--accent); }
-  #tip { position: fixed; z-index: 40; pointer-events: none; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 5px; font: 12px/1.6 var(--mono); white-space: nowrap; }
-  #tip i { display: inline-block; width: 12px; height: 8px; margin-right: 6px; vertical-align: middle; border-radius: 50%; background: var(--bg); } #tip i.ln { height: 0; border-radius: 0; border-top: 2px solid var(--bg); } #tip i.ln.da { border-top-style: dashed; }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  @media (max-width: 800px) { header, main, footer, .shortcuts { padding-left: 16px; padding-right: 16px; } #settings { width: min(360px, calc(100vw - 32px)); } #lesson-map { grid-template-columns: repeat(5, minmax(0, 1fr)); } .menu { width: min(320px, calc(100vw - 32px)); } }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* ---- main: the lesson track, the title line, the text, the hint ---- */
+main { display: flex; flex-direction: column; align-items: center; padding: var(--space-lg) var(--gutter); }
+.wrap { width: 100%; max-width: 960px; display: grid; gap: var(--space-lg); }
+/* the lessons as a pour sequence: ink bars under one rule, Oswald numerals, the current one orange */
+#lesson-map { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); border-top: var(--rule-bar) solid var(--color-ink); transition: opacity var(--dur-long) var(--ease-out); }
+#lesson-map button { display: grid; gap: var(--space-xs); padding: var(--space-xs) var(--space-xs) var(--space-xs) 0; text-align: left; align-content: start; }
+#lesson-map button:hover span { color: var(--color-ink); } #lesson-map button:active i { background: var(--color-ink); }
+#lesson-map button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+#lesson-map i { display: block; height: 3px; background: var(--color-paper-3); }
+#lesson-map span { display: flex; align-items: baseline; gap: var(--space-xs); font: 700 var(--text-lg)/1 var(--font-display); color: var(--color-muted); } #lesson-map b { font: 400 var(--text-xs)/1 var(--font-body); color: var(--color-accent); }
+#lesson-map button.some i { background: var(--color-muted); } #lesson-map button.done i { background: var(--color-ink); } #lesson-map button.done span { color: var(--color-ink); }
+#lesson-map button[aria-current="true"] i { background: var(--color-accent); } #lesson-map button[aria-current="true"] span { color: var(--color-accent); }
+.head { display: flex; align-items: baseline; gap: var(--space-md); flex-wrap: wrap; }
+.head .ttl { display: flex; align-items: baseline; gap: var(--space-sm); flex-wrap: wrap; flex: 1; min-width: 0; }
+#lesson-name { font: 700 var(--text-xl)/1.05 var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-display); color: var(--color-ink); white-space: nowrap; } #lesson-sub { font-size: var(--text-md); color: var(--color-ink-2); }
+#lesson-letters kbd { font: 700 var(--text-md)/1.4 var(--font-display); text-transform: uppercase; padding: 0 var(--space-xs); border: 0; background: var(--color-ink); color: var(--color-plate-ink); margin-right: var(--space-2xs); }
+.live { display: flex; gap: var(--space-md); font: 500 var(--text-lg)/1 var(--font-outlier); font-variant-numeric: tabular-nums; color: var(--color-muted); } .live b { color: var(--color-ink); font-weight: 500; } #time.paused { color: var(--color-paper-3); }
+#progress { height: 3px; background: var(--color-paper-3); overflow: hidden; } #progress i { display: block; height: 100%; width: 0; background: var(--color-ink); }
+#paste { width: 100%; min-height: 110px; padding: var(--space-sm); font: var(--text-md)/1.5 var(--font-body); resize: vertical; }
+#text { font: 400 clamp(1.5rem, 2.6vw, 2.125rem)/1.7 var(--font-body); white-space: pre-wrap; word-break: break-word; color: var(--color-muted); min-height: 3.4em; letter-spacing: 0.01em; cursor: text; }
+#text:focus-visible { outline: 2px solid var(--color-ink); outline-offset: calc(min(var(--gutter), 20px) - 4px); }   /* the sheet: the text has focus whenever you type, so the ring is the ink of the page, not the orange */
+#text .ok { color: var(--color-ink); } #text .err { color: var(--color-error); background: var(--err-bg); } #text .cur { color: var(--color-ink); box-shadow: inset 0 -3px 0 var(--color-accent); } #text.done .cur { box-shadow: none; }
+#hint { min-height: 32px; display: flex; align-items: center; justify-content: center; gap: var(--space-xs); font-size: var(--text-md); color: var(--color-ink-2); flex-wrap: wrap; }
+#hint b { color: var(--color-ink); font-weight: 500; } #hint kbd { font: 700 var(--text-md)/1 var(--font-display); text-transform: uppercase; min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; padding: 0 var(--space-xs); border: 2px solid var(--color-accent); background: transparent; color: var(--color-accent); }
+/* the result: the figures under one rule, Oswald, the pair of actions */
+#result { display: grid; justify-items: center; gap: var(--space-lg); }
+#result .nums { display: flex; align-items: flex-end; gap: var(--space-2xl); flex-wrap: wrap; justify-content: center; width: 100%; padding-top: var(--space-md); border-top: var(--rule-bar) solid var(--color-ink); }
+#result .nums > div { display: grid; justify-items: start; gap: var(--space-2xs); } #result .nums b { font: 700 clamp(3rem, 6vw, 5rem)/1 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); font-variant-numeric: tabular-nums; } #result .nums span { font: 500 var(--text-sm)/1.3 var(--font-body); color: var(--color-muted); }
+#result .nums b.stars { font: 400 2.25rem/1 var(--font-body); letter-spacing: 0.08em; color: var(--color-accent); padding-bottom: var(--space-xs); }
+#result .pb { font: 500 var(--text-sm)/1.3 var(--font-body); padding: var(--space-2xs) var(--space-xs); background: var(--color-accent); color: var(--color-accent-ink); }
+#result .line { display: flex; align-items: baseline; gap: var(--space-xs) var(--space-md); flex-wrap: wrap; justify-content: center; font-size: var(--text-md); color: var(--color-ink-2); max-width: 720px; } #result .line.dim { font-size: var(--text-sm); color: var(--color-muted); }
+#result .wk { display: inline-flex; gap: var(--space-xs); align-items: baseline; padding: 0 var(--space-xs); border: var(--rule-hair) solid var(--color-rule); font-family: var(--font-outlier); font-weight: 500; } #result .wk b { color: var(--color-ink); font-weight: 500; } #result .wk i { font-style: normal; font-size: var(--text-sm); color: var(--color-error); }
+#result .missed b { color: var(--color-ink); font-weight: 500; } #result .missed i { font-style: normal; color: var(--color-error); } #result .missed small { color: var(--color-muted); }
+#result .btns { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; justify-content: center; }
+#result .btns button { min-height: 44px; padding: 0 var(--space-lg); font-size: var(--text-md); }
+
+/* ---- the board: cast keycaps as on the site's hero; the key to press is the page's orange ---- */
+/* the board takes what the text leaves, up to half the screen, and shrinks on a short one so the thumb row stays on it */
+footer { flex: 1 1 auto; min-height: 232px; display: grid; align-content: center; padding: 0 var(--gutter) var(--space-lg); }
+#board-wrap { width: 100%; max-width: 1100px; height: 100%; min-height: 0; margin: 0 auto; display: grid; grid-template-rows: auto minmax(0, 1fr); justify-items: center; gap: var(--space-sm); }
+#layer-tag { display: flex; align-items: center; gap: var(--space-sm); font: 500 var(--text-sm)/1 var(--font-body); color: var(--color-muted); }
+#layer-tag .name { display: inline-flex; align-items: center; min-height: 28px; padding: 0 var(--space-sm); border: 2px solid var(--color-ink); color: var(--color-ink); transition: background-color var(--dur-micro) var(--ease-out); }
+#layer-tag .name.l1 { background: var(--l1); border-color: var(--l1); color: var(--color-tag-ink); } #layer-tag .name.l2 { background: var(--l2); border-color: var(--l2); color: var(--color-tag-ink); } #layer-tag .name.l3 { background: var(--l3); border-color: var(--l3); color: var(--color-tag-ink); } #layer-tag .name.l4 { background: var(--l4); border-color: var(--l4); color: var(--color-tag-ink); } #layer-tag .name.l5 { background: var(--l5); border-color: var(--l5); color: var(--color-tag-ink); }
+#layer-tag .mods { display: flex; gap: var(--space-xs); } #layer-tag .mods span { padding: var(--space-3xs) var(--space-2xs); color: var(--color-muted); } #layer-tag .mods span.on { background: var(--color-accent); color: var(--color-accent-ink); }
+#board { width: 100%; height: 100%; min-height: 160px; max-height: 50dvh; display: block; overflow: visible; }
+.key rect { fill: var(--color-plate); stroke: var(--color-ink); stroke-width: 3; filter: var(--cast); transition: fill var(--dur-micro) var(--ease-out), stroke var(--dur-micro) var(--ease-out); }
+.key text { fill: var(--color-ink); font: 700 36px var(--font-display); text-transform: uppercase; text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill var(--dur-micro) var(--ease-out); }
+.key text.small { font-size: 22px; }
+.key.trans rect { fill: var(--color-paper-2); stroke: var(--color-paper-3); stroke-width: 2; filter: none; } .key.trans text { fill: var(--color-muted); }
+.key.next rect { fill: var(--color-accent); stroke: var(--color-ink); } .key.next text { fill: var(--color-accent-ink); }
+.key.down rect { fill: var(--color-ink); stroke: var(--color-ink); } .key.down text { fill: var(--color-plate-ink); }
+.key.down.wrong rect { fill: var(--color-error); stroke: var(--color-error); }
+.key.heat rect { stroke: var(--color-error); }
+.fdot { opacity: 0.9; }
+
+/* ---- shortcuts ---- */
+.shortcuts { display: flex; justify-content: center; gap: var(--space-xs) var(--space-md); flex-wrap: wrap; padding: 0 var(--gutter) var(--space-md); font-size: var(--text-sm); color: var(--color-muted); transition: opacity var(--dur-long) var(--ease-out); pointer-events: none; }
+.shortcuts span { display: flex; gap: var(--space-xs); align-items: center; white-space: nowrap; }
+body.zen header, body.zen #lesson-map { opacity: 0.12; } body.zen .shortcuts { opacity: 0; }
+
+/* ---- the stats drawer: a plate hinged on the right ---- */
+dialog { background: var(--color-plate); color: var(--color-ink-2); border: 0; }
+dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transparent); }
+#nofeed { max-width: 30rem; padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); } #nofeed p { margin: 0 0 var(--space-md); max-width: none; } #nofeed b { color: var(--color-ink); } #nofeed form { display: flex; justify-content: end; }
+#stats { position: fixed; top: 0; right: 0; bottom: 0; left: auto; margin: 0; width: min(600px, 100%); max-width: none; height: 100dvh; max-height: none; padding: 0; border-left: var(--rule-bar) solid var(--color-ink); display: flex; flex-direction: column; animation: slidein var(--dur-long) var(--ease-out); }
+#stats:not([open]) { display: none; }
+#stats .top { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-lg) var(--space-lg) 0; } #stats .top b { flex: 1; font: 700 var(--text-xl)/1 var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-display); color: var(--color-ink); }
+#tabs { display: flex; gap: var(--space-lg); padding: var(--space-md) var(--space-lg) 0; border-bottom: var(--rule-bar) solid var(--color-ink); overflow-x: auto; }
+#tabs button { min-height: 40px; padding: 0 0 var(--space-xs); margin-bottom: calc(-1 * var(--rule-bar)); font: 500 var(--text-md)/1 var(--font-body); color: var(--color-muted); border-bottom: 3px solid transparent; white-space: nowrap; transition: color var(--dur-micro) var(--ease-out); } #tabs button:hover { color: var(--color-ink); } #tabs button[aria-pressed="true"] { color: var(--color-ink); border-bottom-color: var(--color-accent); }
+#tabs button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+#stats-body { flex: 1; overflow: auto; padding: var(--space-lg); } #stats-body [data-tab] { display: grid; gap: var(--space-xl); }
+#stats h3 { margin: 0 0 var(--space-sm); font: 500 var(--text-md)/1.3 var(--font-body); letter-spacing: 0; text-transform: none; color: var(--color-ink); max-width: none; padding-bottom: var(--space-2xs); border-bottom: var(--rule-hair) solid var(--color-paper-3); } #stats h3 span { display: block; font-size: var(--text-sm); font-weight: 400; color: var(--color-muted); }
+#stats .bigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); }
+#stats .big { border-top: var(--rule-bar) solid var(--color-ink); padding-top: var(--space-xs); } #stats .big b { display: block; font: 700 var(--text-3xl)/1 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); font-variant-numeric: tabular-nums; } #stats .big span { font-size: var(--text-sm); color: var(--color-muted); }
+#stats .row { display: flex; justify-content: flex-end; }
+#stats .bottom { display: flex; gap: var(--space-xs); padding: var(--space-md) var(--space-lg); border-top: var(--rule-bar) solid var(--color-ink); }
+.chart { max-width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--color-paper-3); }
+.chart .ax { fill: var(--color-muted); font: 500 11px var(--font-outlier); text-anchor: end; dominant-baseline: central; } .chart .ax.l { text-anchor: start; } .chart .ax.c { text-anchor: middle; }
+.chart .lbl { fill: var(--color-ink); font: 500 13px var(--font-outlier); dominant-baseline: central; } .chart .lbl.c { text-anchor: middle; }
+.chart .tgt { stroke: var(--color-accent); stroke-dasharray: 3 4; } .chart .tgtl { fill: var(--color-accent); }
+.chart .acc { fill: none; stroke: var(--color-muted); stroke-dasharray: 3 3; } .chart .avg { fill: none; stroke: var(--color-ink); stroke-width: 2; stroke-linejoin: round; }
+.chart circle:hover, .chart rect[data-tip]:hover, .chart g[data-tip]:hover rect { stroke: var(--color-ink); stroke-width: 1.5; }
+.chart .day.today { stroke: var(--color-accent); }
+.chart .cross { stroke: var(--color-ink); stroke-opacity: 0.4; stroke-dasharray: 2 3; pointer-events: none; } .chart .hl { fill: none; stroke: var(--color-ink); stroke-width: 2; pointer-events: none; }
+.chart.kb rect { stroke: var(--color-ink); stroke-width: 2; } .chart.kb text { fill: var(--color-ink); font: 700 30px var(--font-display); text-transform: uppercase; text-anchor: middle; dominant-baseline: central; pointer-events: none; } .chart.kb text.v { font: 500 24px var(--font-outlier); text-transform: none; fill: var(--color-muted); }
+.chips { display: flex; flex-wrap: wrap; align-items: center; margin: 0 0 var(--space-sm); row-gap: var(--space-xs); } .chips .gap { flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 32px; padding: 0 var(--space-sm); margin-left: calc(-1 * var(--space-3xs)); border: 2px solid var(--color-ink); background: var(--color-paper); color: var(--color-ink); font: 500 var(--text-sm)/1 var(--font-body); } .chip:first-child { margin-left: 0; }
+.chip:hover { background: var(--color-plate); } .chip:active { background: var(--color-paper-3); } .chip[aria-pressed="true"] { background: var(--color-ink); color: var(--color-plate-ink); }
+.chip:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; position: relative; z-index: var(--z-raised); }
+.chip i { width: 10px; height: 10px; display: inline-block; }
+#stats .legend, #stats .empty { color: var(--color-muted); font-size: var(--text-sm); margin: var(--space-xs) 0 0; max-width: none; }
+.lessons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.lcell { display: grid; gap: var(--space-3xs); padding: var(--space-xs) var(--space-sm); margin: -1px 0 0 -1px; border: var(--rule-hair) solid var(--color-paper-3); text-align: left; font-size: var(--text-sm); color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lcell:hover { background: var(--color-paper-2); } .lcell:active { background: var(--color-paper-3); }
+.lcell small { font: 500 var(--text-sm)/1.2 var(--font-outlier); color: var(--color-muted); } .lcell b { font: 400 var(--text-xs)/1.2 var(--font-body); color: var(--color-accent); min-height: 1lh; } .lcell[aria-current="true"] { position: relative; z-index: var(--z-raised); box-shadow: inset 0 0 0 2px var(--color-accent); }
+.lcell:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; position: relative; z-index: var(--z-raised); }
+#tip { position: fixed; z-index: var(--z-tooltip); pointer-events: none; background: var(--color-ink); color: var(--color-plate-ink); padding: var(--space-2xs) var(--space-xs); font: 500 var(--text-xs)/1.6 var(--font-outlier); white-space: nowrap; }
+#tip i { display: inline-block; width: 12px; height: 8px; margin-right: var(--space-xs); vertical-align: middle; background: var(--color-plate-ink); } #tip i.ln { height: 0; border-top: 2px solid var(--color-plate-ink); } #tip i.ln.da { border-top-style: dashed; }
+.sr { position: fixed; left: 0; bottom: 0; transform: translateY(100%); width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+@media (max-width: 60rem) {
+  header { position: relative; flex-wrap: wrap; row-gap: 0; padding-block: var(--space-xs); gap: var(--space-md); }
+  .pop { position: static; }
+  .menu, #settings { left: var(--gutter); right: var(--gutter); width: auto; top: calc(100% + var(--space-2xs)); }
+  #lesson-map { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  #lesson-name { white-space: normal; }
+  #stats .bigs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lessons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shortcuts, #layer-tag .mods { display: none; }
+}
+@media (max-width: 40rem) {
+  footer { padding-inline: 0; }
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><a href="../" title="Walid, the layout: how it was made, the firmware">toucan</a><span class="sl">/</span>
+  <div class="brand"><a href="../" title="Walid, the layout: how it was made, the firmware">toucan</a>
     <div class="pop">
-      <button id="mode-btn" aria-expanded="false" aria-haspopup="menu"><span id="mode-name">Lessons</span><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button id="mode-btn" aria-expanded="false" aria-haspopup="menu"><span id="mode-name">Lessons</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <div id="mode-menu" class="menu" hidden></div>
     </div>
   </div>
   <div class="grow"></div>
-  <span class="dot" id="feed-dot" hidden><i></i>Live feed</span>
-  <span class="dot" id="sync-dot" hidden><i></i>Synced</span>
-  <button class="hb" id="statsbtn" title="Statistics (Ctrl+I)"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 13V8M8 13V3M13 13V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Stats</span></button>
+  <span class="dot" id="feed-dot" hidden>Live feed</span>
+  <span class="dot" id="sync-dot" hidden>Synced</span>
+  <button class="hb" id="statsbtn" title="Statistics (Ctrl+I)"><span>Stats</span></button>
   <div class="pop">
-    <button class="hb" id="settings-btn" aria-expanded="false" title="Settings (Ctrl+,)"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M2 5h7M12 5h2M2 11h2M7 11h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10.5" cy="5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="11" r="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Settings</span></button>
+    <button class="hb" id="settings-btn" aria-expanded="false" title="Settings (Ctrl+,)"><span>Settings</span></button>
     <div id="settings" hidden>
       <section>
         <h4>Keyboard</h4>
@@ -199,7 +239,7 @@
         <h4>Practice</h4>
         <div class="col"><div class="rowf"><div class="t">Target speed</div><input type="number" id="targetn" min="15" max="999"><small>wpm</small></div><input type="range" id="target" min="15" max="150" step="1"><small>A key counts as learned at this speed with 95%+ accuracy.</small></div>
         <div class="rowf"><div class="t">Click on mistakes</div><button class="switch" id="sound" aria-pressed="false" aria-label="Click on mistakes"><i></i></button></div>
-        <div class="rowf"><div class="t">Appearance</div><div class="seg" id="themeseg" style="width:190px"><button type="button" data-v="auto">Auto</button><button type="button" data-v="dark">Dark</button><button type="button" data-v="light">Light</button></div></div>
+        <div class="rowf"><div class="t">Appearance</div><div class="seg" id="themeseg"><button type="button" data-v="auto">Auto</button><button type="button" data-v="dark">Dark</button><button type="button" data-v="light">Light</button></div></div>
       </section>
       <section>
         <h4>Devices</h4>
@@ -222,7 +262,7 @@
     <div id="lesson-map" aria-label="Lessons"></div>
     <div class="head">
       <div class="ttl"><span id="lesson-name"></span><span id="lesson-sub"></span><span id="lesson-letters"></span></div>
-      <div class="live"><span><b id="wpm">0</b> wpm</span><span><b id="acc">–</b></span><span id="time">00:00</span></div>
+      <div class="live"><span><b id="wpm">0</b> wpm</span><span><b id="acc"></b></span><span id="time">00:00</span></div>
     </div>
     <div id="progress"><i></i></div>
     <textarea id="paste" hidden placeholder="Paste or write any text, then click outside and start typing."></textarea>
@@ -242,7 +282,7 @@
 <span class="sr">Streak <b id="streak">0</b> days, <b id="today">0</b> minutes today</span>
 
 <dialog id="stats" aria-label="Statistics">
-  <div class="top"><b>Statistics</b><button type="button" id="stats-close">Esc</button></div>
+  <div class="top"><b>Statistics</b><button type="button" class="btn" id="stats-close" title="Esc">Close</button></div>
   <div id="tabs"><button type="button" data-tab="overview" aria-pressed="true">Overview</button><button type="button" data-tab="keys" aria-pressed="false">Keys</button><button type="button" data-tab="pairs" aria-pressed="false">Letter pairs</button><button type="button" data-tab="practice" aria-pressed="false">Practice</button></div>
   <div id="stats-body"></div>
   <div id="tip" hidden></div>
@@ -250,7 +290,7 @@
 </dialog>
 
 <dialog id="nofeed">
-  <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard's USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
+  <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard’s USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
   <form method="dialog"><button class="btn">OK</button></form>
 </dialog>
 
@@ -380,7 +420,7 @@
       if (!same(m, loc)) adopt(m); else if (!same(m, o)) push(); } catch {} }   // adopt reloads; the next pull then pushes the merged copy
   const hex = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
   function paintSync() {
-    $("#sync-status").textContent = code ? `On · ${code.slice(0, 6)}…` : "Off · progress stays on this device";
+    $("#sync-status").textContent = code ? `On, ${code.slice(0, 6)}…` : "Off, progress stays on this device";
     $("#sync").textContent = $("#sync-panel").hidden ? (code ? "Manage" : "Set up") : "Close";
     $("#sync-dot").hidden = !code; $("#unlink").hidden = !code;
   }
@@ -419,7 +459,7 @@
       const g = document.createElementNS(NS, "g"); g.classList.add("key"); g.dataset.pos = i;
       if (p.r) g.setAttribute("transform", `rotate(${p.r} ${p.rx} ${p.ry})`);
       const r = document.createElementNS(NS, "rect");
-      r.setAttribute("x", p.x + 4); r.setAttribute("y", p.y + 4); r.setAttribute("width", p.w - 8); r.setAttribute("height", p.h - 8); r.setAttribute("rx", 10);
+      r.setAttribute("x", p.x + 4); r.setAttribute("y", p.y + 4); r.setAttribute("width", p.w - 8); r.setAttribute("height", p.h - 8);
       const t = document.createElementNS(NS, "text"); t.setAttribute("x", p.x + p.w / 2); t.setAttribute("y", p.y + p.h / 2);
       const d = document.createElementNS(NS, "circle"); d.classList.add("fdot"); d.setAttribute("cx", p.x + p.w - 16); d.setAttribute("cy", p.y + 16); d.setAttribute("r", 4);
       const f = fingerOf(i); d.setAttribute("fill", f < 8 ? FINGER_COLOR[f] : "#8a94a0");
@@ -562,7 +602,7 @@
       head(`Lesson ${lesson + 1} of ${LESSONS.length}`, name.replace(/^Add .*/, "New keys"), lesson > 0 && intro.length <= 8 ? [...intro] : []);
       // warm-up: new keys you have barely typed are shown once, each pressed three times, before the real text (Esc or leaving brings it back until it is typed through)
       const fresh = [...intro].filter((c) => (KS[c]?.n || 0) < 6 && c === c.toLowerCase());
-      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { warmLesson = lesson; $("#lesson-sub").textContent += " · warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
+      if (fresh.length && fresh.length <= 8 && !previewed.has(lesson)) { warmLesson = lesson; $("#lesson-sub").textContent += ", warm-up: find each new key"; return (fresh.join(" ") + " ").repeat(3).trim(); }
       if (name.startsWith("Accents")) return Array.from({ length: N - 2 }, picker(T.words.fr_acc.length ? T.words.fr_acc : ["été", "à", "déjà", "très", "être", "ça"])).join(" ");
       if (name === "Capitals") { const pick = picker(pool); return Array.from({ length: N }, () => { const w = pick(); return Math.random() < .5 ? w[0].toUpperCase() + w.slice(1) : w; }).join(" "); }
       if (name.startsWith("Numbers")) return Array.from({ length: N - 2 }, () => Math.random() < .35 ? rnd(["3la", "7ta", "9bel", "3andi", "wa7ed", "sa7a", "2026", "3", "7", "9"]) : String(Math.floor(Math.random() * 9999))).join(" ");
@@ -570,7 +610,7 @@
       if (name.startsWith("Punctuation")) return wordsWith(letters, pool, N).split(" ").map((w) => { const r = Math.random(); return r < .25 ? w + "," : r < .45 ? w + "." : r < .55 ? w + "'s" : r < .65 ? "l'" + w : r < .75 ? w + "-" + rnd(["ci", "là", "up", "on"]) : w; }).join(" ");
       return wordsWith(letters, pool, N);
     }
-    head(modeName[mode], mode === "burst" ? `${BURST_MS / 1000} seconds · aim for ${targetWpm + 10} wpm` : modeDesc[mode], []);
+    head(modeName[mode], mode === "burst" ? `${BURST_MS / 1000} seconds, aim for ${targetWpm + 10} wpm` : modeDesc[mode], []);
     if (mode === "chunks") return chunkText();
     if (mode === "sentences") { const picks = new Set(); while (picks.size < 3) picks.add(rnd(SENTENCES)); return [...picks].join(" "); }
     if (mode === "burst") return Array.from({ length: 90 }, () => rnd(pool)).join(" ");
@@ -632,7 +672,7 @@
   function newText() {
     target = makeText(); idx = 0; marks = []; typed = []; startT = 0; keystrokes = 0; wrong = 0; done = false; pausedMs = 0; lastKeyT = 0; errs = []; sameShift = 0;
     if (mode === "burst") $("#progress i").style.width = "0%";
-    clearInterval(timer); textEl.classList.remove("done"); $("#time").textContent = "00:00"; $("#wpm").textContent = "0"; $("#acc").textContent = "–";
+    clearInterval(timer); textEl.classList.remove("done"); $("#time").textContent = "00:00"; $("#wpm").textContent = "0"; $("#acc").textContent = "";
     $("#result").hidden = true; $("#hint").hidden = false; zen(false);
     render(); textEl.focus({ preventScroll: true });
   }
@@ -642,7 +682,7 @@
     $("#time").classList.toggle("paused", !done && lastKeyT > 0 && Date.now() - lastKeyT > 5000);
     if (mode === "burst") $("#progress i").style.width = Math.min(100, 100 * elapsed() / BURST_MS) + "%";
     const correct = marks.slice(0, idx).filter(Boolean).length; $("#wpm").textContent = s > 1 ? Math.round((correct / 5) / (s / 60)) : "0";
-    $("#acc").textContent = keystrokes ? (100 * (keystrokes - wrong) / keystrokes).toFixed(1) + "%" : "–";
+    $("#acc").textContent = keystrokes ? (100 * (keystrokes - wrong) / keystrokes).toFixed(1) + "%" : "";
   }
   const today = () => new Date().toISOString().slice(0, 10);
   const days = JSON.parse(localStorage.getItem("toucan.days") || "{}");   // date -> seconds practised
@@ -782,7 +822,7 @@
   async function feedOpen(port) {
     try {
       await port.open({ baudRate: 115200 }); feedPort = port; feedOn = true; feedLayers.clear();
-      $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Disconnect"; $("#feed-status").textContent = "Connected · the board shows your real keys and layers"; $("#feed-dot").hidden = false;
+      $("#feed").setAttribute("aria-pressed", "true"); $("#feed").textContent = "Disconnect"; $("#feed-status").textContent = "Connected, the board shows your real keys and layers"; $("#feed-dot").hidden = false;
       feedReader = port.readable.pipeThrough(new TextDecoderStream()).getReader(); let buf = "";
       for (;;) { const { value, done: end } = await feedReader.read(); if (end) break; buf += value; const lines = buf.split("\n"); buf = lines.pop(); lines.forEach(feedLine); }
     } catch (err) { console.warn("feed", err); }
@@ -804,7 +844,7 @@
     const map = $("#lesson-map"); map.innerHTML = "";
     LESSONS.forEach(([name], i) => {
       const b = document.createElement("button"); const st = best[i] || 0, cur = i === lesson && mode === "lesson";
-      b.innerHTML = `<i></i><span>${i + 1}<b>${"★".repeat(st)}</b></span>`; b.title = `Lesson ${i + 1} · ${name}${mastered(i) ? " · mastered" : ""}`;
+      b.innerHTML = `<i></i><span>${i + 1}<b>${"★".repeat(st)}</b></span>`; b.title = `Lesson ${i + 1}, ${name}${mastered(i) ? ", mastered" : ""}`;
       b.classList.toggle("done", mastered(i)); b.classList.toggle("some", !mastered(i) && st > 0); b.setAttribute("aria-current", String(cur));
       b.addEventListener("click", () => setLesson(i)); map.appendChild(b);
     });
@@ -875,7 +915,7 @@
     s += pts.map((h, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(+h.wpm || 0).toFixed(1)}" r="${pts.length > 120 ? 2.5 : 4}" fill="${modeCol(h.mode)}"/>`).join("");
     s += `<line class="cross" y1="${T}" y2="${T + hh}" visibility="hidden"/><circle class="hl" r="7" visibility="hidden"/>`;
     SP = { pts, avg, accAvg, x, y, L, w, W };   // read by the hover handler: nearest text under the mouse, every series at that index
-    return chips + svgOpen(W, H, "speed") + s + `</svg><p class="legend">dots: one per text, coloured by mode · line: average of the last 10 · dashed: accuracy averaged the same way, right scale · orange: target</p>`;
+    return chips + svgOpen(W, H, "speed") + s + `</svg><p class="legend">dots: one per text, coloured by mode, line: average of the last 10, dashed: accuracy averaged the same way, right scale, orange: target</p>`;
   }
 
   function calendar(hist) {
@@ -887,8 +927,8 @@
     for (let d = new Date(start), i = 0; d <= end; d.setUTCDate(d.getUTCDate() + 1), i++) {
       const k = dayKey(d), col = Math.floor(i / 7), row = i % 7, sec = days[k] || 0, X = L + col * (cell + gap), Y = T + row * (cell + gap), t = txt[k];
       if (row === 0 && d.getUTCMonth() !== lastM) { s += `<text x="${X}" y="7" class="ax l">${d.toLocaleDateString(undefined, { month: "short", timeZone: "UTC" })}</text>`; lastM = d.getUTCMonth(); }
-      const tip = sec ? `${fmtDay(d)} · ${Math.floor(sec / 60)} min${t ? ` · ${t.n} texts · ${Math.round(t.s / t.n)} wpm` : ""}` : `${fmtDay(d)} · no practice`;
-      s += `<rect x="${X}" y="${Y}" width="${cell}" height="${cell}" rx="2" class="day${k === today() ? " today" : ""}" fill="${sec ? "var(--ok)" : "var(--key)"}" fill-opacity="${sec ? (0.25 + 0.75 * Math.min(1, sec / max)).toFixed(2) : 1}" data-tip="${esc(tip)}"/>`;
+      const tip = sec ? `${fmtDay(d)}, ${Math.floor(sec / 60)} min${t ? `, ${t.n} texts, ${Math.round(t.s / t.n)} wpm` : ""}` : `${fmtDay(d)}, no practice`;
+      s += `<rect x="${X}" y="${Y}" width="${cell}" height="${cell}" class="day${k === today() ? " today" : ""}" fill="${sec ? "var(--ok)" : "var(--key)"}" fill-opacity="${sec ? (0.25 + 0.75 * Math.min(1, sec / max)).toFixed(2) : 1}" data-tip="${esc(tip)}"/>`;
     }
     ["Mon", "Wed", "Fri"].forEach((n, i) => s += `<text x="0" y="${T + (1 + 2 * i) * (cell + gap) + cell / 2}" class="ax l">${n}</text>`);
     return svgOpen(L + weeks * (cell + gap), T + 7 * (cell + gap)) + s + `</svg><p class="legend">one square per day, darker = more minutes</p>`;
@@ -907,9 +947,9 @@
         const v = S.metric === "mastery" ? m : S.metric === "speed" ? wpm / targetWpm : S.metric === "acc" ? (acc - 80) / 20 : null;
         if (v !== null) fill = hue(v); else { fill = "var(--err)"; op = heat[i] ? 0.2 + 0.8 * heat[i] / hmax : 0.06; }
         val = S.metric === "mastery" ? Math.round(100 * m) + "%" : S.metric === "speed" ? wpm : S.metric === "acc" ? acc.toFixed(0) + "%" : (heat[i] || 0);
-        tip = `${k0.label} · ${k.n + k.e} presses · ${acc.toFixed(0)}% accuracy · ${Math.round(k.ms)} ms per press (${wpm} wpm) · mastery ${Math.round(100 * m)}% · hit by mistake ${heat[i] || 0}×`;
-      } else if (heat[i] && S.metric === "err") { fill = "var(--err)"; op = 0.2 + 0.8 * heat[i] / hmax; val = heat[i]; tip += ` · hit by mistake ${heat[i]}×`; }
-      s += `<g${p.r ? ` transform="rotate(${p.r} ${p.rx} ${p.ry})"` : ""} data-tip="${esc(tip)}"><rect x="${p.x + 4}" y="${p.y + 4}" width="${p.w - 8}" height="${p.h - 8}" rx="10" fill="${fill}" fill-opacity="${op}"/><text x="${p.x + p.w / 2}" y="${p.y + p.h / 2 - (val !== "" ? 12 : 0)}">${esc(k0 && k0.label || "")}</text>${val !== "" ? `<text class="v" x="${p.x + p.w / 2}" y="${p.y + p.h / 2 + 18}">${val}</text>` : ""}</g>`;
+        tip = `${k0.label}, ${k.n + k.e} presses, ${acc.toFixed(0)}% accuracy, ${Math.round(k.ms)} ms per press (${wpm} wpm), mastery ${Math.round(100 * m)}%, hit by mistake ${heat[i] || 0}×`;
+      } else if (heat[i] && S.metric === "err") { fill = "var(--err)"; op = 0.2 + 0.8 * heat[i] / hmax; val = heat[i]; tip += `, hit by mistake ${heat[i]}×`; }
+      s += `<g${p.r ? ` transform="rotate(${p.r} ${p.rx} ${p.ry})"` : ""} data-tip="${esc(tip)}"><rect x="${p.x + 4}" y="${p.y + 4}" width="${p.w - 8}" height="${p.h - 8}" fill="${fill}" fill-opacity="${op}"/><text x="${p.x + p.w / 2}" y="${p.y + p.h / 2 - (val !== "" ? 12 : 0)}">${esc(k0 && k0.label || "")}</text>${val !== "" ? `<text class="v" x="${p.x + p.w / 2}" y="${p.y + p.h / 2 + 18}">${val}</text>` : ""}</g>`;
     });
     const legend = { mastery: "green = at target speed with 95%+ accuracy", speed: "wpm per key (12000 ÷ ms per press), green = at target", acc: "green = 100%, red = 80% or less", err: "how often the key was hit instead of another" }[S.metric];
     return chips + `<svg class="chart kb" viewBox="${minX} ${minY} ${maxX - minX} ${maxY - minY}">${s}</svg><p class="legend">${legend}</p>`;
@@ -925,9 +965,9 @@
     for (const [p, k] of ents) {
       if (!(p[0] in ix) || !(p[1] in ix)) continue; const wpm = kwpm(k), er = k.e / (k.n + k.e);
       const fill = S.pm === "speed" ? hue(wpm / targetWpm) : "var(--err)", op = S.pm === "speed" ? 1 : Math.max(0.08, Math.min(1, er / 0.3));
-      s += `<rect x="${L + ix[p[1]] * cell + 1}" y="${T + ix[p[0]] * cell + 1}" width="${cell - 2}" height="${cell - 2}" rx="2" fill="${fill}" fill-opacity="${op}" data-tip="${esc(`${p} · ${k.n} typed · ${k.e} errors · ${wpm} wpm`)}"/>`;
+      s += `<rect x="${L + ix[p[1]] * cell + 1}" y="${T + ix[p[0]] * cell + 1}" width="${cell - 2}" height="${cell - 2}" fill="${fill}" fill-opacity="${op}" data-tip="${esc(`${p}, ${k.n} typed, ${k.e} errors, ${wpm} wpm`)}"/>`;
     }
-    return chips + svgOpen(L + ls.length * cell + 4, T + ls.length * cell + 4) + s + `</svg><p class="legend">row: first letter, column: the one after it · ${S.pm === "speed" ? "green fast, red slow" : "darker = more errors"}</p>`;
+    return chips + svgOpen(L + ls.length * cell + 4, T + ls.length * cell + 4) + s + `</svg><p class="legend">row: first letter, column: the one after it, ${S.pm === "speed" ? "green fast, red slow" : "darker = more errors"}</p>`;
   }
 
   function fingerChart() {
@@ -936,16 +976,16 @@
     const bw = 26, g = 8, base = 122;
     let s = ""; order.forEach((fi, i) => {
       const h = 100 * f[fi] / max, X = 4 + i * (bw + g) + (i >= 5 ? 14 : 0), pct = 100 * f[fi] / sum;
-      s += `<rect x="${X}" y="${base - h}" width="${bw}" height="${h}" rx="3" fill="${fi < 8 ? FINGER_COLOR[fi] : "#8a94a0"}" data-tip="${esc(`${names[fi]} · ${pct.toFixed(1)}% · ${f[fi]} presses`)}"/><text x="${X + bw / 2}" y="${base - h - 7}" class="ax c">${pct.toFixed(0)}</text><text x="${X + bw / 2}" y="${base + 12}" class="ax c">${"PRMITTIMRP"[i]}</text>`;
+      s += `<rect x="${X}" y="${base - h}" width="${bw}" height="${h}" fill="${fi < 8 ? FINGER_COLOR[fi] : "#8a94a0"}" data-tip="${esc(`${names[fi]}, ${pct.toFixed(1)}%, ${f[fi]} presses`)}"/><text x="${X + bw / 2}" y="${base - h - 7}" class="ax c">${pct.toFixed(0)}</text><text x="${X + bw / 2}" y="${base + 12}" class="ax c">${"PRMITTIMRP"[i]}</text>`;
     });
     const left = 100 * (f[0] + f[1] + f[2] + f[3] + f[8]) / sum;
-    return svgOpen(4 + 10 * (bw + g) + 14, base + 22) + s + `</svg><p class="legend">left hand ${left.toFixed(0)}% · right hand ${(100 - left).toFixed(0)}% · P pinky, R ring, M middle, I index, T thumb · % of presses</p>`;
+    return svgOpen(4 + 10 * (bw + g) + 14, base + 22) + s + `</svg><p class="legend">left hand ${left.toFixed(0)}%, right hand ${(100 - left).toFixed(0)}%, P pinky, R ring, M middle, I index, T thumb, % of presses</p>`;
   }
 
   function keyBars(keys) {
     const list = keys.slice(0, 12); if (!list.length) return `<p class="empty">No keys typed yet.</p>`;
     const rowH = 18;
-    return svgOpen(330, list.length * rowH + 2) + list.map((k, i) => { const Y = i * rowH; return `<g data-tip="${esc(`${k.c} · ${k.n} presses · ${k.acc.toFixed(0)}% accuracy · ${k.wpm} wpm`)}"><rect x="0" y="${Y}" width="330" height="${rowH}" fill="transparent"/><text x="12" y="${Y + 9}" class="lbl c">${esc(k.c)}</text><rect x="28" y="${Y + 3}" width="${Math.max(2, 190 * k.conf)}" height="12" rx="2" fill="${hue(k.conf)}"/><text x="226" y="${Y + 9}" class="ax l">${k.wpm} wpm · ${k.acc.toFixed(0)}%</text></g>`; }).join("") + "</svg>";
+    return svgOpen(330, list.length * rowH + 2) + list.map((k, i) => { const Y = i * rowH; return `<g data-tip="${esc(`${k.c}, ${k.n} presses, ${k.acc.toFixed(0)}% accuracy, ${k.wpm} wpm`)}"><rect x="0" y="${Y}" width="330" height="${rowH}" fill="transparent"/><text x="12" y="${Y + 9}" class="lbl c">${esc(k.c)}</text><rect x="28" y="${Y + 3}" width="${Math.max(2, 190 * k.conf)}" height="12" fill="${hue(k.conf)}"/><text x="226" y="${Y + 9}" class="ax l">${k.wpm} wpm, ${k.acc.toFixed(0)}%</text></g>`; }).join("") + "</svg>";
   }
 
   const lessonRow = () => `<div class="lessons">${LESSONS.map((l, i) => `<button type="button" class="lcell" data-l="${i}" aria-current="${i === lesson && mode === "lesson"}"><small>${i + 1}</small>${esc(l[0].replace(/^Add /, "+ ").replace(/ \(.*/, ""))}<b>${"★".repeat(best[i] || 0)}</b></button>`).join("")}</div>`;
@@ -960,9 +1000,9 @@
     const big = (v, l) => `<div class="big"><b>${v}</b><span>${l}</span></div>`, sec = (id, title, aside = "") => `<section data-sec="${id}"><h3>${title}<span>${aside}</span></h3><div class="c"></div></section>`;
     const tm = Math.floor(total / 60), hm = Math.floor(tm / 60), mm = tm % 60;   // whole minutes done, like a stopwatch: 1h59m40s is "1h 59m"
     $("#stats-body").innerHTML = `<div data-tab="overview"><div class="bigs">${big(hist.length, "texts")}${big(hm ? `${hm}h ${mm}m` : `${mm}m`, "practised")}${big($("#streak").textContent, "day streak")}${big(avg, "wpm, last 10")}${big(bestW, "best wpm")}${big(`${keys.filter((k) => k.conf >= 1).length}/${keys.length}`, "keys at target")}</div>
-        ${sec("speed", "Speed, text by text", "dots per text · line: last 10 · dashed: accuracy")}${sec("lessons", "Lessons")}</div>
+        ${sec("speed", "Speed, text by text")}${sec("lessons", "Lessons")}</div>
       <div data-tab="keys" hidden>${sec("board", "Keys on the board")}${sec("keys", "Weakest keys")}</div>
-      <div data-tab="pairs" hidden>${sec("pairs", "Letter pairs", "row: first letter · column: the next one")}<div class="row"><button type="button" class="primary" id="drill">Drill these</button></div></div>
+      <div data-tab="pairs" hidden>${sec("pairs", "Letter pairs", "row: first letter, column: the next one")}<div class="row"><button type="button" class="primary" id="drill">Drill these</button></div></div>
       <div data-tab="practice" hidden>${sec("cal", "Practice calendar", "darker = more minutes")}${sec("fingers", "Finger load")}</div>`;
     const R = { speed: () => speedChart(hist), cal: () => calendar(hist), fingers: fingerChart, board: boardChart, pairs: pairChart, keys: () => keyBars(keys), lessons: lessonRow };
     const draw = (id) => { $(`#stats-body [data-sec="${id}"] .c`).innerHTML = R[id](); };
@@ -985,8 +1025,8 @@
       const i = n > 1 ? Math.max(0, Math.min(n - 1, Math.round((px - SP.L) / SP.w * (n - 1)))) : 0, h = SP.pts[i], X = SP.x(i).toFixed(1);
       const cr = sv.querySelector(".cross"), hl = sv.querySelector(".hl"); cr.setAttribute("x1", X); cr.setAttribute("x2", X); hl.setAttribute("cx", X); hl.setAttribute("cy", SP.y(+h.wpm || 0).toFixed(1)); cr.style.visibility = hl.style.visibility = "visible";
       const d = +h.wpm - targetWpm;
-      tipEl.innerHTML = [[`<i style="background:${modeCol(h.mode)}"></i>`, `${esc(hName(h))} · ${when(h.t)} · text ${i + 1} of ${n}`],
-        [`<i style="background:${modeCol(h.mode)}"></i>`, `this text: ${h.wpm} wpm · ${h.acc}% accuracy`],
+      tipEl.innerHTML = [[`<i style="background:${modeCol(h.mode)}"></i>`, `${esc(hName(h))}, ${when(h.t)}, text ${i + 1} of ${n}`],
+        [`<i style="background:${modeCol(h.mode)}"></i>`, `this text: ${h.wpm} wpm, ${h.acc}% accuracy`],
         ['<i class="ln"></i>', `average of the last 10: ${Math.round(SP.avg[i])} wpm`],
         ['<i class="ln da"></i>', `accuracy, last 10: ${SP.accAvg[i].toFixed(1)}%`],
         ['<i class="ln" style="border-color:var(--accent)"></i>', `target: ${targetWpm} wpm (${d >= 0 ? "+" : ""}${d} on this text)`]].map(([sw, t]) => `<div>${sw}${t}</div>`).join("");

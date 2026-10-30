@@ -1,6 +1,6 @@
 # Walid layout trainer
 
-Typing trainer for the Walid layout (WLD) on the Toucan2. Shows the board (ZMK Studio style) with the next key, the key you pressed, and the layer inferred from what arrived (NAV for digits, SYM for symbols, ACC layers for accented letters).
+Typing trainer for the Walid layout (WLD) on the Toucan2, in the same Formwork system as the site (`tokens.css` and `base.css` beside it: concrete paper and one orange by day, a night pour in dark). Shows the board as the site draws it, cast keycaps, with the next key, the key you pressed, and the layer inferred from what arrived (NAV for digits, SYM for symbols, ACC layers for accented letters).
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 
