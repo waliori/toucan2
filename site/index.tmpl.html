@@ -34,7 +34,7 @@
     <div class="hero__base">
       <h1 id="hero-head">A layout annealed on my own words</h1>
       <div class="hero__aside">
-        <p class="lead">The Walid letters, ten ZMK layers, a trainer for my weak keys.</p>
+        <p class="lead">A split keyboard whose letters were rearranged to fit what I actually type, and a trainer to learn them.</p>
         <div class="actions">
           <a class="btn btn--primary" href="/trainer/">Try the trainer</a>
           <a class="btn btn--secondary" href="https://github.com/waliori/toucan2/tree/main/firmware">Firmware source</a>
@@ -46,18 +46,18 @@
 <section class="bento" id="layout" aria-labelledby="layout-head">
   <div class="container">
     <div class="head head--split">
-      <h2 id="layout-head">Thirty letters, one run of annealing</h2>
-      <p class="lead">The method is five steps down.</p>
+      <h2 id="layout-head">Why move the letters at all</h2>
+      <p class="lead">QWERTY was drawn for typewriter arms, not for hands. On a small split board every letter can sit where it costs the least to reach, so I had a program search for that arrangement using 1.7 million characters of my own writing. The search is called annealing; it is step 4 below. Here is what came out of it.</p>
     </div>
     <div class="tiles">
       <article class="tile tile--4 tile--plate">
         <p class="plate-figure"><b class="figure">65 <span>/</span> 33 <span>/</span> 2</b></p>
-        <p>English, French, Darija: how the corpus was weighted.</p>
+        <p>English, French, Darija: the share of each language in the text the search was fed.</p>
       </article>
       <article class="tile tile--4 tile--plate">
         <h3>The name on the board</h3>
         <p class="hands" aria-label="walid, typed left right left right left"><span>w<small>left</small></span><span>a<small>right</small></span><span>l<small>left</small></span><span>i<small>right</small></span><span>d<small>left</small></span></p>
-        <p>Walid’s Annealed Layout with International Dead-keys. The five keys sit dark on the board above, and every letter changes hand.</p>
+        <p>Walid’s Annealed Layout with International Dead-keys. The five keys sit dark on the board above, and every letter changes hand, which is the comfortable way to type. A dead key is one that waits for the next letter and puts an accent on it.</p>
       </article>
       <article class="tile tile--4 tile--plate">
         <h3>Accents by count</h3>
@@ -70,7 +70,7 @@
             <tr><th scope="row" class="num">4</th><td>ë</td><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
-        <p>One Ctrl tap per accent, then the letter. The OS runs US International.</p>
+        <p>Tap Ctrl once, then e, and you get é; twice for è. No key is given up to accents: the computer runs the US International layout, where a tap can wait for the letter that follows.</p>
       </article>
     </div>
   </div>
@@ -80,14 +80,14 @@
   <div class="container">
     <div class="head head--split">
       <h2 id="method-head">How the letters were chosen</h2>
-      <p class="lead">Five steps, every number from the scripts in the repository.</p>
+      <p class="lead">Five steps. Every number comes from the scripts in the repository, so anyone can rerun them on their own writing.</p>
     </div>
     <ol class="steps">
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">1</b>Measure what I type</h3>
-          <p>Every message I ever typed to an AI: the Claude Code history and the claude.ai export. Pasted text, code, URLs and logs thrown out, duplicates removed, each message tagged by its stop words. 1,677,299 characters remained.</p>
-          <p>I weighted French up to a third of the mix, because my work writing is French and none of it was in the sample.</p>
+          <p>A layout should fit the words it will type, so the first job was to collect mine. I took every message I had typed to an AI assistant: the Claude Code history and the claude.ai export. Pasted text, code, web addresses and logs were thrown out, duplicates removed, and each message was tagged by language from its small common words. 1,677,299 characters remained.</p>
+          <p>French was an eighth of that sample although it is the language of my work, so I weighted it up to a third of the mix.</p>
         </div>
         <div class="step__show">
           <div class="mix" role="img" aria-label="Measured: 87.6% English, 12.3% French, 0.1% Darija. Weighted: 65, 33, 2.">
@@ -104,8 +104,8 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">2</b>Price every key</h3>
-          <p>The geometry is beekeeb’s own firmware file: the column stagger, the finger that owns each column, each finger’s home key. A key costs one plus its distance from home, times 1.6 under a pinky, 1.2 under a ring finger, 1.3 on the inner index columns.</p>
-          <p>Home keys cost 1. The far corners cost 3.2.</p>
+          <p>Some keys are cheap to reach and some are not. The eight home keys, the ones under the fingers at rest, cost 1. Every other key costs 1 plus its distance from the finger’s home key, times a penalty for the weaker fingers: 1.6 under a pinky, 1.2 under a ring finger, 1.3 on the inner columns the index has to stretch to. The far corners cost 3.2.</p>
+          <p>The positions come from beekeeb’s own firmware file for the Toucan2: where each column sits, which finger owns it, which key is its home.</p>
         </div>
         <div class="step__show">
           <!--EFFORT-->
@@ -115,20 +115,21 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">3</b>Define the score</h3>
-          <p>Lower is better: each term is a share of my letter pairs or triples, times a weight I picked. Other weights give another board; a first run without finger caps put 16% on each ring finger. That caveat is the method.</p>
+          <p>Reach is not the whole story: two letters in a row with the same finger are slow even on cheap keys. So the score adds up eight habits, each measured as a share of my letter pairs or triples, times a weight I chose. Lower is better.</p>
+          <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last term exists.</p>
         </div>
         <div class="step__show">
           <table class="terms">
             <thead><tr><th scope="col">Term</th><th scope="col">Counts</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Points</th></tr></thead>
             <tbody>
-              <tr><td class="name">Same-finger bigrams</td><td>one finger, twice</td><td class="num">3.0</td><td class="num">4.18</td></tr>
-              <tr><td class="name">Same-finger skipgrams</td><td>one letter between</td><td class="num">0.8</td><td class="num">5.28</td></tr>
-              <tr><td class="name">Scissors</td><td>two rows apart</td><td class="num">1.5</td><td class="num">0.66</td></tr>
-              <tr><td class="name">Lateral stretches</td><td>inner column</td><td class="num">1.0</td><td class="num">0.51</td></tr>
-              <tr><td class="name">Redirects</td><td>one hand, a turn</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
-              <tr><td class="name">Rolls, in and out</td><td>credited</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
-              <tr><td class="name">Travel</td><td>cost map, weighted</td><td class="num">8.0</td><td class="num">13.02</td></tr>
-              <tr><td class="name">Load</td><td>pinky, balance, caps</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
+              <tr><td class="name">Same-finger bigrams</td><td>two letters in a row, one finger</td><td class="num">3.0</td><td class="num">4.18</td></tr>
+              <tr><td class="name">Same-finger skipgrams</td><td>same finger, one letter between</td><td class="num">0.8</td><td class="num">5.28</td></tr>
+              <tr><td class="name">Scissors</td><td>neighbouring fingers, two rows apart</td><td class="num">1.5</td><td class="num">0.66</td></tr>
+              <tr><td class="name">Lateral stretches</td><td>a reach to the inner column</td><td class="num">1.0</td><td class="num">0.51</td></tr>
+              <tr><td class="name">Redirects</td><td>one hand changes direction mid-word</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
+              <tr><td class="name">Rolls, in and out</td><td>fingers walk one way: a reward</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
+              <tr><td class="name">Travel</td><td>the step 2 cost, per keystroke</td><td class="num">8.0</td><td class="num">13.02</td></tr>
+              <tr><td class="name">Load</td><td>pinky share, hand balance, a cap per finger</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
             </tbody>
             <tfoot><tr><td class="name">Score</td><td></td><td></td><td class="num">25.54</td></tr></tfoot>
           </table>
@@ -138,8 +139,8 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">4</b>Search by annealing</h3>
-          <p>Start from a random board. Swap two keys, score again. Better: keep it. Worse: keep it with a probability that falls as the run cools.</p>
-          <p>Below, seed 5’s run, 132 down to 25.5. Early, one swap in six is kept although it hurts; late, none. Eight runs scored 480,000 of the 30! boards, 2.65 × 10<sup>32</sup>.</p>
+          <p>There are 30! ways to place thirty letters, 2.65 × 10<sup>32</sup>, far too many to try. Simulated annealing searches such a space the way metal is cooled slowly to settle: start from a random board, swap two keys, score again. Better, keep it. Worse, keep it anyway with a probability that shrinks as the run cools, so the search can climb out of a dead end early and settles late.</p>
+          <p>Below, seed 5’s run: 60,000 swaps, the score falling from 132 to 25.5. Early, one worsening swap in six is kept; by the end, none. Eight runs from eight random starts scored 480,000 boards in all.</p>
         </div>
         <div class="step__show">
           <!--ANNEAL-->
@@ -148,9 +149,9 @@
       <li class="step">
         <div class="step__text">
           <h3><b class="step__num">5</b>Pick, and say why</h3>
-          <p>Three seeds tied within five thousandths. Seed 1 mirrors seed 5, so the vowels went right, the convention.</p>
-          <p>Seed 0 scores 0.005 better but has r on the home key where seed 5 has n, typed a fifth more often.</p>
-          <p>Graphite was the recommendation. I wanted mine.</p>
+          <p>Three of the eight runs finished within five thousandths of each other, which says the search had converged rather than landed by luck. Seed 1 is seed 5 mirrored, so I took the orientation with the vowels on the right hand, as most modern layouts do.</p>
+          <p>Seed 0 scores 0.005 better, but it puts r on a home key where seed 5 puts n, and I type n a fifth more often.</p>
+          <p>Among published layouts the analyzer recommended Graphite. I wanted one made for my words.</p>
         </div>
         <div class="step__show">
           <!--CANDIDATES-->
@@ -168,7 +169,7 @@
       </li>
     </ol>
     <div class="repro">
-      <p>The corpus stays private, the scripts do not. The final run:</p>
+      <p>The corpus stays private, the scripts do not. The final run, from the layout-optimizer folder:</p>
       <pre><code>TAG=_v2 python3 optimize2.py free 8 60000</code></pre>
     </div>
   </div>
@@ -178,9 +179,9 @@
   <div class="container">
     <div class="head">
       <h2 id="measure-head">Measured against the layouts I almost chose</h2>
-      <p class="lead">Same corpus, same analyzer; lower is better, except home row.</p>
+      <p class="lead">Every layout run through the same analyzer on the same text. Lower is better, except home row, the share of keystrokes on the resting keys.</p>
     </div>
-    <p class="measure__note">Colemak-DH wins the home row and the travel, then loses everything two letters long: half again as many same-finger bigrams, five times the lateral stretches, twice the redirects. The score is the step 3 formula, the search’s own compass, so it favours Walid by construction; the shares are the fair test.</p>
+    <p class="measure__note">Colemak-DH wins the home row and the travel, then loses on everything two letters long: half again as many same-finger pairs, five times the inner-column stretches, twice the direction changes. The score column is the step 3 formula, the very thing the search was told to minimise, so it favours Walid by construction. Compare the percentage columns instead: they are plain counts.</p>
     <table class="metrics">
       <thead><tr><th scope="col">Layout</th><th scope="col" class="num">Same-finger bigrams</th><th scope="col" class="num">Skipgrams</th><th scope="col" class="num">Redirects</th><th scope="col" class="num">Lateral stretches</th><th scope="col" class="num">Scissors</th><th scope="col" class="num">Home row</th><th scope="col" class="num">Travel</th><th scope="col" class="num">Score</th></tr></thead>
       <tbody>
@@ -199,29 +200,29 @@
   <div class="container">
     <div class="head">
       <h2 id="fw-head">Two halves, no dongle</h2>
-      <p class="lead">ZMK v0.3, built with Nix.</p>
+      <p class="lead">The keyboard runs ZMK, open-source firmware. The two halves talk over Bluetooth, with no receiver between them and the computer.</p>
     </div>
     <div class="plates">
       <article class="plate">
         <h3>Left half</h3>
         <dl>
-          <div><dt>Central</dt><dd>the right half and the host, USB or five Bluetooth profiles</dd></div>
-          <div><dt>Compiler</dt><dd>GCC 12; GCC 15 dropped the link</dd></div>
+          <div><dt>Central</dt><dd>the half that talks to the computer, by USB or one of five Bluetooth profiles, and to the right half</dd></div>
+          <div><dt>Build</dt><dd>ZMK v0.3 with Nix and GCC 12; the newer GCC 15 breaks the link step</dd></div>
         </dl>
         <a href="https://github.com/waliori/toucan2/blob/main/firmware/README.md">Flashing notes</a>
       </article>
       <article class="plate">
         <h3>Right half</h3>
         <dl>
-          <div><dt>Peripheral</dt><dd>its keys go to the left half over Bluetooth</dd></div>
-          <div><dt>Keymap</dt><dd>none of its own, so it is never reflashed</dd></div>
+          <div><dt>Peripheral</dt><dd>it only sends its key presses to the left half, over Bluetooth</dd></div>
+          <div><dt>Keymap</dt><dd>none of its own, so changing the layout never means reflashing it</dd></div>
         </dl>
         <a href="https://github.com/waliori/toucan2/blob/main/firmware/config/toucan_right.conf">Its config</a>
       </article>
       <article class="plate">
         <h3>Prospector</h3>
         <dl>
-          <div><dt>Role</dt><dd>a status screen on the left half’s advertisement</dd></div>
+          <div><dt>Role</dt><dd>a small screen that listens to what the left half broadcasts</dd></div>
           <div><dt>Shows</dt><dd>layer, both batteries, modifiers, profile</dd></div>
         </dl>
         <a href="https://github.com/waliori/toucan2/tree/main/scanner">Scanner source</a>
@@ -248,9 +249,9 @@
     </div>
     <div class="pinned__panels">
       <div class="head"><h2 id="trainer-head">A trainer that knows which keys lag</h2></div>
-      <article class="panel" data-for="1"><h3>Speed times accuracy opens the next lesson</h3><p>Each key holds a confidence against the target; the lesson opens when its new keys turn green.</p></article>
-      <article class="panel" data-for="2"><h3>Chunks and weak pairs</h3><p>Letter groups from my own word lists and my slow pairs return until they stop being slow.</p></article>
-      <article class="panel" data-for="3"><h3>The board mirrors the USB key presses</h3><p>A serial feed from the left half lights the real key; progress follows a secret code between machines.</p></article>
+      <article class="panel" data-for="1"><h3>Speed times accuracy opens the next lesson</h3><p>Every key gets a score: how close your speed and accuracy on it are to the target. The next lesson opens once all the new keys are green.</p></article>
+      <article class="panel" data-for="2"><h3>Chunks and weak pairs</h3><p>Common letter groups (tion, ment, ing) and the pairs you type slowly come back more often, until they stop being slow.</p></article>
+      <article class="panel" data-for="3"><h3>The board mirrors the USB key presses</h3><p>Plugged in by USB, the keyboard reports each real press and the board lights the key you hit. Your progress follows you between machines with a secret code, no account.</p></article>
       <article class="panel" data-for="4"><h3>My own numbers, eleven days in</h3><p>131 texts, 2 h 32 m, 30 wpm at best, 4 keys of 26 at target. Each dot a text, the line the last ten.</p></article>
     </div>
   </div>
@@ -260,7 +261,7 @@
   <div class="container close__grid">
     <div>
       <h2 id="close-head" class="display-s">Learn it on the keyboard you have</h2>
-      <p class="lead">The trainer runs in any browser, Walid or QWERTY.</p>
+      <p class="lead">The trainer runs in any browser, with Walid, QWERTY or six other layouts.</p>
       <div class="actions"><a class="btn btn--primary" href="/trainer/">Try the trainer</a></div>
     </div>
     <figure class="shot shot--desktop shot--close" data-slot="trainer-close" data-kind="product" data-alt="The trainer statistics, keys coloured by mastery">
