@@ -153,7 +153,8 @@ section { padding-block: var(--section-gap); }
 .metrics thead th { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); border-bottom: var(--rule-bar) solid var(--color-ink); vertical-align: bottom; }
 .metrics th.num, .metrics td.num { text-align: right; font-family: var(--font-outlier); font-weight: 500; }
 .metrics td.name { font-weight: 500; color: var(--color-ink); }
-.metrics tr.is-ours td { font-weight: 700; color: var(--color-ink); background: var(--color-plate); }
+.metrics tr.is-ours td { color: var(--color-ink); background: var(--color-plate); }
+.metrics td.is-best { font-weight: 700; color: var(--color-ink); }
 .measure .head { margin-bottom: var(--space-lg); }
 .measure__note { margin: 0 0 var(--space-xl); max-width: 62ch; }
 .measure .caption { margin-top: var(--space-md); }
