@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walid, a keyboard layout annealed on my own words</title>
+<meta name="description" content="The Toucan2 split keyboard as I run it: the Walid letter layout found by simulated annealing on my own writing, its ZMK firmware layers, and the trainer that teaches it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Archivo:wght@400;500&family=Archivo+Narrow:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:,">
+</head>
+<body class="grained">
+<a class="skip" href="#main">Skip to content</a>
+<header class="slab">
+  <div class="container slab__row">
+    <a class="mark" href="#top" aria-label="waliori, home">waliori</a>
+    <nav aria-label="Page">
+      <a href="#layout">Layout</a>
+      <a href="#method">Method</a>
+      <a href="#firmware">Firmware</a>
+      <a href="#trainer">Trainer</a>
+      <a href="https://github.com/waliori/toucan2">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+<section class="hero" id="top" aria-labelledby="hero-head">
+  <div class="container">
+    <div class="hero__field">
+      <!--BOARDS-->
+    </div>
+    <div class="hero__base">
+      <h1 id="hero-head">A layout annealed on my own words</h1>
+      <div class="hero__aside">
+        <p class="lead">The Walid letters, ten ZMK layers, a trainer for my weak keys.</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="https://toucan-trainer.waliori.workers.dev/">Try the trainer</a>
+          <a class="btn btn--secondary" href="https://github.com/waliori/toucan2/tree/main/firmware">Firmware source</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="bento" id="layout" aria-labelledby="layout-head">
+  <div class="container">
+    <div class="head head--split">
+      <h2 id="layout-head">Thirty letters, one run of annealing</h2>
+      <p class="lead">The method is five steps down.</p>
+    </div>
+    <div class="tiles">
+      <article class="tile tile--4 tile--plate">
+        <p class="plate-figure"><b class="figure">65 <span>/</span> 33 <span>/</span> 2</b></p>
+        <p>English, French, Darija: how the corpus was weighted.</p>
+      </article>
+      <article class="tile tile--4 tile--plate">
+        <h3>The name on the board</h3>
+        <p class="hands" aria-label="walid, typed left right left right left"><span>w<small>left</small></span><span>a<small>right</small></span><span>l<small>left</small></span><span>i<small>right</small></span><span>d<small>left</small></span></p>
+        <p>Walid’s Annealed Layout with International Dead-keys. The five keys sit dark on the board above, and every letter changes hand.</p>
+      </article>
+      <article class="tile tile--4 tile--plate">
+        <h3>Accents by count</h3>
+        <table class="taps">
+          <thead><tr><th scope="col">Taps</th><th scope="col">e</th><th scope="col">a</th><th scope="col">u</th><th scope="col">i</th><th scope="col">o</th><th scope="col">c</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="num">1</th><td>é</td><td>à</td><td>ù</td><td>î</td><td>ô</td><td>ç</td></tr>
+            <tr><th scope="row" class="num">2</th><td>è</td><td>â</td><td>û</td><td>ï</td><td></td><td></td></tr>
+            <tr><th scope="row" class="num">3</th><td>ê</td><td></td><td>ü</td><td></td><td></td><td></td></tr>
+            <tr><th scope="row" class="num">4</th><td>ë</td><td></td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p>One Ctrl tap per accent, then the letter. The OS runs US International.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="method" id="method" aria-labelledby="method-head">
+  <div class="container">
+    <div class="head head--split">
+      <h2 id="method-head">How the letters were chosen</h2>
+      <p class="lead">Five steps, every number from the scripts in the repository.</p>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step__text">
+          <h3><b class="step__num">1</b>Measure what I type</h3>
+          <p>Every message I ever typed to an AI: the Claude Code history and the claude.ai export. Pasted text, code, URLs and logs thrown out, duplicates removed, each message tagged by its stop words. 1,677,299 characters remained.</p>
+          <p>I weighted French up to a third of the mix, because my work writing is French and none of it was in the sample.</p>
+        </div>
+        <div class="step__show">
+          <div class="mix" role="img" aria-label="Measured: 87.6% English, 12.3% French, 0.1% Darija. Weighted: 65, 33, 2.">
+            <p class="mix__label">Measured</p>
+            <p class="mix__bar"><span class="mix__en" style="--w:87.6%"></span><span class="mix__fr" style="--w:12.3%"></span><span class="mix__dar" style="--w:0.1%"></span></p>
+            <p class="mix__label">Weighted</p>
+            <p class="mix__bar"><span class="mix__en" style="--w:65%"></span><span class="mix__fr" style="--w:33%"></span><span class="mix__dar" style="--w:2%"></span></p>
+            <p class="mix__key"><span><i class="mix__en"></i>English</span><span><i class="mix__fr"></i>French</span><span><i class="mix__dar"></i>Darija</span></p>
+          </div>
+          <p class="letters" aria-label="The eight most typed letters and their share"><span>e<small>13.0%</small></span><span>t<small>9.1%</small></span><span>a<small>8.0%</small></span><span>o<small>7.3%</small></span><span>i<small>7.0%</small></span><span>n<small>6.5%</small></span><span>s<small>6.5%</small></span><span>r<small>5.5%</small></span></p>
+          <p class="caption">The eight letters I type most, and their share of every keystroke.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step__text">
+          <h3><b class="step__num">2</b>Price every key</h3>
+          <p>The geometry is beekeeb’s own firmware file: the column stagger, the finger that owns each column, each finger’s home key. A key costs one plus its distance from home, times 1.6 under a pinky, 1.2 under a ring finger, 1.3 on the inner index columns.</p>
+          <p>Home keys cost 1. The far corners cost 3.2.</p>
+        </div>
+        <div class="step__show">
+          <!--EFFORT-->
+          <p class="caption">The cost of each of the thirty core keys. Darker is dearer.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step__text">
+          <h3><b class="step__num">3</b>Define the score</h3>
+          <p>Lower is better: each term is a share of my letter pairs or triples, times a weight I picked. Other weights give another board; a first run without finger caps put 16% on each ring finger. That caveat is the method.</p>
+        </div>
+        <div class="step__show">
+          <table class="terms">
+            <thead><tr><th scope="col">Term</th><th scope="col">Counts</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Points</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Same-finger bigrams</td><td>one finger, twice</td><td class="num">3.0</td><td class="num">4.18</td></tr>
+              <tr><td class="name">Same-finger skipgrams</td><td>one letter between</td><td class="num">0.8</td><td class="num">5.28</td></tr>
+              <tr><td class="name">Scissors</td><td>two rows apart</td><td class="num">1.5</td><td class="num">0.66</td></tr>
+              <tr><td class="name">Lateral stretches</td><td>inner column</td><td class="num">1.0</td><td class="num">0.51</td></tr>
+              <tr><td class="name">Redirects</td><td>one hand, a turn</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
+              <tr><td class="name">Rolls, in and out</td><td>credited</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
+              <tr><td class="name">Travel</td><td>cost map, weighted</td><td class="num">8.0</td><td class="num">13.02</td></tr>
+              <tr><td class="name">Load</td><td>pinky, balance, caps</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
+            </tbody>
+            <tfoot><tr><td class="name">Score</td><td></td><td></td><td class="num">25.54</td></tr></tfoot>
+          </table>
+          <p class="caption">Points = share × weight × 100: 1.39% on one finger × 3 = 4.18. They add up to the score.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step__text">
+          <h3><b class="step__num">4</b>Search by annealing</h3>
+          <p>Start from a random board. Swap two keys, score again. Better: keep it. Worse: keep it with a probability that falls as the run cools.</p>
+          <p>Below, seed 5’s run, 132 down to 25.5. Early, one swap in six is kept although it hurts; late, none. Eight runs scored 480,000 of the 30! boards, 2.65 × 10<sup>32</sup>.</p>
+        </div>
+        <div class="step__show">
+          <!--ANNEAL-->
+        </div>
+      </li>
+      <li class="step">
+        <div class="step__text">
+          <h3><b class="step__num">5</b>Pick, and say why</h3>
+          <p>Three seeds tied within five thousandths. Seed 1 mirrors seed 5, so the vowels went right, the convention.</p>
+          <p>Seed 0 scores 0.005 better but has r on the home key where seed 5 has n, typed a fifth more often.</p>
+          <p>Graphite was the recommendation. I wanted mine.</p>
+        </div>
+        <div class="step__show">
+          <!--CANDIDATES-->
+          <p class="caption">Left hand then right; orange, the keys that differ from the pick or, when nearer, from its mirror.</p>
+          <table class="versus">
+            <thead><tr><th scope="col"></th><th scope="col" class="num">Seed 0</th><th scope="col" class="num">Seed 5</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Score</td><td class="num">25.533</td><td class="num">25.538</td></tr>
+              <tr><td class="name">Same-finger bigrams</td><td class="num">1.39%</td><td class="num">1.35%</td></tr>
+              <tr><td class="name">Home row</td><td class="num">58.3%</td><td class="num">58.7%</td></tr>
+              <tr><td class="name">Travel</td><td class="num">1.636</td><td class="num">1.627</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+    </ol>
+    <div class="repro">
+      <p>The corpus stays private, the scripts do not. The final run:</p>
+      <pre><code>TAG=_v2 python3 optimize2.py free 8 60000</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="measure" aria-labelledby="measure-head">
+  <div class="container">
+    <div class="head">
+      <h2 id="measure-head">Measured against the layouts I almost chose</h2>
+      <p class="lead">Same corpus, same analyzer; lower is better, except home row.</p>
+    </div>
+    <p class="measure__note">Colemak-DH wins the home row and the travel, then loses everything two letters long: half again as many same-finger bigrams, five times the lateral stretches, twice the redirects. The score is the step 3 formula, the search’s own compass, so it favours Walid by construction; the shares are the fair test.</p>
+    <table class="metrics">
+      <thead><tr><th scope="col">Layout</th><th scope="col" class="num">Same-finger bigrams</th><th scope="col" class="num">Skipgrams</th><th scope="col" class="num">Redirects</th><th scope="col" class="num">Lateral stretches</th><th scope="col" class="num">Scissors</th><th scope="col" class="num">Home row</th><th scope="col" class="num">Travel</th><th scope="col" class="num">Score</th></tr></thead>
+      <tbody>
+        <tr><td class="name">QWERTY</td><td class="num">6.63%</td><td class="num">7.82%</td><td class="num">6.93%</td><td class="num">7.21%</td><td class="num">5.38%</td><td class="num">31.0%</td><td class="num">2.129</td><td class="num">79.45</td></tr>
+        <tr><td class="name">Colemak-DH</td><td class="num">2.14%</td><td class="num">6.42%</td><td class="num">6.39%</td><td class="num">2.54%</td><td class="num">0.18%</td><td class="num">68.0%</td><td class="num">1.574</td><td class="num">42.53</td></tr>
+        <tr><td class="name">Graphite</td><td class="num">1.73%</td><td class="num">4.18%</td><td class="num">2.06%</td><td class="num">1.31%</td><td class="num">1.00%</td><td class="num">62.5%</td><td class="num">1.632</td><td class="num">40.46</td></tr>
+        <tr><td class="name">Ergo-L</td><td class="num">1.33%</td><td class="num">5.89%</td><td class="num">6.30%</td><td class="num">3.32%</td><td class="num">0.65%</td><td class="num">65.4%</td><td class="num">1.637</td><td class="num">43.63</td></tr>
+        <tr class="is-ours"><td class="name">Walid</td><td class="num">1.35%</td><td class="num">4.58%</td><td class="num">2.80%</td><td class="num">0.50%</td><td class="num">0.43%</td><td class="num">58.7%</td><td class="num">1.627</td><td class="num">25.54</td></tr>
+      </tbody>
+    </table>
+    <p class="caption">A semicolon or slash key is counted as the punctuation it replaces.</p>
+  </div>
+</section>
+
+<section class="band band--cast" id="firmware" aria-labelledby="fw-head">
+  <div class="container">
+    <div class="head">
+      <h2 id="fw-head">Two halves, no dongle</h2>
+      <p class="lead">ZMK v0.3, built with Nix.</p>
+    </div>
+    <div class="plates">
+      <article class="plate">
+        <h3>Left half</h3>
+        <dl>
+          <div><dt>Central</dt><dd>the right half and the host, USB or five Bluetooth profiles</dd></div>
+          <div><dt>Compiler</dt><dd>GCC 12; GCC 15 dropped the link</dd></div>
+        </dl>
+        <a href="https://github.com/waliori/toucan2/blob/main/firmware/README.md">Flashing notes</a>
+      </article>
+      <article class="plate">
+        <h3>Right half</h3>
+        <dl>
+          <div><dt>Peripheral</dt><dd>its keys go to the left half over Bluetooth</dd></div>
+          <div><dt>Keymap</dt><dd>none of its own, so it is never reflashed</dd></div>
+        </dl>
+        <a href="https://github.com/waliori/toucan2/blob/main/firmware/config/toucan_right.conf">Its config</a>
+      </article>
+      <article class="plate">
+        <h3>Prospector</h3>
+        <dl>
+          <div><dt>Role</dt><dd>a status screen on the left half’s advertisement</dd></div>
+          <div><dt>Shows</dt><dd>layer, both batteries, modifiers, profile</dd></div>
+        </dl>
+        <a href="https://github.com/waliori/toucan2/tree/main/scanner">Scanner source</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pinned" id="trainer" aria-labelledby="trainer-head">
+  <div class="container pinned__grid">
+    <div class="pinned__visual">
+      <figure class="shot shot--desktop is-on" data-slot="trainer-1" data-kind="product" data-alt="The trainer, lesson 1" data-pin="1">
+        <img src="images/screens/lesson-desktop.png" width="2880" height="1800" alt="The trainer: lesson 1 of 10, the warm-up letters, the next key marked on the board with the finger to use" loading="lazy">
+      </figure>
+      <figure class="shot shot--desktop" data-slot="trainer-2" data-kind="product" data-alt="The trainer, Chunks mode" data-pin="2">
+        <img src="images/screens/chunks-desktop.png" width="2880" height="1800" alt="The trainer in Chunks mode: six letter groups, each three times alone then inside two words" loading="lazy">
+      </figure>
+      <figure class="shot shot--desktop" data-slot="trainer-3" data-kind="product" data-alt="The trainer settings: target speed and sync" data-pin="3">
+        <img src="images/screens/settings-desktop.png" width="2880" height="1800" alt="The trainer settings: keyboard hints, target speed slider, sync between devices, live feed" loading="lazy">
+      </figure>
+      <figure class="shot shot--desktop" data-slot="trainer-4" data-kind="product" data-alt="The trainer statistics, overview" data-pin="4">
+        <img src="images/screens/stats-overview-desktop.png" width="2880" height="1800" alt="The trainer statistics on 29 October: 131 texts, 2 h 32 m practised, 15 wpm over the last ten texts, best 30, 4 of 26 keys at target, speed text by text, stars per lesson" loading="lazy">
+      </figure>
+    </div>
+    <div class="pinned__panels">
+      <div class="head"><h2 id="trainer-head">A trainer that knows which keys lag</h2></div>
+      <article class="panel" data-for="1"><h3>Speed times accuracy opens the next lesson</h3><p>Each key holds a confidence against the target; the lesson opens when its new keys turn green.</p></article>
+      <article class="panel" data-for="2"><h3>Chunks and weak pairs</h3><p>Letter groups from my own word lists and my slow pairs return until they stop being slow.</p></article>
+      <article class="panel" data-for="3"><h3>The board mirrors the USB key presses</h3><p>A serial feed from the left half lights the real key; progress follows a secret code between machines.</p></article>
+      <article class="panel" data-for="4"><h3>My own numbers, eleven days in</h3><p>131 texts, 2 h 32 m, 30 wpm at best, 4 keys of 26 at target. Each dot a text, the line the last ten.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="band band--ink close" aria-labelledby="close-head">
+  <div class="container close__grid">
+    <div>
+      <h2 id="close-head" class="display-s">Learn it on the keyboard you have</h2>
+      <p class="lead">The trainer runs in any browser, Walid or QWERTY.</p>
+      <div class="actions"><a class="btn btn--primary" href="https://toucan-trainer.waliori.workers.dev/">Try the trainer</a></div>
+    </div>
+    <figure class="shot shot--desktop shot--close" data-slot="trainer-close" data-kind="product" data-alt="The trainer statistics, keys coloured by mastery">
+      <img src="images/screens/stats-keys-desktop.png" width="2880" height="1800" alt="The trainer statistics, Keys tab: the board coloured by mastery, green at target, red new, and the weakest keys listed with their speed and accuracy" loading="lazy">
+    </figure>
+  </div>
+</section>
+</main>
+<footer class="letter">
+  <div class="container">
+    <p class="sign">Typed on the Toucan2, in Walid, between <time datetime="2026-10-18">18</time> and <time datetime="2026-10-29">29 October 2026</time>.</p>
+    <p class="sign sign--name">waliori</p>
+    <nav aria-label="Links"><a href="https://github.com/waliori/toucan2">The repository</a><a href="https://github.com/waliori/toucan2/blob/main/KEYMAP.md">The keymap, as text</a><a href="https://toucan-trainer.waliori.workers.dev/">The trainer</a></nav>
+  </div>
+</footer>
+<script>
+document.documentElement.classList.add('js');
+// one reveal: blocks below the hero rise 16px as they enter; the hero stays put, automation and reduced motion see the page whole
+const toReveal = [...document.querySelectorAll('main > section:not(.hero) .head, .tile, .step__text, .step__show, .measure__note, .metrics, .measure .caption, .plate, .panel, .close__grid > *, .repro, footer.letter > .container > *')];
+toReveal.forEach((el, i) => { el.classList.add('reveal'); const sib = [...el.parentElement.children].indexOf(el); el.style.transitionDelay = `${Math.min(sib, 3) * 70}ms`; });
+if (navigator.webdriver || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) toReveal.forEach((el) => el.classList.add('is-in'));
+else { const ro = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); ro.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }); toReveal.forEach((el) => ro.observe(el)); }
+// the pinned trainer: the capture on the sticky side follows the panel in view
+const shots = [...document.querySelectorAll('[data-pin]')];
+if (shots.length && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) shots.forEach((f) => f.classList.toggle('is-on', f.dataset.pin === e.target.dataset.for)); }), { rootMargin: '-45% 0px -45% 0px' });
+  document.querySelectorAll('.panel[data-for]').forEach((p) => io.observe(p));
+}
+window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
+document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });
+</script>
+<script>
+// the annealing chart: hover or touch shows the swap, the score, the temperature and how many worsening swaps were kept
+(() => {
+  const fig = document.querySelector(".anneal"); if (!fig) return;
+  const d = JSON.parse(document.getElementById("anneal-data").textContent), svg = fig.querySelector("svg"), hov = svg.querySelector(".hov");
+  const [ln, dot, txt] = [hov.querySelector("line"), hov.querySelector("circle"), hov.querySelector("text")];
+  const sx = (k) => d.L + (k / d.n) * (d.W - d.L - d.R), sy = (v) => d.T + (1 - (v - d.y0) / (d.y1 - d.y0)) * (d.H - d.T - d.B);
+  const show = (ev) => {
+    const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width * d.W;
+    const k = Math.min(d.n - 1, Math.max(0, (x - d.L) / (d.W - d.L - d.R) * d.n)), row = d.rows[Math.min(d.rows.length - 1, Math.round(k / 100))];
+    const px = sx(row[0]), py = sy(Math.min(d.y1, row[1])), left = px > d.W - d.R - 260;
+    ln.setAttribute("x1", px); ln.setAttribute("x2", px); dot.setAttribute("cx", px); dot.setAttribute("cy", py);
+    txt.setAttribute("x", left ? px - 12 : px + 12); txt.setAttribute("y", Math.max(d.T + 14, py - 14)); txt.setAttribute("text-anchor", left ? "end" : "start");
+    txt.textContent = `swap ${row[0].toLocaleString("en")}: score ${row[1].toFixed(1)}, best ${row[2].toFixed(1)}, T ${row[3] >= 1 ? row[3].toFixed(1) : row[3].toFixed(2)}, ${row[4]} worse kept of 100`;
+    hov.style.display = "";
+  };
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+  svg.addEventListener("pointerleave", () => { hov.style.display = "none"; });
+})();
+</script>
+</body>
+</html>
