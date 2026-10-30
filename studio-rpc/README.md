@@ -1,6 +1,6 @@
 # Toucan2 keymap via ZMK Studio RPC (no firmware flash)
 
-Writes the keymap to the central (the left half, cabled over USB) over its serial port using the same protocol as zmk.studio.
+Writes the keymap to the central (the left half, the one that talks to the computer, cabled over USB) over its serial port, using the same protocol as zmk.studio, the web app ZMK provides for editing a keyboard's keymap live.
 
 Setup once: `npm install --ignore-scripts`, then patch the client for Node ESM:
 - add `.js` to relative imports in `node_modules/@zmkfirmware/zmk-studio-ts-client/lib/*.js`

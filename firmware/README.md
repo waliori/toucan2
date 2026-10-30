@@ -2,7 +2,7 @@
 
 ZMK v0.3 firmware for the two Toucan2 halves, built locally with [zmk-nix](https://github.com/lilyinstarlight/zmk-nix).
 The **left half is the central**: it talks to the right half and to the computer (USB, or one of five Bluetooth
-profiles). No dongle is needed; the Prospector runs the separate listener firmware in `../scanner/`.
+profiles; a profile is a remembered pairing with one computer, so the keyboard can switch between five of them). The right half is the peripheral: it only sends its key presses to the left half. No dongle (a USB receiver) is needed; the Prospector runs the separate listener firmware in `../scanner/`.
 
 - `config/toucan.keymap` — the keymap (source of truth; `KEYMAP.md` and `trainer/` derive from it)
 - `config/toucan_left.conf`, `config/toucan_right.conf` — per-half options (sleep, battery, macro timing, status
@@ -22,8 +22,8 @@ nix build            # result/zmk_left.uf2, result/zmk_right.uf2, result/zmk_res
 ```
 
 The flake compiles with **gcc-arm-embedded 12.3** (from nixpkgs nixos-24.05), the compiler generation ZMK v0.3 /
-Zephyr 3.5 is built with upstream. zmk-nix's default GCC 15 produced a firmware whose Bluetooth host link dropped every
-few seconds (HCI 0x28 "instant passed") while beekeeb's stock CI image held; GCC 12 fixed it. Keep it until the halves
+Zephyr 3.5 is built with upstream. zmk-nix's default GCC 15 produced a firmware whose Bluetooth link to the computer dropped every
+few seconds (the error code was HCI 0x28 "instant passed") while beekeeb's stock CI image held; GCC 12 fixed it. Keep it until the halves
 move to a ZMK line that supports newer compilers.
 
 First build downloads Zephyr + the ARM toolchain (slow once, cached after). `out/` keeps a dated copy of each flashed
@@ -36,7 +36,7 @@ build (`result/` is a Nix store symlink and disappears on garbage collection).
 2. Copy the `.uf2` onto it. The half reboots by itself.
 
 First time from a different topology (beekeeb's dongle firmware, or the tagged `dongle-central` build), flash
-`zmk_reset.uf2` on **both** halves first so they forget their old bonds, then `zmk_left.uf2` / `zmk_right.uf2`.
+`zmk_reset.uf2` on **both** halves first so they forget their old bonds (a bond is a saved Bluetooth pairing), then `zmk_left.uf2` / `zmk_right.uf2`.
 The halves bond to each other on the first boot. Back up the running image before overwriting it: the bootloader drive's
 `CURRENT.UF2` is a dump of it (copies live in `../bak/`, gitignored).
 

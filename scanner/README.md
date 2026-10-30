@@ -3,7 +3,7 @@
 Firmware for the Prospector (XIAO nRF52840 + 240×280 LCD) that **listens** instead of being the keyboard's central:
 the left half broadcasts its state in Bluetooth advertisements (`CONFIG_ZMK_STATUS_ADVERTISEMENT` in
 `../firmware/config/toucan_left.conf`) and the screen shows layer name, both batteries, modifiers, active profile and
-wpm. No connection slot is used, so the keyboard works exactly the same with the Prospector off or in another room.
+wpm (words per minute). The screen never connects to the keyboard, it only overhears the broadcast, so the keyboard works exactly the same with the Prospector off or in another room, and keeps all five of its Bluetooth slots for computers.
 
 Module: [t-ogura/prospector-zmk-module](https://github.com/t-ogura/prospector-zmk-module) v2.2.3, scanner shield.
 It needs ZMK main / Zephyr 4, hence its own flake and `config/west.yml` (pinned to the same revisions zmk-nix builds

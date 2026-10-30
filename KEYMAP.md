@@ -1,7 +1,7 @@
 # Toucan2 keymap v2 (firmware, `firmware/config/toucan.keymap`)
 
-OS layout on both machines: **US International** (dead keys). The firmware sends `' " \` ^` as
-"dead key + space" so they stay plain; accents come from the prefix below.
+OS layout on both machines: **US International** (dead keys: a key that waits for the next letter and puts an accent on it). The firmware sends `' " \` ^` as
+"dead key + space" so they stay plain characters; accents come from the prefix below.
 
 ## WLD (the Walid layout)
 ```
@@ -10,7 +10,7 @@ OS layout on both machines: **US International** (dead keys). The firmware sends
  Esc    p  g  r  m  j      '  x  -  u  f    Shift
          Ctrl/ACC NAV Space   Enter SYM Super
 ```
-Left Ctrl thumb: **hold** = Ctrl, **tap** = accent prefix (one-shot, stays armed up to 5 s).
+Left Ctrl thumb: **hold** = Ctrl, **tap** = accent prefix. The prefix is one-shot: one tap arms it for the next letter only, and it disarms by itself after 5 s.
 
 ## Accents (tap the prefix, then the letter; Shift held = capital)
 | taps | e | a | u | i | o | c |
@@ -47,9 +47,9 @@ BOOT = left half into its bootloader (for flashing). RESET = reboot the left hal
  Tab    Q  W  E  R  1      Y  U  I  O  P    Bksp
  Shift  A  S  D  F  2      H  J  K  L  ;    Alt
  Ctrl   Z  X  C  V  3      N  M  ,  .  /    Esc
-            4 Space 5     Enter ADJ Super   (ADJ here = a second tri-layer rule GAME+SYM)
+            4 Space 5     Enter ADJ Super   (ADJ here = holding the SYM thumb while GAME is on)
 ```
-Plain keys only: no hold-tap, no accent prefix, no NAV/SYM, so nothing can fire by accident mid-fight. Left hand is the
+Plain keys only: no key that does one thing tapped and another held, no accent prefix, no NAV/SYM, so nothing can fire by accident mid-fight. Left hand is the
 WASD cluster with 1-3 on the inner column and 4-5 on the outer thumbs (potions); right hand is QWERTY for menus and chat.
 The layer stays on across sleep and unplugging; the screens show "GAME" while it is. To leave: hold the right middle
 thumb (ADJ from this layer) and tap the same "p" key. ADJ also gives F1-F12, volume and the Bluetooth keys without leaving.
