@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Archivo:wght@400;500&family=Archivo+Narrow:wght@500&display=swap">
 <script src="keymap.js"></script>
+<script src="kmyaml.js"></script>
 <script src="qr.js"></script>
 <style>
 /* Hallmark · shape: app screen · genre: editorial · theme: Formwork (by request: the site's own system, site/tokens.css) · redesign: full
@@ -160,7 +161,9 @@ body.zen header, body.zen #lesson-map { opacity: 0.12; } body.zen .shortcuts { o
 /* ---- the stats drawer: a plate hinged on the right ---- */
 dialog { background: var(--color-plate); color: var(--color-ink-2); border: 0; }
 dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transparent); }
-#nofeed { max-width: 30rem; padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); } #nofeed p { margin: 0 0 var(--space-md); max-width: none; } #nofeed b { color: var(--color-ink); } #nofeed form { display: flex; justify-content: end; }
+#nofeed, #kmdlg { max-width: 30rem; padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); }
+#kmdlg { max-width: 38rem; width: calc(100% - 2 * var(--gutter)); } #kmdlg p, #kmdlg small { margin: 0 0 var(--space-sm); max-width: none; } #kmdlg small { display: block; color: var(--color-muted); } #kmdlg code, #kmdlg pre { font: 500 var(--text-xs)/1.5 var(--font-mono); } #kmdlg pre { margin: var(--space-xs) 0 0; padding: var(--space-xs); background: var(--color-paper); overflow: auto; max-height: 14rem; }
+#kmdlg input[type="text"], #kmdlg textarea { display: block; width: 100%; margin: 0 0 var(--space-sm); padding: var(--space-xs); background: var(--color-paper); border: 2px solid var(--color-ink); font: 500 var(--text-sm)/1.4 var(--font-mono); } #kmdlg textarea { min-height: 9rem; resize: vertical; } #kmdlg .acts { display: flex; flex-wrap: wrap; gap: var(--space-xs); align-items: center; margin-top: var(--space-sm); } #kmdlg .err { color: var(--color-error); } #kmdlg summary { cursor: pointer; font-size: var(--text-sm); color: var(--color-ink); } #nofeed p { margin: 0 0 var(--space-md); max-width: none; } #nofeed b { color: var(--color-ink); } #nofeed form { display: flex; justify-content: end; }
 #stats { position: fixed; top: 0; right: 0; bottom: 0; left: auto; margin: 0; width: min(600px, 100%); max-width: none; height: 100dvh; max-height: none; padding: 0; border-left: var(--rule-bar) solid var(--color-ink); display: flex; flex-direction: column; animation: slidein var(--dur-long) var(--ease-out); }
 #stats:not([open]) { display: none; }
 #stats .top { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-lg) var(--space-lg) 0; } #stats .top b { flex: 1; font: 700 var(--text-xl)/1 var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-display); color: var(--color-ink); }
@@ -233,7 +236,8 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
         <div class="rowf"><div class="t">Show keyboard<small>Ctrl+B</small></div><button class="switch" id="boardbtn" aria-pressed="true" aria-label="Show keyboard"><i></i></button></div>
         <div class="col"><div class="t">Colour keys by</div><div class="seg" id="overlay"><button type="button" data-v="none">Nothing</button><button type="button" data-v="errors" id="heat">Errors</button><button type="button" data-v="mastery" id="mastery">Mastery</button></div></div>
         <div class="col"><div class="t">Hints</div><div class="seg" id="hintseg"><button type="button" data-v="auto">Auto</button><button type="button" data-v="always" id="hints">Always</button></div><small id="hint-desc"></small></div>
-        <div class="rowf"><div class="t">Layout</div><select id="layout" title="Letters on the 30 core keys. Stats are per character, so switching layouts mixes them."></select></div>
+        <div class="rowf"><div class="t">Layout</div><select id="layout" title="Letters on the 30 core keys. Progress and stats are kept per layout."></select></div>
+        <div class="rowf"><div class="t">Your keymap<small>keymap-drawer YAML</small></div><button type="button" class="btn ghost" id="kmrm" hidden>Remove</button><button type="button" class="btn" id="kmadd">Add</button></div>
       </section>
       <section>
         <h4>Practice</h4>
@@ -289,6 +293,30 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   <div class="bottom"><button type="button" class="btn ghost" id="export">Export progress</button><label class="btn ghost">Import<input type="file" id="import" accept="application/json" hidden></label></div>
 </dialog>
 
+<dialog id="kmdlg" aria-labelledby="kmdlg-h">
+  <p id="kmdlg-h"><b>Add your keymap</b></p>
+  <small>Paste the YAML that keymap-drawer makes from a ZMK keymap (<code>keymap parse -z config/your.keymap</code>), or write it by hand. 42 keys per layer in the Toucan2’s order: row by row, left half then right, the six thumbs last (36 keys work too, without the outer columns). The first layer is the one you type with. <code>▽</code> is transparent, <code>{type: held}</code> the key you hold to be on that layer, <code>{t: SPACE, h: NAV}</code> a key that types on tap and holds a layer. Macros and media keys show their name and are not trained. The keymap stays in this browser and gets progress of its own.</small>
+  <input type="text" id="kmname" placeholder="Name, as it will appear in the layout menu" autocomplete="off" spellcheck="false">
+  <textarea id="kmtext" placeholder="layers:&#10;  BASE:&#10;    - [TAB, Q, W, E, R, T,   Y, U, I, O, P, BSPC]&#10;    …" spellcheck="false"></textarea>
+  <details><summary>Example, two layers</summary><pre>layout: {zmk_keyboard: toucan}
+layers:
+  BASE:
+    - [TAB,   Q, W, E, R, T,   Y, U, I, O, P,   BSPC]
+    - [LSHFT, A, S, D, F, G,   H, J, K, L, ';', LALT]
+    - [ESC,   Z, X, C, V, B,   N, M, ',', '.', '/', RSHFT]
+    - [LCTRL, NAV, SPACE,   RET, SYM, LGUI]
+  NAV:
+    - [▽, '1', '2', '3', '4', '5',   '6', '7', '8', '9', '0', BSPC]
+    - [▽, LGUI, LALT, LCTRL, LSHFT, ▽,   LEFT, DOWN, UP, RIGHT, DEL, ▽]
+    - [▽, ▽, ▽, ▽, ▽, ▽,   HOME, PG DN, PG UP, END, ▽, ▽]
+    - [▽, {type: held}, ▽,   ▽, ▽, ▽]
+  SYM:
+    - [▽, '!', '@', '#', $, '%',   '^', '&amp;', '*', (, ), BSPC]
+    - [▽, '"', ':', (, ), '?',   '-', '=', '[', ']', \, ▽]
+    - [▽, ;, /, &lt;, '>', '|',   _, +, '{', '}', '`', ▽]
+    - [▽, ▽, ▽,   ▽, {type: held}, ▽]</pre></details>
+  <div class="acts"><button type="button" class="btn primary" id="kmok">Add this keymap</button><label class="btn ghost">Choose a file<input type="file" id="kmfile" accept=".yaml,.yml,text/yaml,application/x-yaml" hidden></label><form method="dialog"><button class="btn ghost">Cancel</button></form><small class="err" id="kmerr"></small></div>
+</dialog>
 <dialog id="nofeed">
   <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard’s USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
   <form method="dialog"><button class="btn">OK</button></form>
@@ -310,13 +338,18 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   // the firmware's locked game layer (QWERTY + 1-3 on the inner column) as a layout too, read from keymap.js
   const gameLayer = T.layers.find((L) => L.locked);
   if (gameLayer) LAYOUTS.game = [gameLayer.name + " (QWERTY for games)", CORE.map((p) => gameLayer.keys[p].char ?? " ").join("")];
+  // keymaps the user imported (keymap-drawer YAML, kmyaml.js): id -> {name, layers}; a full layer set of their own, drawn on the Toucan2's positions
+  const MINE = (() => { try { return JSON.parse(localStorage.getItem("toucan.layouts") || "{}") || {}; } catch { return {}; } })();   // ponytail: synced as a plain setting, newer side wins; union-merge if two devices import different keymaps
+  for (const [id, m] of Object.entries(MINE)) if (m && Array.isArray(m.layers)) LAYOUTS[id] = [m.name || id, null, m.layers];
   const layoutId = LAYOUTS[localStorage.getItem("toucan.layout")] ? localStorage.getItem("toucan.layout") : "custom";
+  const mine = LAYOUTS[layoutId][2]; if (mine) T.layers = mine;   // an imported keymap brings every layer; the board geometry stays the Toucan2's
   const coreString = LAYOUTS[layoutId][1] || CORE.map((p) => T.layers[0].keys[p].char ?? " ").join("");
   // progress is per layout: Walid keeps the historical toucan.<name> keys, any other layout stores toucan.<layout>.<name>; settings stay shared
   const K = (name) => "toucan." + (layoutId === "custom" ? "" : layoutId + ".") + name;
   if (LAYOUTS[layoutId][1]) {
     const codeOf = {}; T.layers.forEach((L) => L.keys.forEach((k) => { if (k.kind === "key" && k.char && !k.shift && !codeOf[k.char]) codeOf[k.char] = k.code; }));
     [...LAYOUTS[layoutId][1]].forEach((ch, i) => { T.layers[0].keys[CORE[i]] = { kind: "key", char: ch, label: ch.toUpperCase(), code: codeOf[ch] }; });
+    T.layers[0].name = layoutId === "game" ? gameLayer.name : LAYOUTS[layoutId][0];   // the base layer is WLD only when the letters are Walid's
   }
   const LAYER_CLASS = ["", "l1", "l2", "l3", "l4", "l5", "l5", "l5", "l5"];
   // [id, name, group, description]: the mode menu, Ctrl+arrows order and the stats legend all come from here
@@ -352,7 +385,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   const layerKeyPos = {};      // layer id -> thumb position that activates it (on base)
   const stickyTaps = {};       // accent layer id -> number of prefix taps that arm it
   let prefixPos = -1;          // the key whose tap arms the first accent layer
-  T.layers[0].keys.forEach((k, pos) => { if (k.kind === "layer") layerKeyPos[k.layer] = pos; if (k.tap?.kind === "sticky") { prefixPos = pos; stickyTaps[k.tap.layer] = 1; } });
+  T.layers[0].keys.forEach((k, pos) => { if (k.kind === "layer") layerKeyPos[k.layer] = pos; else if (k.hold !== undefined) layerKeyPos[k.hold] ??= pos; if (k.tap?.kind === "sticky") { prefixPos = pos; stickyTaps[k.tap.layer] = 1; } });   // hold: a layer-tap from an imported keymap
   for (let l = Number(Object.keys(stickyTaps)[0]), n = 1; prefixPos >= 0 && n < 8; n++) {   // follow the tap chain AC1 -> AC2 -> ...
     const nxt = T.layers.find((L) => L.id === l)?.keys[prefixPos];
     if (!nxt || nxt.kind !== "sticky" || stickyTaps[nxt.layer]) break;
@@ -539,7 +572,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
     if (punct) out.push([`${/\d/.test(punct) ? "Other keys" : "Punctuation"} ${[...punct].join(" ")}`, acc + punct, punct]);
     return out;
   }
-  const LESSONS = (LAYOUTS[layoutId][1] ? genericLessons(coreString) : HANDMADE).concat(TAIL);
+  const LESSONS = (LAYOUTS[layoutId][1] || mine ? genericLessons(coreString) : HANDMADE).concat(TAIL);
   const previewed = new Set();   // lessons whose new-key warm-up was typed to the end this session
   let warmLesson = -1;           // lesson whose warm-up is on screen right now (counts as previewed only when finished)
   const SENTENCES = [
@@ -880,6 +913,25 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   for (const [id, [name]] of Object.entries(LAYOUTS)) { const o = document.createElement("option"); o.value = id; o.textContent = name; o.selected = id === layoutId; $("#layout").appendChild(o); }
   $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.replace(location.pathname); });   // no query: the new layout opens on its own saved lesson, not this one's
   $("#stats-layout").textContent = "for " + LAYOUTS[layoutId][0].replace(/ \(.*/, "");   // progress and stats are per layout
+  // ---- your own keymap: keymap-drawer YAML -> a layout of its own (kmyaml.js), kept in toucan.layouts, with progress of its own ----
+  const kmd = $("#kmdlg");
+  $("#kmadd").addEventListener("click", () => { $("#kmerr").textContent = ""; kmd.showModal(); });
+  $("#kmfile").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; $("#kmtext").value = await f.text(); if (!$("#kmname").value) $("#kmname").value = f.name.replace(/\.(ya?ml|keymap)$/i, ""); });
+  $("#kmok").addEventListener("click", () => {
+    const name = $("#kmname").value.trim() || "My keymap";
+    try {
+      const layers = KMYAML.fromYaml($("#kmtext").value);
+      const id = "km-" + (name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "keymap");
+      MINE[id] = { name, layers }; localStorage.setItem("toucan.layouts", JSON.stringify(MINE)); localStorage.setItem("toucan.layout", id); location.replace(location.pathname);
+    } catch (x) { $("#kmerr").textContent = "Could not read it: " + x.message; }
+  });
+  $("#kmrm").hidden = !mine; let rmArmed = 0;
+  $("#kmrm").addEventListener("click", () => {   // two clicks within 4 s: the keymap and its progress go; ponytail: a synced device merges the progress back, tombstones if that ever matters
+    if (Date.now() - rmArmed > 4000) { rmArmed = Date.now(); $("#kmrm").textContent = "Sure? Remove"; return; }
+    delete MINE[layoutId]; localStorage.setItem("toucan.layouts", JSON.stringify(MINE));
+    Object.keys(localStorage).filter((k) => k.startsWith("toucan." + layoutId + ".")).forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem("toucan.layout", "custom"); location.replace(location.pathname);
+  });
   // ---------- stats, export, import ----------
   // ---- Stats: inline SVG charts, one shared tooltip (data-tip), chips re-render their own section ----
   let SP = null;   // the speed chart's series, for the hover

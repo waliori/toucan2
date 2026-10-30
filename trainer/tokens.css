@@ -18,6 +18,7 @@
   --texture-opacity: 0.05; --grain-blend: multiply;
   --font-display: "Oswald", ui-sans-serif, sans-serif; --font-body: "Archivo", ui-sans-serif, sans-serif;
   --font-outlier: "Archivo Narrow", ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;   /* the keymap YAML, which is code */
   --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --rule-bar: 3px;
   --shadow-card: 6px 6px 0 var(--color-ink);
   --tracking-display: -0.005em; --display-weight: 700;
