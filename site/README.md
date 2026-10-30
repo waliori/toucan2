@@ -1,7 +1,7 @@
 # Site
 
 A one-page case study of the Toucan2: the Walid layout, the keymap layers, the firmware and the trainer. Built with the
-Hallmark skill (theme Formwork); local only for now.
+Hallmark skill (theme Formwork); live at https://toucan.walior.it/.
 
 - `index.tmpl.html` + `build.mjs` → `index.html`. The six keyboard boards are drawn from `../trainer/keymap.js` (itself
   generated from the firmware keymap) and the eight annealing candidates from `../layout-optimizer/custom_free_v2.json`,
@@ -10,7 +10,7 @@ Hallmark skill (theme Formwork); local only for now.
 - `styles.css` imports `tokens.css` and `base.css` (Hallmark scaffold). The first lines of `styles.css` are the design stamp.
 - `images/screens/` are captures of the hosted trainer (dark theme, 2x).
 - Serve: `python3 -m http.server 8777 --bind 127.0.0.1` here, then http://127.0.0.1:8777/
-- Deploy: from the repository root, `node dist.mjs && npx wrangler@latest deploy` puts this page at https://toucan.walior.it/ and the trainer at `/trainer/` (one Worker, see `wrangler.toml` there)
+- Deploy: automatic. Cloudflare Workers Builds runs `node dist.mjs && npx wrangler deploy` from the repository root on every push to main and puts this page at https://toucan.walior.it/ and the trainer at `/trainer/` (one Worker, see `wrangler.toml` there). Commit `index.html` along with the template: the build step only assembles `dist/`, it does not rebuild the page.
 
 - `images/screens/stats-*.png` are the trainer's Statistics drawer with the author's own progress (read from the browser's
   `toucan.*` localStorage on 2026-10-30, seeded into headless Chrome); the other captures run on a fresh profile.
