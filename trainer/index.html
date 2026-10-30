@@ -708,6 +708,7 @@
   // ---------- key events ----------
   // US-International dead keys: event.code (+ = with Shift) -> combining mark
   const DEAD_OF = { "Backquote": "\u0300", "Backquote+": "\u0303", "Digit6+": "\u0302", "Quote": "\u0301", "Quote+": "\u0308" };
+  const PLAIN_OF = { "\u0300": "`", "\u0303": "~", "\u0302": "^", "\u0301": "'", "\u0308": '"' };   // the sign a dead key types on its own
   let pendingDead = null;
   const isDeadFor = (ch, e) => !!ch && [...ch.normalize("NFD")].includes(DEAD_OF[e.code + (e.shiftKey ? "+" : "")]);
   function resolve(e) {
@@ -731,11 +732,15 @@
     if (!$("#scrim").hidden) return;   // a popover is open: keys go to it
     let key = e.key;
     if (key === "Dead" || (DEAD_OF[e.code + (e.shiftKey ? "+" : "")] && isDeadFor(target[idx], e))) {   // first half of a dead-key accent
-      pendingDead = DEAD_OF[e.code + (e.shiftKey ? "+" : "")] || "\u0301"; return;
-    }
-    if (pendingDead && key.length === 1) {                        // compose like the OS would (Chrome only does it inside text fields)
+      const mark = DEAD_OF[e.code + (e.shiftKey ? "+" : "")] || "\u0301";
+      if (pendingDead !== mark) { pendingDead = mark; return; }
+      pendingDead = null; key = PLAIN_OF[mark];                   // the same dead key twice: the OS types the sign itself
+    } else if (pendingDead && key.length === 1) {                 // compose like the OS would (Chrome only does it inside text fields)
       const mark = pendingDead; pendingDead = null;
-      if (key.normalize("NFD").length === 1) { const c = (key + mark).normalize("NFC"); if (c.length === 1) key = c; }
+      const c = key.normalize("NFD").length === 1 ? (key + mark).normalize("NFC") : "";
+      if (c.length === 1) key = c;
+      else if (key === " ") key = PLAIN_OF[mark];                 // dead key then space: the sign alone (how ' is typed on US-Intl)
+      else typeChar(PLAIN_OF[mark], -1, "");                      // no such accent: the OS emits the sign, then the key
     }
     const r = feedOn ? null : resolve(e);   // with the feed the board is driven by the keyboard, not inferred from the OS event
     if (r) { down.add(r.pos); keyEls[r.pos].classList.add("down"); flashLayer(r.layer); relabel(); }
