@@ -1,0 +1,15 @@
+# One Worker for the whole project, deployed from the repository root:
+#   node dist.mjs && npx wrangler@latest deploy
+# dist/ holds the site at / and the trainer at /trainer/; worker.mjs answers the sync API at /p/<code>.
+# The name stays "toucan-trainer" so the old workers.dev address and the KV namespace carry over.
+name = "toucan-trainer"
+main = "trainer/worker.mjs"
+compatibility_date = "2026-10-01"
+routes = [{ pattern = "toucan.walior.it", custom_domain = true }]
+
+[assets]
+directory = "dist"
+
+[[kv_namespaces]]
+binding = "PROGRESS"
+id = "d952ebb305834e439c0890b738a11d0f"
