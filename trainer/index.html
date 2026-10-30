@@ -34,7 +34,9 @@
   /* header */
   header { display: flex; align-items: center; gap: 14px; padding: 18px 28px; transition: opacity .5s; }
   .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .brand > span { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand > span, .brand > a { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand > a { color: inherit; text-decoration: none; }   /* back to the site (served at the parent path) */
+  .brand > a:hover { color: var(--accent); }
   .brand .sl { color: var(--faint); font-weight: 400; }
   .pop { position: relative; }
   #mode-btn { display: flex; align-items: center; gap: 8px; padding: 7px 10px 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; }
@@ -173,7 +175,7 @@
 </head>
 <body>
 <header>
-  <div class="brand"><span>toucan</span><span class="sl">/</span>
+  <div class="brand"><a href="../" title="Walid, the layout: how it was made, the firmware">toucan</a><span class="sl">/</span>
     <div class="pop">
       <button id="mode-btn" aria-expanded="false" aria-haspopup="menu"><span id="mode-name">Lessons</span><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <div id="mode-menu" class="menu" hidden></div>
