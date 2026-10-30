@@ -12,7 +12,7 @@ The page is live about forty seconds after a push; the same two commands deploy 
 
 ## Sync between devices
 
-Progress lives in the browser (`localStorage`, every `toucan.*` key). **Sync** in Settings → Devices shows a secret
+Progress lives in the browser (`localStorage`, every `toucan.*` key; Walid's progress under `toucan.keys`, `toucan.hist`…, any other layout's under `toucan.<layout>.keys`…). **Sync** in Settings → Devices shows a secret
 32-hex code, as text and as a QR of the link `…/#sync=<code>`: scan it with the phone, open the link on the other machine
 (the page reads the code and drops it from the address bar), or paste the code there. From then on each finished text (and
 closing the tab) uploads the whole state as one JSON blob to `/p/<code>`, and opening the page **merges** the server copy
@@ -47,11 +47,11 @@ Modelled on keybr / TypingClub rather than fixed drills:
 - **After each text** you get stars, the keys still below target, every missed word with what you pressed for what (and which key, when the board knew), and a count of capitals typed with the same-hand Shift.
 - **The clock ignores breaks.** Speed is characters typed divided by time; any gap over 5 s between two keys counts as 5 s, so a tab switch does not wreck the speed.
 - **Stats** (Ctrl+I) open in a side drawer with four tabs: Overview, Keys, Letter pairs, Practice. Interactive charts, hover anything for the numbers. Speed and accuracy text by text with a 10-text average, filterable by mode, by period, and by lesson (all lessons together or one at a time); a practice calendar; the board coloured by mastery, speed, accuracy or errors; a letter-pair matrix; finger load; weakest keys; lesson stars. Export / import of the progress file lives at the bottom.
-- **Other layouts.** The layout menu puts QWERTY, Colemak-DH, Graphite, Gallium, Canary, Sturdy, Ergo-L or the firmware's GAME layer (QWERTY with 1-3 on the inner column; its thumb digits 4-5 are outside the 30 core keys) on the 30 core keys (lessons are then generated from the layout: home row, then letters by frequency). Thumbs, modifiers and the NAV/SYM/accent layers stay as the firmware has them. Stats are per character, so switching mixes them.
+- **Other layouts.** The layout menu puts QWERTY, Colemak-DH, Graphite, Gallium, Canary, Sturdy, Ergo-L or the firmware's GAME layer (QWERTY with 1-3 on the inner column; its thumb digits 4-5 are outside the 30 core keys) on the 30 core keys (lessons are then generated from the layout: home row, then letters by frequency). Thumbs, modifiers and the NAV/SYM/accent layers stay as the firmware has them. Progress and stats are kept per layout: switching to QWERTY starts from lesson 1 with empty stats, and switching back finds Walid where you left it. Only the settings (target speed, hints, theme, sync code) are shared.
 - **Shortcuts.** Tab or Esc: new text. Ctrl+←/→: lesson. Ctrl+↑/↓: mode. Ctrl+B: board. Ctrl+I: stats. The address bar always holds a link to the current view (`?mode=lesson&lesson=3`), so a lesson can be shared.
 - **Sound** adds a short click on mistakes, off by default. **Theme** in Settings is auto (follows the system), dark or light.
 - **Streak and history.** Days practised in a row, minutes today, and a sparkline of speed for the current lesson or mode.
 
-Everything is stored in the browser (localStorage: keys, stars, streak, history, error heat map).
+Everything is stored in the browser (localStorage: keys, stars, streak, history, error heat map), one set per layout.
 
 `node selftest.mjs` drives the page in headless Chrome through a few lessons and checks the gate, the hint fading and every text generator.
