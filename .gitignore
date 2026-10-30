@@ -13,3 +13,7 @@ trainer/.wrangler/
 # nix build output symlinks
 result
 result-*
+
+# design-tool state and editor settings
+.hallmark/
+.vscode/
