@@ -48,6 +48,11 @@
   $("#targetn").value = 450; $("#targetn").dispatchEvent(new Event("input")); const t2 = $("#target").value + "/" + localStorage.getItem("toucan.target");
   const before = $("#text").textContent; $("#targetn").focus(); $("#targetn").dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "7", code: "Digit7" })); const t3 = $("#text").textContent === before; $("#targetn").blur();
   out.target = `${t1} ${t2} typingIsolated=${t3}`;
+  // US-International dead keys, as the OS sends them: ' then space is an apostrophe, ' then e is é, ' twice is an apostrophe, ' then x is both
+  document.querySelector('[data-mode="text"]').click(); await sleep(30); $("#paste").value = "' é ' 'x"; kd({ key: "Escape", code: "Escape" }); await sleep(30);
+  { const dead = () => kd({ key: "Dead", code: "Quote" });
+    dead(); await press(" "); await press(" "); dead(); await press("e"); await press(" "); dead(); dead(); await press(" "); dead(); await press("x"); await sleep(30);
+    out.deadKeys = `${$("#text").querySelectorAll(".ok").length}/${text().length} ok, ${[...$("#text").querySelectorAll(".err")].map((e) => e.textContent).join("") || 0} err, done=${$("#text").classList.contains("done")}`; }
   out.errors = errs;
   return out;
 })()
