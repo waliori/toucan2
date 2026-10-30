@@ -13,7 +13,7 @@ Hallmark skill (theme Formwork); local only for now.
 - Deploy: from the repository root, `node dist.mjs && npx wrangler@latest deploy` puts this page at https://toucan.walior.it/ and the trainer at `/trainer/` (one Worker, see `wrangler.toml` there)
 
 - `images/screens/stats-*.png` are the trainer's Statistics drawer with the author's own progress (read from the browser's
-  `toucan.*` localStorage on 2026-10-29, seeded into headless Chrome); the other captures run on a fresh profile.
+  `toucan.*` localStorage on 2026-10-30, seeded into headless Chrome); the other captures run on a fresh profile.
 - `data-anneal-seed5.json` is seed 5 of the final run, rerun with a trace (score, best, temperature every 100 swaps); it
   reproduces the Walid layout and its score exactly. The page draws it as the step 4 chart.
 - Motion: one reveal on scroll (opacity and transform, 16px rise) on the blocks below the hero, and the chart draws
