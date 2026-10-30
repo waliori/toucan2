@@ -1,7 +1,7 @@
-# One Worker for the whole project, deployed from the repository root:
-#   node dist.mjs && npx wrangler@latest deploy
+# One Worker for the whole project. Cloudflare Workers Builds deploys it on every push to main, from the repository root:
+#   node dist.mjs && npx wrangler deploy
 # dist/ holds the site at / and the trainer at /trainer/; worker.mjs answers the sync API at /p/<code>.
-# The name stays "toucan-trainer" so the old workers.dev address and the KV namespace carry over.
+# The name stays "toucan-trainer" so the KV namespace carries over; the workers.dev address is off since the custom domain route.
 name = "toucan-trainer"
 main = "trainer/worker.mjs"
 compatibility_date = "2026-10-01"

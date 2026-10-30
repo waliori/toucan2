@@ -4,10 +4,11 @@ Typing trainer for the Walid layout (WLD) on the Toucan2, in the same Formwork s
 
 Open `index.html` in Chrome (double-click works), or serve the folder: `python3 -m http.server 8765` then http://127.0.0.1:8765/.
 
-Hosted copy: https://toucan.walior.it/trainer/ (the old https://toucan-trainer.waliori.workers.dev/ still answers). One Cloudflare
-Worker serves the whole project: the site at `/`, this trainer at `/trainer/`, the sync endpoint below at `/p/`. Deploy from the
-repository root: `node dist.mjs && npx wrangler@latest deploy` (one-time `npx wrangler@latest login`; `wrangler.toml` and `dist.mjs`
-live at the root, `dist.mjs` picks which files go up).
+Hosted copy: https://toucan.walior.it/trainer/ (the old workers.dev address no longer answers, since the Worker moved to the custom
+domain). One Cloudflare Worker serves the whole project: the site at `/`, this trainer at `/trainer/`, the sync endpoint below at
+`/p/`. Deployment is automatic: Cloudflare Workers Builds watches the main branch and, on every push, runs `node dist.mjs` then
+`npx wrangler deploy` from the repository root (`wrangler.toml` and `dist.mjs` live there; `dist.mjs` picks which files go up).
+The page is live about forty seconds after a push; the same two commands deploy by hand after `npx wrangler@latest login`.
 
 ## Sync between devices
 
@@ -48,7 +49,7 @@ Modelled on keybr / TypingClub rather than fixed drills:
 - **Stats** (Ctrl+I) open in a side drawer with four tabs: Overview, Keys, Letter pairs, Practice. Interactive charts, hover anything for the numbers. Speed and accuracy text by text with a 10-text average, filterable by mode, by period, and by lesson (all lessons together or one at a time); a practice calendar; the board coloured by mastery, speed, accuracy or errors; a letter-pair matrix; finger load; weakest keys; lesson stars. Export / import of the progress file lives at the bottom.
 - **Other layouts.** The layout menu puts QWERTY, Colemak-DH, Graphite, Gallium, Canary, Sturdy, Ergo-L or the firmware's GAME layer (QWERTY with 1-3 on the inner column; its thumb digits 4-5 are outside the 30 core keys) on the 30 core keys (lessons are then generated from the layout: home row, then letters by frequency). Thumbs, modifiers and the NAV/SYM/accent layers stay as the firmware has them. Stats are per character, so switching mixes them.
 - **Shortcuts.** Tab or Esc: new text. Ctrl+←/→: lesson. Ctrl+↑/↓: mode. Ctrl+B: board. Ctrl+I: stats. The address bar always holds a link to the current view (`?mode=lesson&lesson=3`), so a lesson can be shared.
-- **Sound** adds a short click on mistakes, off by default. The page follows the system light/dark preference.
+- **Sound** adds a short click on mistakes, off by default. **Theme** in Settings is auto (follows the system), dark or light.
 - **Streak and history.** Days practised in a row, minutes today, and a sparkline of speed for the current lesson or mode.
 
 Everything is stored in the browser (localStorage: keys, stars, streak, history, error heat map).
