@@ -160,7 +160,9 @@ section { padding-block: var(--section-gap); }
 .metrics .rank-3 { font-weight: 500; color: var(--color-muted); }
 .measure__note .hi { font-weight: 700; color: var(--color-accent-text); }
 .measure .head { margin-bottom: var(--space-lg); }
-.measure__note { margin: 0 0 var(--space-xl); max-width: 62ch; }
+.measure__text { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-2xl); align-items: start; margin-bottom: var(--space-xl); }
+.measure__text .lead { max-width: 60ch; }
+.measure__note { margin: 0; max-width: 62ch; }
 .measure .caption { margin-top: var(--space-md); }
 
 /* ---- bands: a darker pour, or the ink ---- */
@@ -278,10 +280,10 @@ section { padding-block: var(--section-gap); }
 
 @media (max-width: 60rem) {
   .step, .finalists { grid-template-columns: minmax(0, 1fr); }
-  .head--split, .plates, .pinned__grid, .close__grid { grid-template-columns: minmax(0, 1fr); }
+  .head--split, .measure__text, .plates, .pinned__grid, .close__grid { grid-template-columns: minmax(0, 1fr); }
   .steps { gap: var(--section-gap-l); }
   .tile--row2 { min-height: 0; }
-  .head--split { gap: var(--space-md); }
+  .head--split, .measure__text { gap: var(--space-md); }
   .tile, .tile--8 { grid-column: span 12; min-height: 0; }
   .cands, .step .cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pinned__visual { position: static; display: none; }
