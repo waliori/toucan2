@@ -1,5 +1,7 @@
 /* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, a pinned four and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
  * hero: Ledge (swapped from Corridor: the material is a board to show, not a column of words) · nav: slab · footer: letter close · imagery: the product, screenshots 8 (own CDP capture), the keymap drawn as a diagram from the firmware source, no photographs · signature: the real Toucan2 keymap as a layer switcher in the hero, every label from the firmware, the keys that lead to a layer in orange · formwork: cast
+ * dismissed 3: the habits grid is nine diagrams of the same board at one scale, not icon tiles; equal columns are the point ·
+ * habits: nine one-hand boards drawn from the keymap, the strokes in order, still by default; a hover or a tap replays them (motion that answers the pointer, nothing ambient) ·
  * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · fold: pass · hero-review: fix · 4 findings · 4 resolved · finish-review: subagent · 8 findings · 8 resolved · gap: the shape is a bento only in its second screen, named so in the stamp · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: R, the hero carried a scroll cue and a second caption row; both cut, one caption per layer stays because each is a fact */
 /* Hallmark · dismissed 58 · the page-wide count reads the six keymap boards and the eight annealing grids, about 560 single-letter diagram labels, so the prose itself was under 420 words before the method section, which the author asked for in full (corpus, cost map, score, annealing, the pick), five steps each under 80 words beside one exhibit; the author then asked for the empty screens between steps to go, so a 900px window over two steps now reads up to 140 words (the 58 per-screen FAIL in the method is accepted by the author, 2026-10-29); on 2026-10-30 the author asked that a reader new to keyboards understand the how and the why, so the steps, the tiles and the firmware plates gained plain-words glosses (what a dead key is, why QWERTY, what annealing does) and the per-screen count rose again by the author’s choice; later the same day the calculations themselves (share, weight, points, travel, seed, temperature) were spelled out with worked examples, by the author’s choice again; the 90-word screen over the firmware plates is two tables of facts, each row a label and one clause */
@@ -147,6 +149,35 @@ section { padding-block: var(--section-gap); }
 .shot--desktop { aspect-ratio: 16 / 10; width: 100%; }
 .shot img { object-position: 50% 0; }
 
+/* ---- the habits: nine boards, one hand each, the strokes drawn in order; still by default, replayed on hover (the theme keeps still, a pointer may ask) ---- */
+.habits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2xl) var(--gap-columns); }
+.habit { display: grid; gap: var(--space-sm); align-content: start; min-width: 0; }
+.habit h3 { font-size: var(--text-lg); max-width: none; margin-top: var(--space-xs); }
+.habit p { max-width: 36ch; font-size: var(--text-md); color: var(--color-ink-2); }
+.habit p b { font-weight: 500; color: var(--color-ink); }
+.hand { width: 100%; height: auto; display: block; }
+.hand .palm, .hand .fng { fill: var(--color-ink); stroke: var(--color-ink); opacity: 0.22; }
+.hand .fng { stroke-width: 38; stroke-linecap: round; fill: none; }
+.hand .fng--on { opacity: 0.5; }
+.hand .cast { fill: var(--color-ink); }
+.hand .cap { fill: var(--color-plate); stroke: var(--color-ink); stroke-width: 3; }
+.hand .lbl { fill: var(--color-ink); font: 700 40px var(--font-display); text-anchor: middle; dominant-baseline: central; text-transform: uppercase; }
+.hand .on { fill: var(--color-accent); stroke: var(--color-ink); stroke-width: 3; }
+.hand .tip { fill: none; stroke: var(--color-ink); stroke-width: 4; opacity: 0.35; }
+.hand .tip--on { stroke: var(--color-accent-deep); stroke-width: 6; opacity: 1; }
+.hand .tag { fill: var(--color-ink); font: 500 24px var(--font-outlier); text-anchor: end; }
+.hand .reach { stroke: var(--color-accent-deep); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.hand .route { stroke: var(--color-ink); stroke-width: 3; stroke-dasharray: 0.08 0.05; }
+@media (hover: hover) {
+  .habit:hover .hand .s { animation: land var(--dur-short) var(--ease-out) calc(var(--k) * 480ms) both; }
+  .habit:hover .hand .reach { animation-name: reach; animation-duration: var(--dur-long); }
+}
+.habit.is-replay .hand .s { animation: land var(--dur-short) var(--ease-out) calc(var(--k) * 480ms) both; }   /* a tap, where there is no hover */
+.habit.is-replay .hand .reach { animation-name: reach; animation-duration: var(--dur-long); }
+.hand .tag--low { text-anchor: start; }
+@keyframes land { from { opacity: 0; } to { opacity: 1; } }
+@keyframes reach { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
 /* ---- the comparison table: full width, horizontal rules only, our row one step heavier ---- */
 .metrics { width: 100%; border-collapse: collapse; }
 .metrics th, .metrics td { padding: var(--space-md) var(--space-sm); text-align: left; border-bottom: var(--rule-hair) solid var(--color-paper-3); font-size: var(--text-lg); }
@@ -281,6 +312,7 @@ section { padding-block: var(--section-gap); }
 @media (max-width: 60rem) {
   .step, .finalists { grid-template-columns: minmax(0, 1fr); }
   .head--split, .measure__text, .plates, .pinned__grid, .close__grid { grid-template-columns: minmax(0, 1fr); }
+  .habits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { gap: var(--section-gap-l); }
   .tile--row2 { min-height: 0; }
   .head--split, .measure__text { gap: var(--space-md); }
@@ -297,6 +329,8 @@ section { padding-block: var(--section-gap); }
 }
 @media (max-width: 40rem) {
   .cands, .step .cands { grid-template-columns: minmax(0, 1fr); }
+  .habits { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+  .habit p { max-width: 52ch; }
   /* the phone keeps the layout name, same-finger bigrams, redirects, home row and the score */
   .metrics :is(th, td):is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(7), :nth-child(9), :nth-child(10)) { display: none; }
   .metrics th, .metrics td { padding: var(--space-sm) var(--space-2xs); font-size: var(--text-md); }
@@ -317,5 +351,6 @@ section { padding-block: var(--section-gap); }
 @media (prefers-reduced-motion: reduce) {
   .pinned__visual .shot { transition: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
+  .habit:hover .hand .s, .habit.is-replay .hand .s { animation: none; }
   .js .anneal .line { stroke-dashoffset: 0; transition: none; }
 }
