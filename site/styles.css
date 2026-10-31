@@ -1,7 +1,6 @@
 /* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, a pinned four and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
  * hero: Ledge (swapped from Corridor: the material is a board to show, not a column of words) · nav: slab · footer: letter close · imagery: the product, screenshots 8 (own CDP capture), the keymap drawn as a diagram from the firmware source, no photographs · signature: the real Toucan2 keymap as a layer switcher in the hero, every label from the firmware, the keys that lead to a layer in orange · formwork: cast
- * dismissed 3: the habits grid is nine diagrams of the same board at one scale, not icon tiles; equal columns are the point ·
- * habits: nine glyphs drawn from the keymap, a hand over its half of the board, the striking fingers stretching to their keys in a loop · waived: ambient motion in those glyphs, by the author’s request (the loop pauses off screen and stops under reduced motion, where every stroke shows at once) ·
+ * terms: the eight terms of the score sit with their definitions, weights and points in step 3, each drawn as a glyph from the keymap, a hand over its half of the board, the striking fingers stretching to their keys in a loop · waived: ambient motion in those glyphs, by the author’s request (the loop pauses off screen and stops under reduced motion, where every stroke shows at once) ·
  * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · fold: pass · hero-review: fix · 4 findings · 4 resolved · finish-review: subagent · 8 findings · 8 resolved · gap: the shape is a bento only in its second screen, named so in the stamp · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: R, the hero carried a scroll cue and a second caption row; both cut, one caption per layer stays because each is a fact */
 /* Hallmark · dismissed 58 · the page-wide count reads the six keymap boards and the eight annealing grids, about 560 single-letter diagram labels, so the prose itself was under 420 words before the method section, which the author asked for in full (corpus, cost map, score, annealing, the pick), five steps each under 80 words beside one exhibit; the author then asked for the empty screens between steps to go, so a 900px window over two steps now reads up to 140 words (the 58 per-screen FAIL in the method is accepted by the author, 2026-10-29); on 2026-10-30 the author asked that a reader new to keyboards understand the how and the why, so the steps, the tiles and the firmware plates gained plain-words glosses (what a dead key is, why QWERTY, what annealing does) and the per-screen count rose again by the author’s choice; later the same day the calculations themselves (share, weight, points, travel, seed, temperature) were spelled out with worked examples, by the author’s choice again; the 90-word screen over the firmware plates is two tables of facts, each row a label and one clause */
@@ -149,11 +148,18 @@ section { padding-block: var(--section-gap); }
 .shot--desktop { aspect-ratio: 16 / 10; width: 100%; }
 .shot img { object-position: 50% 0; }
 
-/* ---- the habits: nine glyphs, a hand over its half of the board; the fingers that strike stretch to their keys in a loop (the author asked for repeating motion), paused off screen, still under reduced motion with every stroke shown ---- */
-.habits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); }
-.habit { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--space-md); align-items: start; min-width: 0; --loop: 4800ms var(--ease-in-out) calc(var(--i) * -700ms) infinite both; }
+/* ---- the terms of the score (step 3): eight glyphs, a hand over its half of the board; the fingers that strike stretch to their keys in a loop (the author asked for repeating motion), paused off screen, still under reduced motion with every stroke shown ---- */
+.step.step--wide { grid-template-columns: minmax(0, 1fr); }   /* step 3: the text across the top, its two paragraphs side by side, the eight terms under it */
+.step--wide .step__text { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--space-2xl); }
+.step--wide .step__text h3 { grid-column: 1 / -1; }
+.habits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl) var(--space-2xl); }
+.habit { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: var(--space-md); align-items: start; min-width: 0; --loop: 4800ms var(--ease-in-out) calc(var(--i) * -700ms) infinite both; }
 .habit h3 { font-size: var(--text-lg); max-width: none; margin: 0 0 var(--space-2xs); }
-.habit p { margin: 0; max-width: 30ch; font-size: var(--text-md); color: var(--color-ink-2); }
+.habit p { margin: 0; max-width: 44ch; font-size: var(--text-md); color: var(--color-ink-2); }
+.habit__fig { display: flex; gap: var(--space-lg); margin-top: var(--space-xs); font-size: var(--text-sm); color: var(--color-muted); }
+.habit__fig b { font-family: var(--font-outlier); font-weight: 500; color: var(--color-ink); white-space: nowrap; }
+.habits__total { margin: 0; padding-top: var(--space-md); border-top: var(--rule-bar) solid var(--color-ink); font-size: var(--text-lg); }
+.habits__total b { font-family: var(--font-outlier); font-weight: 700; }
 .habit p b { font-weight: 500; color: var(--color-ink); }
 .hand { width: 100%; height: auto; display: block; }
 .hand .cast { fill: var(--color-ink); }
@@ -275,13 +281,11 @@ section { padding-block: var(--section-gap); }
 .emap text { font: 500 34px var(--font-outlier); fill: var(--color-ink); text-anchor: middle; }
 .emap .ekey--dark text { fill: var(--color-plate-ink); }
 /* step 3 and 5: tables in the metrics' manner */
-.terms, .versus { width: 100%; border-collapse: collapse; }
-.terms th, .terms td, .versus th, .versus td { padding: var(--space-sm) var(--space-sm); text-align: left; border-bottom: var(--rule-hair) solid var(--color-paper-3); font-size: var(--text-md); vertical-align: top; }
-.terms thead th, .versus thead th { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); border-bottom: var(--rule-bar) solid var(--color-ink); }
-.terms .num, .versus .num { text-align: right; font-family: var(--font-outlier); font-weight: 500; white-space: nowrap; }
-.terms td.name, .versus td.name { font-weight: 500; color: var(--color-ink); white-space: nowrap; }
-.terms tfoot td { border-top: var(--rule-bar) solid var(--color-ink); border-bottom: 0; font-weight: 700; color: var(--color-ink); }
-.terms td:nth-child(2) { color: var(--color-ink-2); }
+.versus { width: 100%; border-collapse: collapse; }
+.versus th, .versus td { padding: var(--space-sm) var(--space-sm); text-align: left; border-bottom: var(--rule-hair) solid var(--color-paper-3); font-size: var(--text-md); vertical-align: top; }
+.versus thead th { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); border-bottom: var(--rule-bar) solid var(--color-ink); }
+.versus .num { text-align: right; font-family: var(--font-outlier); font-weight: 500; white-space: nowrap; }
+.versus td.name { font-weight: 500; color: var(--color-ink); white-space: nowrap; }
 /* step 4: one plate, the figure cast large */
 .plate--fact { min-height: 0; justify-self: start; width: min(100%, 36rem); }
 /* step 5: the eight boards by seed, the pick framed, the keys that differ in orange */
@@ -318,7 +322,7 @@ section { padding-block: var(--section-gap); }
 @media (max-width: 60rem) {
   .step, .finalists { grid-template-columns: minmax(0, 1fr); }
   .head--split, .measure__text, .plates, .pinned__grid, .close__grid { grid-template-columns: minmax(0, 1fr); }
-  .habits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .habits, .step--wide .step__text { grid-template-columns: minmax(0, 1fr); }
   .steps { gap: var(--section-gap-l); }
   .tile--row2 { min-height: 0; }
   .head--split, .measure__text { gap: var(--space-md); }
@@ -335,16 +339,15 @@ section { padding-block: var(--section-gap); }
 }
 @media (max-width: 40rem) {
   .cands, .step .cands { grid-template-columns: minmax(0, 1fr); }
-  .habits { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
-  .habit { grid-template-columns: 8rem minmax(0, 1fr); }
+  .habits { gap: var(--space-lg); }
+  .habit { grid-template-columns: 7rem minmax(0, 1fr); }
+  .habit__fig { flex-wrap: wrap; gap: var(--space-xs) var(--space-md); }
   .habit p { max-width: none; }
   /* the phone keeps the layout name, same-finger bigrams, redirects, home row and the score */
   .metrics :is(th, td):is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(7), :nth-child(9), :nth-child(10)) { display: none; }
   .metrics th, .metrics td { padding: var(--space-sm) var(--space-2xs); font-size: var(--text-md); }
   .metrics .rank { display: block; min-width: 0; margin: 0; text-align: inherit; }
   .hands { font-size: 2.5rem; }
-  .terms th, .terms td { padding: var(--space-xs) var(--space-2xs); font-size: var(--text-sm); }
-  .terms td.name { white-space: normal; }
   .emap text { font-size: 44px; }
   .anneal .tick, .anneal .hov text { font-size: 30px; }
   .anneal .lbl { display: none; }
