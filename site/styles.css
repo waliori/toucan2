@@ -155,6 +155,10 @@ section { padding-block: var(--section-gap); }
 .metrics td.name { font-weight: 500; color: var(--color-ink); }
 .metrics tr.is-ours td { color: var(--color-ink); background: var(--color-plate); }
 .metrics td.is-best { font-weight: 700; color: var(--color-ink); }
+.metrics .rank { display: inline-block; min-width: 2.2em; margin-left: var(--space-3xs); font: 700 var(--text-xs)/1 var(--font-body); text-align: left; color: var(--color-accent-text); vertical-align: 0.15em; }
+.metrics .rank-2 { font-weight: 500; }
+.metrics .rank-3 { font-weight: 500; color: var(--color-muted); }
+.measure__note .hi { font-weight: 700; color: var(--color-accent-text); }
 .measure .head { margin-bottom: var(--space-lg); }
 .measure__note { margin: 0 0 var(--space-xl); max-width: 62ch; }
 .measure .caption { margin-top: var(--space-md); }
@@ -294,6 +298,7 @@ section { padding-block: var(--section-gap); }
   /* the phone keeps the layout name, same-finger bigrams, redirects, home row and the score */
   .metrics :is(th, td):is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(7), :nth-child(9), :nth-child(10)) { display: none; }
   .metrics th, .metrics td { padding: var(--space-sm) var(--space-2xs); font-size: var(--text-md); }
+  .metrics .rank { display: block; min-width: 0; margin: 0; text-align: inherit; }
   .hands { font-size: 2.5rem; }
   .terms th, .terms td { padding: var(--space-xs) var(--space-2xs); font-size: var(--text-sm); }
   .terms td.name { white-space: normal; }
