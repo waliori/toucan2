@@ -112,28 +112,16 @@
           <p class="caption">The cost of each of the thirty core keys. Darker is dearer.</p>
         </div>
       </li>
-      <li class="step">
+      <li class="step step--wide">
         <div class="step__text">
           <h3><b class="step__num">3</b>Define the score</h3>
           <p>Reach is not the whole story: two letters in a row with the same finger are slow even on cheap keys. So the score also counts eight habits. For each one the program asks: of all the letter pairs (or triples) in my text, how many fall into this habit? That fraction is the habit’s share. Then I gave each habit a weight, a number that says how much it bothers me: 3 for two letters on one finger, 1.5 for scissors. Share times weight is the habit’s points, and the points add up to the score. Lower is better.</p>
           <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last row exists.</p>
         </div>
         <div class="step__show">
-          <table class="terms">
-            <thead><tr><th scope="col">Term</th><th scope="col">Counts</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Points</th></tr></thead>
-            <tbody>
-              <tr><td class="name">Same-finger bigrams</td><td>two letters in a row, one finger</td><td class="num">3.0</td><td class="num">4.18</td></tr>
-              <tr><td class="name">Same-finger skipgrams</td><td>same finger, one letter between</td><td class="num">0.8</td><td class="num">5.28</td></tr>
-              <tr><td class="name">Scissors</td><td>neighbouring fingers, two rows apart</td><td class="num">1.5</td><td class="num">0.66</td></tr>
-              <tr><td class="name">Lateral stretches</td><td>a reach to the inner column</td><td class="num">1.0</td><td class="num">0.51</td></tr>
-              <tr><td class="name">Redirects</td><td>one hand changes direction mid-word; 2.0 more when no index finger helps</td><td class="num">1.2 + 2.0</td><td class="num">3.76</td></tr>
-              <tr><td class="name">Rolls, in and out</td><td>fingers walk one way, towards the thumb or away: a reward, so negative</td><td class="num">&minus;0.12, &minus;0.05</td><td class="num">&minus;2.47</td></tr>
-              <tr><td class="name">Travel</td><td>the step 2 cost of a keystroke, averaged over all of them</td><td class="num">8.0</td><td class="num">13.02</td></tr>
-              <tr><td class="name">Load</td><td>pinkies above 13% of keystrokes, one hand above half, any finger above its cap</td><td class="num">1.0, 0.5, 1.5</td><td class="num">0.61</td></tr>
-            </tbody>
-            <tfoot><tr><td class="name">Score</td><td></td><td></td><td class="num">25.54</td></tr></tfoot>
-          </table>
-          <p class="caption">Points = share × weight × 100. First row: 1.39 of every 100 letter pairs land on one finger (counted over my 700 commonest pairs; the full count further down says 1.35), times the weight 3, gives 4.18. Travel is the one row that is not a share: the average cost 1.627 times 8 gives 13.02. The eight rows add up to 25.54.</p>
+          <!--HABITS-->
+          <p class="habits__total">The eight add up to the score: <b>25.54</b>. Lower is better.</p>
+          <p class="caption">Points = share × weight × 100. Same-finger bigrams: 1.39 of every 100 letter pairs land on one finger (counted over my 700 commonest pairs; the full count further down says 1.35), times the weight 3, gives 4.18. Travel is the one row that is not a share: the average cost 1.627 times 8 gives 13.02. The eight rows add up to 25.54.</p>
         </div>
       </li>
       <li class="step">
@@ -172,16 +160,6 @@
       <p>The corpus stays private, the scripts do not. The final run, from the layout-optimizer folder:</p>
       <pre><code>TAG=_v2 python3 optimize2.py free 8 60000</code></pre>
     </div>
-  </div>
-</section>
-
-<section class="habits-sec" id="habits" aria-labelledby="habits-head">
-  <div class="container">
-    <div class="head">
-      <h2 id="habits-head">Nine habits, drawn on the board</h2>
-      <p class="lead">Each one on the keys where my own text meets it, with the finger that strikes them.</p>
-    </div>
-    <!--HABITS-->
   </div>
 </section>
 
@@ -297,7 +275,7 @@ toReveal.forEach((el, i) => { el.classList.add('reveal'); const sib = [...el.par
 if (navigator.webdriver || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) toReveal.forEach((el) => el.classList.add('is-in'));
 else { const ro = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); ro.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }); toReveal.forEach((el) => ro.observe(el)); }
 // the pinned trainer: the capture on the sticky side follows the panel in view
-// a tap replays a habit's strokes where there is no hover (the class is removed first so a second tap replays too)
+// the habit glyphs loop only while they are on screen
 const hb = document.querySelector('.habits'); if (hb && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => hb.classList.toggle('is-paused', !e.isIntersecting)).observe(hb);
 const shots = [...document.querySelectorAll('[data-pin]')];
 if (shots.length && 'IntersectionObserver' in window) {

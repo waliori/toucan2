@@ -107,16 +107,15 @@ function annealChart() {
 const physOf = (i) => { const r = Math.floor(i / 10), c = i % 10; return r * 12 + (c < 5 ? 1 + c : 6 + c - 5); };
 const coreOf = (ch) => WLD.indexOf(ch);
 const HOME = (f) => 10 + HOME_COL[f], cost = (e) => e.toFixed(1).replace(/\.0$/, "");
-const HABITS = [
-  { id: "sfb", name: "Same-finger bigram", keys: "ui", text: "Two keys in a row for one finger: u then i in <b>suite</b>. The finger travels between the strokes." },
-  { id: "sfs", name: "Skipgram", keys: "aux", text: "The same finger twice with one key between: a, u, x in <b>aux</b>." },
-  { id: "redirect", name: "Redirect", keys: "you", text: "Three keys on one hand that change direction: y, o, u in <b>you</b>, inward then back out." },
-  { id: "lsb", name: "Lateral stretch", keys: "nv", text: "The index reaches sideways to the inner column: n then v in <b>envie</b>." },
-  { id: "scissor", name: "Scissors", keys: "gl", text: "Neighbouring fingers, one on the bottom row and one on the top: g then l in <b>anglais</b>." },
-  { id: "roll", name: "Roll", keys: "nt", text: "Neighbouring fingers walking towards the thumb: n then t in <b>sont</b>. The one habit the score rewards." },
-  { id: "travel", name: "Travel", keys: "tdq", costs: true, text: "" },   // the text is written below, from the cost map
-  { id: "home", name: "Home row", keys: "csnt", rest: true, text: "The four resting keys of each hand: c s n t here, a e i h on the right. A stroke there is free." },
-  { id: "pinky", name: "Pinkies", keys: "bcp", rest: true, text: "The weakest finger’s column: b c p here, k h f on the right. The score fines a pinky above 13% of keystrokes." },
+const HABITS = [   // the eight terms of the score, in the order of the formula; weights and points as the run printed them
+  { id: "sfb", name: "Same-finger bigrams", keys: "ui", weight: "3.0", points: "4.18", text: "Two letters in a row for one finger: u then i in <b>suite</b>. The finger travels between the strokes." },
+  { id: "sfs", name: "Same-finger skipgrams", keys: "aux", weight: "0.8", points: "5.28", text: "The same finger twice with one letter between: a, u, x in <b>aux</b>." },
+  { id: "scissor", name: "Scissors", keys: "gl", weight: "1.5", points: "0.66", text: "Neighbouring fingers, one on the bottom row and one on the top: g then l in <b>anglais</b>." },
+  { id: "lsb", name: "Lateral stretches", keys: "nv", weight: "1.0", points: "0.51", text: "The index reaches sideways to the inner column: n then v in <b>envie</b>." },
+  { id: "redirect", name: "Redirects", keys: "you", weight: "1.2 + 2.0", points: "3.76", text: "One hand changes direction mid-word: y, o, u in <b>you</b>, inward then back out. 2.0 more when no index finger helps." },
+  { id: "roll", name: "Rolls, in and out", keys: "nt", weight: "&minus;0.12, &minus;0.05", points: "&minus;2.47", text: "Neighbouring fingers walk one way, towards the thumb or away: n then t in <b>sont</b>. A reward, so the weight is negative." },
+  { id: "travel", name: "Travel", keys: "tdq", costs: true, weight: "8.0", points: "13.02", text: "" },   // the text is written below, from the cost map
+  { id: "load", name: "Load", keys: "bcp", rest: true, weight: "1.0, 0.5, 1.5", points: "0.61", text: "Pinkies above 13% of keystrokes, one hand above half, any finger above its cap. The weakest finger’s column is b c p here, k h f on the right." },
 ];
 // one glyph: the hand's fifteen keys, a palm, four fingers resting on their home keys; the fingers that strike
 // carry their pose at each of the four slots of the loop (angle, stretch, tip offset) as custom properties,
@@ -150,11 +149,11 @@ function handSvg(h, n) {
     const tag = h.costs ? cost(EFF[i]) : h.rest ? "" : String(k + 1);
     hits += `<g class="hit s${k + 1}"><rect class="on" x="${kx(i) + 4}" y="${ky(i) + 4}" width="92" height="92"/><text class="lbl" x="${cx(i)}" y="${cy(i) + 2}">${esc(WLD[i])}</text>${tag ? (h.costs ? `<text class="tag tag--low" x="${kx(i) + 12}" y="${ky(i) + 90}">${tag}</text>` : `<text class="tag" x="${kx(i) + 88}" y="${ky(i) + 30}">${tag}</text>`) : ""}</g>`;
   });
-  const label = h.costs ? "the left index from its home key T to D and to Q, each key with its cost" : `the keys ${[...h.keys].join(", ")} on the ${right ? "right" : "left"} hand, struck in order`;
+  const label = h.costs ? "the left index on its home key T, then D, then Q, each key with its cost" : `the keys ${[...h.keys].join(", ")} on the ${right ? "right" : "left"} hand, struck in order`;
   return `<svg class="hand" viewBox="0 0 512 470" role="img" aria-label="${esc(h.name)}: ${esc(label)}">${keys}${hits}<g class="rest">${rest}</g>${active}</svg>`;
 }
-HABITS.find((h) => h.id === "travel").text = `What each key costs from the finger’s home: ${cost(EFF[coreOf("t")])} on t, ${cost(EFF[coreOf("d")])} for d, ${cost(EFF[coreOf("q")])} for q, averaged over every keystroke.`;
-const habits = `<ol class="habits">${HABITS.map((h, n) => `<li class="habit" style="--i:${n}">${handSvg(h, n)}<div><h3>${esc(h.name)}</h3><p>${h.text}</p></div></li>`).join("\n")}</ol>`;
+HABITS.find((h) => h.id === "travel").text = `The step 2 cost of a keystroke, averaged over all of them: ${cost(EFF[coreOf("t")])} on t, ${cost(EFF[coreOf("d")])} for d, ${cost(EFF[coreOf("q")])} for q.`;
+const habits = `<ul class="habits">${HABITS.map((h, n) => `<li class="habit" style="--i:${n}">${handSvg(h, n)}<div><h3>${esc(h.name)}</h3><p>${h.text}</p><p class="habit__fig"><span>Weight <b>${h.weight}</b></span><span>Points <b>${h.points}</b></span></p></div></li>`).join("\n")}</ul>`;
 
 const tmpl = fs.readFileSync(here + "index.tmpl.html", "utf8");
 fs.writeFileSync(here + "index.html", tmpl.replace("<!--BOARDS-->", boards).replace("<!--CANDIDATES-->", candidates).replace("<!--EFFORT-->", costMap()).replace("<!--ANNEAL-->", annealChart()).replace("<!--HABITS-->", habits));
