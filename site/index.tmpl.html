@@ -175,6 +175,16 @@
   </div>
 </section>
 
+<section class="habits-sec" id="habits" aria-labelledby="habits-head">
+  <div class="container">
+    <div class="head">
+      <h2 id="habits-head">Nine habits, drawn on the board</h2>
+      <p class="lead">Each one on the keys where my own text meets it, with the finger that strikes them. Hover a board to watch the strokes again.</p>
+    </div>
+    <!--HABITS-->
+  </div>
+</section>
+
 <section class="measure" aria-labelledby="measure-head">
   <div class="container">
     <div class="head">
@@ -287,6 +297,8 @@ toReveal.forEach((el, i) => { el.classList.add('reveal'); const sib = [...el.par
 if (navigator.webdriver || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) toReveal.forEach((el) => el.classList.add('is-in'));
 else { const ro = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); ro.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }); toReveal.forEach((el) => ro.observe(el)); }
 // the pinned trainer: the capture on the sticky side follows the panel in view
+// a tap replays a habit's strokes where there is no hover (the class is removed first so a second tap replays too)
+if (!matchMedia('(hover: hover)').matches) document.querySelectorAll('.habit').forEach((h) => h.addEventListener('click', () => { h.classList.remove('is-replay'); void h.offsetWidth; h.classList.add('is-replay'); }));
 const shots = [...document.querySelectorAll('[data-pin]')];
 if (shots.length && 'IntersectionObserver' in window) {
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) shots.forEach((f) => f.classList.toggle('is-on', f.dataset.pin === e.target.dataset.for)); }), { rootMargin: '-45% 0px -45% 0px' });
