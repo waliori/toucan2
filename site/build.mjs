@@ -108,46 +108,53 @@ const physOf = (i) => { const r = Math.floor(i / 10), c = i % 10; return r * 12 
 const coreOf = (ch) => WLD.indexOf(ch);
 const HOME = (f) => 10 + HOME_COL[f], cost = (e) => e.toFixed(1).replace(/\.0$/, "");
 const HABITS = [
-  { id: "sfb", name: "Same-finger bigram", word: "suite", keys: "ui", text: "u then i, both with the right ring finger, as in <b>suite</b>. The finger has to travel between two strokes." },
-  { id: "sfs", name: "Skipgram", word: "aux", keys: "aux", text: "a, then u, then x: the right index twice with one letter between, as in <b>aux</b>." },
-  { id: "redirect", name: "Redirect", word: "you", keys: "you", text: "y, o, u on one hand: the fingers go inward, then turn back outward, as in <b>you</b>." },
-  { id: "lsb", name: "Lateral stretch", word: "envie", keys: "nv", text: "n then v: the index reaches sideways to the inner column, as in <b>envie</b>." },
-  { id: "scissor", name: "Scissors", word: "anglais", keys: "gl", text: "g then l: neighbouring fingers, one on the bottom row and one on the top, as in <b>anglais</b>." },
-  { id: "roll", name: "Roll", word: "sont", keys: "nt", text: "n then t: two neighbouring fingers walk towards the thumb, as in <b>sont</b>. The one habit the score rewards." },
+  { id: "sfb", name: "Same-finger bigram", keys: "ui", text: "Two keys in a row for one finger: u then i in <b>suite</b>. The finger travels between the strokes." },
+  { id: "sfs", name: "Skipgram", keys: "aux", text: "The same finger twice with one key between: a, u, x in <b>aux</b>." },
+  { id: "redirect", name: "Redirect", keys: "you", text: "Three keys on one hand that change direction: y, o, u in <b>you</b>, inward then back out." },
+  { id: "lsb", name: "Lateral stretch", keys: "nv", text: "The index reaches sideways to the inner column: n then v in <b>envie</b>." },
+  { id: "scissor", name: "Scissors", keys: "gl", text: "Neighbouring fingers, one on the bottom row and one on the top: g then l in <b>anglais</b>." },
+  { id: "roll", name: "Roll", keys: "nt", text: "Neighbouring fingers walking towards the thumb: n then t in <b>sont</b>. The one habit the score rewards." },
   { id: "travel", name: "Travel", keys: "tdq", costs: true, text: "" },   // the text is written below, from the cost map
-  { id: "home", name: "Home row", keys: "csnt", rest: true, text: "The four resting keys of each hand: c s n t here, a e i h on the right. A keystroke that lands on one is free." },
+  { id: "home", name: "Home row", keys: "csnt", rest: true, text: "The four resting keys of each hand: c s n t here, a e i h on the right. A stroke there is free." },
   { id: "pinky", name: "Pinkies", keys: "bcp", rest: true, text: "The weakest finger’s column: b c p here, k h f on the right. The score fines a pinky above 13% of keystrokes." },
 ];
-function handSvg(h) {
+// one glyph: the hand's fifteen keys, a palm, four fingers resting on their home keys; the fingers that strike
+// carry their pose at each of the four slots of the loop (angle, stretch, tip offset) as custom properties,
+// the keys they strike light in turn; without motion every stroke shows at once
+function handSvg(h, n) {
   const steps = [...h.keys].map(coreOf), right = steps[0] % 10 >= 5, cols = right ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
-  const ox = Math.min(...cols.map((c) => T.phys[physOf(c)].x)), kx = (i) => T.phys[physOf(i)].x - ox, ky = (i) => T.phys[physOf(i)].y;
-  const cx = (i) => kx(i) + 50, cy = (i) => ky(i) + 50, mid = 250;
-  const fingers = right ? [4, 5, 6, 7] : [0, 1, 2, 3];
-  const used = new Set(steps.map((i) => FINGER[i % 10]));
-  // the hand: four fingers from the palm to their home keys, the palm half out of the frame
-  let hand = `<ellipse class="palm" cx="${mid}" cy="700" rx="250" ry="110"/>`, tips = "";
-  for (const f of fingers) { const i = HOME(f), on = used.has(f); const bx = mid + (cx(i) - mid) * 0.7; hand += `<line class="fng${on ? " fng--on" : ""}" x1="${bx}" y1="640" x2="${cx(i)}" y2="${cy(i)}"/>`; tips += `<circle class="tip${on ? " tip--on" : ""}" cx="${cx(i)}" cy="${cy(i)}" r="21"/>`; }
-  // a segment between two key centres, trimmed so it never crosses a letter
-  const seg = (a, b, pad) => { const dx = cx(b) - cx(a), dy = cy(b) - cy(a), d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d; return `x1="${(cx(a) + ux * pad).toFixed(1)}" y1="${(cy(a) + uy * pad).toFixed(1)}" x2="${(cx(b) - ux * pad).toFixed(1)}" y2="${(cy(b) - uy * pad).toFixed(1)}"`; };
-  // the keys
+  const ox = Math.min(...cols.map((c) => T.phys[physOf(c)].x)) - 6, kx = (i) => T.phys[physOf(i)].x - ox, ky = (i) => T.phys[physOf(i)].y + 6;
+  const cx = (i) => kx(i) + 50, cy = (i) => ky(i) + 50, f1 = (v) => (+v.toFixed(1)).toString();
+  const fingers = right ? [4, 5, 6, 7] : [0, 1, 2, 3], used = new Set(steps.map((i) => FINGER[i % 10]));
+  const px = right ? 270 : 242, py = 560, rx = 240, ry = 120;   // the palm, its top edge at 440, mostly out of the frame
+  const base = (f) => { const bx = px + (cx(HOME(f)) - px) * 0.7; return [bx, py - ry * Math.sqrt(1 - ((bx - px) / rx) ** 2)]; };
+  const pose = (f, i) => { const [bx, by] = base(f), dx = cx(i) - bx, dy = by - cy(i); return { a: Math.atan2(dx, dy) * 180 / Math.PI, r: Math.hypot(dx, dy) }; };
+  // where every finger is after each step: the key it struck, or where it already was; four slots, the last held
+  const cur = Object.fromEntries(fingers.map((f) => [f, HOME(f)])), where = Object.fromEntries(fingers.map((f) => [f, []]));
+  for (const i of steps) { cur[FINGER[i % 10]] = i; fingers.forEach((f) => where[f].push(cur[f])); }
+  fingers.forEach((f) => { while (where[f].length < 4) where[f].push(where[f].at(-1)); });
+  let rest = `<ellipse class="palm" cx="${px}" cy="${py}" rx="${rx}" ry="${ry}"/>`, active = "";
+  for (const f of fingers) {
+    const [bx, by] = base(f), home = pose(f, HOME(f)), L = home.r;
+    let vars = `transform-origin:${f1(bx)}px ${f1(by)}px;--a0:${f1(home.a)}deg`;
+    if (used.has(f)) where[f].forEach((i, k) => { const p = pose(f, i); vars += `;--a${k + 1}:${f1(p.a)}deg;--s${k + 1}:${f1(p.r / L)};--t${k + 1}:${f1(L - p.r)}px`; });
+    const o = `style="transform-origin:${f1(bx)}px ${f1(by)}px"`, l = `M${f1(bx - 22)} ${f1(by + 12)}L${f1(bx - 17)} ${f1(by - L)}`, r = `M${f1(bx + 17)} ${f1(by - L)}L${f1(bx + 22)} ${f1(by + 12)}`;
+    // a tapered body (fill), its two sides (stroke, no top edge) and a round tip over the end: a drawn finger
+    const g = `<g class="fng${used.has(f) ? " fng--on" : ""}" style="${vars}"><path class="fbody" ${o} d="${l}L${f1(bx + 17)} ${f1(by - L)}L${f1(bx + 22)} ${f1(by + 12)}Z"/><path class="fbody fside" ${o} d="${l}${r}"/><circle class="ftip" cx="${f1(bx)}" cy="${f1(by - L)}" r="18"/></g>`;
+    if (used.has(f)) active += g; else rest += g;
+  }
   let keys = "";
   for (let r = 0; r < 3; r++) for (const c of cols) { const i = r * 10 + c; keys += `<g class="key"><rect class="cast" x="${kx(i) + 10}" y="${ky(i) + 10}" width="92" height="92"/><rect class="cap" x="${kx(i) + 4}" y="${ky(i) + 4}" width="92" height="92"/><text class="lbl" x="${cx(i)}" y="${cy(i) + 2}">${esc(WLD[i])}</text></g>`; }
-  // the strokes: a reach from where the finger was (its home, or the last key it struck) to the key, the key lit, its number; a thin route between successive keys
-  let strokes = "", at = {}, k = 0, prev = null;
-  for (const i of steps) {
-    const f = FINGER[i % 10], from = at[f] ?? HOME(f), tag = h.costs ? cost(EFF[i]) : h.rest ? "" : String(k + 1);
-    const seq = h.rest ? "" : ` style="--k:${k}"`;
-    if (from !== i) strokes += `<line class="reach s" pathLength="1"${seq} ${seg(from, i, 26)}/>`;
-    if (prev !== null && !h.costs && prev !== from) strokes += `<line class="route s" pathLength="1"${seq} ${seg(prev, i, 30)}/>`;
-    strokes += `<g class="hit s"${seq}><rect class="on" x="${kx(i) + 4}" y="${ky(i) + 4}" width="92" height="92"/><text class="lbl" x="${cx(i)}" y="${cy(i) + 2}">${esc(WLD[i])}</text>${tag ? (h.costs ? `<text class="tag tag--low" x="${kx(i) + 12}" y="${ky(i) + 90}">${tag}</text>` : `<text class="tag" x="${kx(i) + 88}" y="${ky(i) + 30}">${tag}</text>`) : ""}</g>`;
-    if (!h.costs) at[f] = i;   // travel measures every key from home
-    prev = i; k++;
-  }
+  let hits = "";
+  steps.forEach((i, k) => {
+    const tag = h.costs ? cost(EFF[i]) : h.rest ? "" : String(k + 1);
+    hits += `<g class="hit s${k + 1}"><rect class="on" x="${kx(i) + 4}" y="${ky(i) + 4}" width="92" height="92"/><text class="lbl" x="${cx(i)}" y="${cy(i) + 2}">${esc(WLD[i])}</text>${tag ? (h.costs ? `<text class="tag tag--low" x="${kx(i) + 12}" y="${ky(i) + 90}">${tag}</text>` : `<text class="tag" x="${kx(i) + 88}" y="${ky(i) + 30}">${tag}</text>`) : ""}</g>`;
+  });
   const label = h.costs ? "the left index from its home key T to D and to Q, each key with its cost" : `the keys ${[...h.keys].join(", ")} on the ${right ? "right" : "left"} hand, struck in order`;
-  return `<svg class="hand" viewBox="-6 -6 512 666" role="img" aria-label="${esc(h.name)}: ${esc(label)}">${hand}${keys}${tips}${strokes}</svg>`;
+  return `<svg class="hand" viewBox="0 0 512 470" role="img" aria-label="${esc(h.name)}: ${esc(label)}">${keys}${hits}<g class="rest">${rest}</g>${active}</svg>`;
 }
-HABITS.find((h) => h.id === "travel").text = `From its home on t the left index pays ${cost(EFF[coreOf("t")])} there, ${cost(EFF[coreOf("d")])} for d, ${cost(EFF[coreOf("q")])} for q. Travel is this cost averaged over every keystroke.`;
-const habits = `<ol class="habits">${HABITS.map((h) => `<li class="habit">${handSvg(h)}<h3>${esc(h.name)}</h3><p>${h.text}</p></li>`).join("\n")}</ol>`;
+HABITS.find((h) => h.id === "travel").text = `What each key costs from the finger’s home: ${cost(EFF[coreOf("t")])} on t, ${cost(EFF[coreOf("d")])} for d, ${cost(EFF[coreOf("q")])} for q, averaged over every keystroke.`;
+const habits = `<ol class="habits">${HABITS.map((h, n) => `<li class="habit" style="--i:${n}">${handSvg(h, n)}<div><h3>${esc(h.name)}</h3><p>${h.text}</p></div></li>`).join("\n")}</ol>`;
 
 const tmpl = fs.readFileSync(here + "index.tmpl.html", "utf8");
 fs.writeFileSync(here + "index.html", tmpl.replace("<!--BOARDS-->", boards).replace("<!--CANDIDATES-->", candidates).replace("<!--EFFORT-->", costMap()).replace("<!--ANNEAL-->", annealChart()).replace("<!--HABITS-->", habits));
