@@ -1,7 +1,7 @@
 /* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, a pinned four and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
  * hero: Ledge (swapped from Corridor: the material is a board to show, not a column of words) · nav: slab · footer: letter close · imagery: the product, screenshots 8 (own CDP capture), the keymap drawn as a diagram from the firmware source, no photographs · signature: the real Toucan2 keymap as a layer switcher in the hero, every label from the firmware, the keys that lead to a layer in orange · formwork: cast
  * dismissed 3: the habits grid is nine diagrams of the same board at one scale, not icon tiles; equal columns are the point ·
- * habits: nine one-hand boards drawn from the keymap, the strokes in order, still by default; a hover or a tap replays them (motion that answers the pointer, nothing ambient) ·
+ * habits: nine glyphs drawn from the keymap, a hand over its half of the board, the striking fingers stretching to their keys in a loop · waived: ambient motion in those glyphs, by the author’s request (the loop pauses off screen and stops under reduced motion, where every stroke shows at once) ·
  * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · fold: pass · hero-review: fix · 4 findings · 4 resolved · finish-review: subagent · 8 findings · 8 resolved · gap: the shape is a bento only in its second screen, named so in the stamp · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: R, the hero carried a scroll cue and a second caption row; both cut, one caption per layer stays because each is a fact */
 /* Hallmark · dismissed 58 · the page-wide count reads the six keymap boards and the eight annealing grids, about 560 single-letter diagram labels, so the prose itself was under 420 words before the method section, which the author asked for in full (corpus, cost map, score, annealing, the pick), five steps each under 80 words beside one exhibit; the author then asked for the empty screens between steps to go, so a 900px window over two steps now reads up to 140 words (the 58 per-screen FAIL in the method is accepted by the author, 2026-10-29); on 2026-10-30 the author asked that a reader new to keyboards understand the how and the why, so the steps, the tiles and the firmware plates gained plain-words glosses (what a dead key is, why QWERTY, what annealing does) and the per-screen count rose again by the author’s choice; later the same day the calculations themselves (share, weight, points, travel, seed, temperature) were spelled out with worked examples, by the author’s choice again; the 90-word screen over the firmware plates is two tables of facts, each row a label and one clause */
@@ -149,34 +149,40 @@ section { padding-block: var(--section-gap); }
 .shot--desktop { aspect-ratio: 16 / 10; width: 100%; }
 .shot img { object-position: 50% 0; }
 
-/* ---- the habits: nine boards, one hand each, the strokes drawn in order; still by default, replayed on hover (the theme keeps still, a pointer may ask) ---- */
-.habits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2xl) var(--gap-columns); }
-.habit { display: grid; gap: var(--space-sm); align-content: start; min-width: 0; }
-.habit h3 { font-size: var(--text-lg); max-width: none; margin-top: var(--space-xs); }
-.habit p { max-width: 36ch; font-size: var(--text-md); color: var(--color-ink-2); }
+/* ---- the habits: nine glyphs, a hand over its half of the board; the fingers that strike stretch to their keys in a loop (the author asked for repeating motion), paused off screen, still under reduced motion with every stroke shown ---- */
+.habits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); }
+.habit { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--space-md); align-items: start; min-width: 0; --loop: 4800ms var(--ease-in-out) calc(var(--i) * -700ms) infinite both; }
+.habit h3 { font-size: var(--text-lg); max-width: none; margin: 0 0 var(--space-2xs); }
+.habit p { margin: 0; max-width: 30ch; font-size: var(--text-md); color: var(--color-ink-2); }
 .habit p b { font-weight: 500; color: var(--color-ink); }
 .hand { width: 100%; height: auto; display: block; }
-.hand .palm, .hand .fng { fill: var(--color-ink); stroke: var(--color-ink); opacity: 0.22; }
-.hand .fng { stroke-width: 38; stroke-linecap: round; fill: none; }
-.hand .fng--on { opacity: 0.5; }
 .hand .cast { fill: var(--color-ink); }
 .hand .cap { fill: var(--color-plate); stroke: var(--color-ink); stroke-width: 3; }
 .hand .lbl { fill: var(--color-ink); font: 700 40px var(--font-display); text-anchor: middle; dominant-baseline: central; text-transform: uppercase; }
 .hand .on { fill: var(--color-accent); stroke: var(--color-ink); stroke-width: 3; }
-.hand .tip { fill: none; stroke: var(--color-ink); stroke-width: 4; opacity: 0.35; }
-.hand .tip--on { stroke: var(--color-accent-deep); stroke-width: 6; opacity: 1; }
-.hand .tag { fill: var(--color-ink); font: 500 24px var(--font-outlier); text-anchor: end; }
-.hand .reach { stroke: var(--color-accent-deep); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
-.hand .route { stroke: var(--color-ink); stroke-width: 3; stroke-dasharray: 0.08 0.05; }
-@media (hover: hover) {
-  .habit:hover .hand .s { animation: land var(--dur-short) var(--ease-out) calc(var(--k) * 480ms) both; }
-  .habit:hover .hand .reach { animation-name: reach; animation-duration: var(--dur-long); }
-}
-.habit.is-replay .hand .s { animation: land var(--dur-short) var(--ease-out) calc(var(--k) * 480ms) both; }   /* a tap, where there is no hover */
-.habit.is-replay .hand .reach { animation-name: reach; animation-duration: var(--dur-long); }
+.hand .tag { fill: var(--color-ink); font: 700 30px var(--font-outlier); text-anchor: end; }
 .hand .tag--low { text-anchor: start; }
-@keyframes land { from { opacity: 0; } to { opacity: 1; } }
-@keyframes reach { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.hand .rest { opacity: 0.5; }
+.hand .palm, .hand .fbody, .hand .ftip { fill: var(--color-plate-ink); fill-opacity: 0.65; stroke: var(--color-ink); stroke-width: 4; }
+.hand .fbody { stroke: none; }
+.hand .fside { fill: none; stroke: var(--color-ink); }
+.hand .fng { transform: rotate(var(--a0)); }
+.hand .fng--on { animation: fng-a var(--loop); }
+.hand .fng--on .fbody { animation: fng-s var(--loop); }
+.hand .fng--on .ftip { animation: fng-t var(--loop); }
+.hand .s1 { animation: hit1 var(--loop); }
+.hand .s2 { animation: hit2 var(--loop); }
+.hand .s3 { animation: hit3 var(--loop); }
+.hand .s4 { animation: hit4 var(--loop); }
+.habits.is-paused .hand * { animation-play-state: paused; }
+/* four slots: the finger arrives at 15, 32, 49, 66 and the key lights as it lands; home again at 84 */
+@keyframes fng-a { 0%, 8% { transform: rotate(var(--a0)); } 15%, 25% { transform: rotate(var(--a1)); } 32%, 42% { transform: rotate(var(--a2)); } 49%, 59% { transform: rotate(var(--a3)); } 66%, 76% { transform: rotate(var(--a4)); } 84%, 100% { transform: rotate(var(--a0)); } }
+@keyframes fng-s { 0%, 8% { transform: scaleY(1); } 15%, 25% { transform: scaleY(var(--s1)); } 32%, 42% { transform: scaleY(var(--s2)); } 49%, 59% { transform: scaleY(var(--s3)); } 66%, 76% { transform: scaleY(var(--s4)); } 84%, 100% { transform: scaleY(1); } }
+@keyframes fng-t { 0%, 8% { transform: translateY(0); } 15%, 25% { transform: translateY(var(--t1)); } 32%, 42% { transform: translateY(var(--t2)); } 49%, 59% { transform: translateY(var(--t3)); } 66%, 76% { transform: translateY(var(--t4)); } 84%, 100% { transform: translateY(0); } }
+@keyframes hit1 { 0%, 14% { opacity: 0; } 15%, 83% { opacity: 1; } 84%, 100% { opacity: 0; } }
+@keyframes hit2 { 0%, 31% { opacity: 0; } 32%, 83% { opacity: 1; } 84%, 100% { opacity: 0; } }
+@keyframes hit3 { 0%, 48% { opacity: 0; } 49%, 83% { opacity: 1; } 84%, 100% { opacity: 0; } }
+@keyframes hit4 { 0%, 65% { opacity: 0; } 66%, 83% { opacity: 1; } 84%, 100% { opacity: 0; } }
 
 /* ---- the comparison table: full width, horizontal rules only, our row one step heavier ---- */
 .metrics { width: 100%; border-collapse: collapse; }
@@ -329,8 +335,9 @@ section { padding-block: var(--section-gap); }
 }
 @media (max-width: 40rem) {
   .cands, .step .cands { grid-template-columns: minmax(0, 1fr); }
-  .habits { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
-  .habit p { max-width: 52ch; }
+  .habits { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+  .habit { grid-template-columns: 8rem minmax(0, 1fr); }
+  .habit p { max-width: none; }
   /* the phone keeps the layout name, same-finger bigrams, redirects, home row and the score */
   .metrics :is(th, td):is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(7), :nth-child(9), :nth-child(10)) { display: none; }
   .metrics th, .metrics td { padding: var(--space-sm) var(--space-2xs); font-size: var(--text-md); }
@@ -351,6 +358,6 @@ section { padding-block: var(--section-gap); }
 @media (prefers-reduced-motion: reduce) {
   .pinned__visual .shot { transition: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
-  .habit:hover .hand .s, .habit.is-replay .hand .s { animation: none; }
+  .hand .fng--on, .hand .fbody, .hand .ftip, .hand .hit { animation: none; }
   .js .anneal .line { stroke-dashoffset: 0; transition: none; }
 }
