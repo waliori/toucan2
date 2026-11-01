@@ -1,4 +1,4 @@
-/* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, a pinned four and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
+/* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, four captures beside their words (nothing sticks), then a and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
  * hero: Ledge (swapped from Corridor: the material is a board to show, not a column of words) · nav: slab · footer: letter close · imagery: the product, screenshots 8 (own CDP capture), the keymap drawn as a diagram from the firmware source, no photographs · signature: the real Toucan2 keymap as a layer switcher in the hero, every label from the firmware, the keys that lead to a layer in orange · formwork: cast
  * terms: the eight terms of the score sit with their definitions, weights and points in step 3, each drawn as a glyph from the keymap, a hand over its half of the board, the striking fingers stretching to their keys in a loop · waived: ambient motion in those glyphs, by the author’s request (the loop pauses off screen and stops under reduced motion, where every stroke shows at once) ·
  * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · fold: pass · hero-review: fix · 4 findings · 4 resolved · finish-review: subagent · 8 findings · 8 resolved · gap: the shape is a bento only in its second screen, named so in the stamp · v2.0.0 */
@@ -227,14 +227,10 @@ section { padding-block: var(--section-gap); }
 .plate a:active, .letter a:active { color: var(--color-accent); }
 
 
-/* ---- pinned: the capture holds on the left while three panels pass on the right ---- */
-.pinned__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-3xl); align-items: start; }
-.pinned__visual { position: sticky; top: var(--space-2xl); display: grid; }
-.pinned__visual .shot { grid-area: 1 / 1; opacity: 0; z-index: 0; transition: opacity var(--dur-long) var(--ease-out) var(--dur-long); }   /* the leaving capture waits under the arriving one, so the paper never shows between them */
-.pinned__visual .shot.is-on { opacity: 1; z-index: 1; transition-delay: 0s; }
-.pinned__panels { display: grid; gap: var(--section-gap-s); padding-block: var(--space-xl); }
-.pinned__panels .head { margin-bottom: 0; }
-.panel { display: grid; gap: var(--space-sm); max-width: 40ch; }
+/* ---- the trainer: four captures, each beside its words; nothing sticks, nothing follows the scroll ---- */
+.panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2xl) var(--gap-columns); }
+.panel { display: grid; gap: var(--space-md); align-content: start; min-width: 0; }
+.panel > div { display: grid; gap: var(--space-sm); max-width: 44ch; }
 .panel p { color: var(--color-ink-2); }
 
 /* ---- the close: the action beside one last screen, on the ink ---- */
@@ -321,20 +317,14 @@ section { padding-block: var(--section-gap); }
 
 @media (max-width: 60rem) {
   .step, .finalists { grid-template-columns: minmax(0, 1fr); }
-  .head--split, .measure__text, .plates, .pinned__grid, .close__grid { grid-template-columns: minmax(0, 1fr); }
+  .head--split, .measure__text, .plates, .panels, .close__grid { grid-template-columns: minmax(0, 1fr); }
   .habits, .step--wide .step__text { grid-template-columns: minmax(0, 1fr); }
   .steps { gap: var(--section-gap-l); }
   .tile--row2 { min-height: 0; }
   .head--split, .measure__text { gap: var(--space-md); }
   .tile, .tile--8 { grid-column: span 12; min-height: 0; }
   .cands, .step .cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pinned__visual { position: static; display: none; }
-  .pinned__panels { gap: var(--space-2xl); padding-block: 0; }
-  .panel::after { content: ""; display: block; aspect-ratio: 16 / 10; background: var(--color-paper-2); outline: 2px solid var(--color-ink); outline-offset: -2px; background-size: cover; background-position: 50% 0; }
-  .panel[data-for="1"]::after { background-image: url("images/screens/lesson-desktop.png"); }
-  .panel[data-for="2"]::after { background-image: url("images/screens/chunks-desktop.png"); }
-  .panel[data-for="3"]::after { background-image: url("images/screens/settings-desktop.png"); }
-  .panel[data-for="4"]::after { background-image: url("images/screens/stats-overview-desktop.png"); }
+  .panels { gap: var(--space-xl); }
   .shot--close { justify-self: start; }
 }
 @media (max-width: 40rem) {
@@ -359,7 +349,6 @@ section { padding-block: var(--section-gap); }
 .js .anneal .line { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1800ms linear 250ms; }
 .js .is-in .anneal .line { stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: reduce) {
-  .pinned__visual .shot { transition: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .hand .fng--on, .hand .fbody, .hand .ftip, .hand .hit { animation: none; }
   .js .anneal .line { stroke-dashoffset: 0; transition: none; }
