@@ -10,7 +10,7 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 // the layers the page shows, in tab order; held = thumb positions painted orange (what you hold to be here)
 const SHOWN = [
   { id: "wld", name: "WLD", layer: 0, held: [36, 37, 40], caption: "Letters placed by annealing on 1.68 million characters of my writing. The dark keys spell the name, hands alternating; the orange keys lead to a layer." },
-  { id: "nav", name: "NAV", layer: 2, held: [37], caption: "Hold the left middle thumb. Digits on the top row, arrows under the right home row, modifiers under the left." },
+  { id: "nav", name: "NAV", layer: 2, held: [37], caption: "Hold the left middle thumb. Digits on the top row, arrows on the right hand’s home row, modifiers on the left’s." },
   { id: "sym", name: "SYM", layer: 3, held: [40], caption: "Hold the right middle thumb. Punctuation and brackets without Shift, pairs side by side." },
   { id: "adj", name: "ADJ", layer: 4, held: [37, 40], caption: "Hold both middle thumbs. Bluetooth profiles, function keys, media, bootloader and reset, and the GAME toggle." },
   { id: "acc", name: "Accents", layer: 6, held: [36], caption: "Tap Ctrl once, then the letter: é à ù î ô ç. Tap twice for è â û ï, three times for ê ü, four for ë." },

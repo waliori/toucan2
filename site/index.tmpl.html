@@ -5,11 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Walid, a keyboard layout annealed on my own words</title>
 <meta name="description" content="The Toucan2 split keyboard as I run it: the Walid letter layout found by simulated annealing on my own writing, its ZMK firmware layers, and the trainer that teaches it.">
+<meta property="og:title" content="Walid, a keyboard layout annealed on my own words">
+<meta property="og:description" content="A split keyboard whose letters were rearranged to fit what I actually type, and a trainer to learn them.">
+<meta property="og:url" content="https://toucan.walior.it/">
+<meta property="og:image" content="https://toucan.walior.it/images/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Archivo:wght@400;500&family=Archivo+Narrow:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<link rel="icon" href="data:,">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231c1c21'/%3E%3Crect x='6' y='6' width='20' height='20' fill='%23e8683a' stroke='%23f2efe9' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body class="grained">
 <a class="skip" href="#main">Skip to content</a>
@@ -116,7 +121,7 @@
         <div class="step__text">
           <h3><b class="step__num">3</b>Define the score</h3>
           <p>Reach is not the whole story: two letters in a row with the same finger are slow even on cheap keys. So the score also counts eight habits. For each one the program asks: of all the letter pairs (or triples) in my text, how many fall into this habit? That fraction is the habit’s share. Then I gave each habit a weight, a number that says how much it bothers me: 3 for two letters on one finger, 1.5 for scissors. Share times weight is the habit’s points, and the points add up to the score. Lower is better.</p>
-          <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last row exists.</p>
+          <p>The weights are a judgment, not a law: other weights give another board. An early run with no cap on finger load put 16% of all keystrokes on each ring finger, which is why the last term, Load, exists.</p>
         </div>
         <div class="step__show">
           <!--HABITS-->
@@ -128,7 +133,7 @@
         <div class="step__text">
           <h3><b class="step__num">4</b>Search by annealing</h3>
           <p>There are 30 × 29 × 28 × … × 1 ways to place thirty letters, 2.65 × 10<sup>32</sup>, far too many to try them all. Simulated annealing borrows from metalwork, where a metal is heated and cooled slowly so it settles without flaws: start from a random board, swap two keys, score again. Better, keep the swap. Worse, keep it anyway sometimes. How often depends on a number called the temperature, high at the start and falling through the run: hot, the search accepts many bad swaps and so can escape a dead end; cold, it only accepts improvements and settles.</p>
-          <p>Below, the run that started from random board number 5 (its seed): 60,000 swaps, the score falling from 132 to 25.5. Early, one worsening swap in six is kept; by the end, none. Eight runs from eight random starts, seeds 0 to 7, scored 480,000 boards in all.</p>
+          <p>The chart shows the run that started from random board number 5 (its seed): 60,000 swaps, the score falling from 132 to 25.5. Early, one worsening swap in six is kept; by the end, none. Eight runs from eight random starts, seeds 0 to 7, scored 480,000 boards in all.</p>
         </div>
         <div class="step__show">
           <!--ANNEAL-->
@@ -169,7 +174,7 @@
       <h2 id="measure-head">Measured against the layouts I almost chose</h2>
     </div>
     <div class="measure__text">
-      <p class="lead">Every layout run through the same program on the same text. A percentage is how many of every hundred letter pairs fall into that habit, so lower is better, except rolls, which feel good, so higher is better. Home row and pinkies are shares of keystrokes: on the eight resting keys, higher is better; on the two pinkies, lower. Travel is the average step 2 cost of a keystroke.</p>
+      <p class="lead">Every layout run through the same program on the same text. A percentage is how many of every hundred letter pairs (triples, for redirects) fall into that habit, so lower is better, except rolls, which feel good, so higher is better. Home row and pinkies are shares of keystrokes: on the eight resting keys, higher is better; on the two pinkies, lower. Travel is the average step 2 cost of a keystroke.</p>
       <p class="measure__note">Walid is <b class="hi">first or second in eight of the ten columns</b>; no other layout manages <b class="hi">more than four</b>. It wins outright only twice, and its weak points are in plain view: the home row, where Colemak-DH keeps nine points more, and the rolls, which the search traded away for fewer same-finger pairs and direction changes. The score column is the step 3 formula, the very thing the search was told to minimise, so it favours Walid by construction: its <b class="hi">fifteen-point lead over Graphite</b> is mostly the finger-load penalties, Graphite putting 17.5% of keystrokes on the right ring finger. The count columns are <b class="hi">the fair test</b>: no weight touches them.</p>
     </div>
     <table class="metrics">
@@ -226,16 +231,16 @@
     <div class="head"><h2 id="trainer-head">A trainer that knows which keys lag</h2></div>
     <div class="panels">
       <article class="panel"><figure class="shot shot--desktop" data-slot="trainer-1" data-kind="product" data-alt="The trainer, lesson 1">
-        <img src="images/screens/lesson-desktop.png" width="2880" height="1800" alt="The trainer: lesson 1 of 10, the warm-up letters, the next key marked on the board with the finger to use" loading="lazy">
+        <img src="images/screens/lesson-desktop.webp" width="1600" height="1000" alt="The trainer: lesson 1 of 10, the warm-up letters, the next key marked on the board with the finger to use" loading="lazy">
       </figure><div><h3>Speed and accuracy open the next lesson</h3><p>For every key the trainer compares your speed on it with the target you set, and your accuracy on it with 95%. A key turns green once both are reached, and the next lesson opens when every new key is green.</p></div></article>
       <article class="panel"><figure class="shot shot--desktop" data-slot="trainer-2" data-kind="product" data-alt="The trainer, Chunks mode">
-        <img src="images/screens/chunks-desktop.png" width="2880" height="1800" alt="The trainer in Chunks mode: six letter groups, each three times alone then inside two words" loading="lazy">
+        <img src="images/screens/chunks-desktop.webp" width="1600" height="1000" alt="The trainer in Chunks mode: six letter groups, each three times alone then inside two words" loading="lazy">
       </figure><div><h3>Chunks and weak pairs</h3><p>Common letter groups (tion, ment, ing) and the pairs you type slowly come back more often, until they stop being slow.</p></div></article>
       <article class="panel"><figure class="shot shot--desktop" data-slot="trainer-3" data-kind="product" data-alt="The trainer settings: target speed and sync">
-        <img src="images/screens/settings-desktop.png" width="2880" height="1800" alt="The trainer settings: keyboard hints, target speed slider, sync between devices, live feed" loading="lazy">
+        <img src="images/screens/settings-desktop.webp" width="1600" height="1000" alt="The trainer settings: keyboard hints, target speed slider, sync between devices, live feed" loading="lazy">
       </figure><div><h3>The board mirrors the USB key presses</h3><p>Plugged in by USB, the keyboard reports each real press and the board lights the key you hit. Your progress follows you between machines with a secret code, no account.</p></div></article>
       <article class="panel"><figure class="shot shot--desktop" data-slot="trainer-4" data-kind="product" data-alt="The trainer statistics, overview">
-        <img src="images/screens/stats-overview-desktop.png" width="2880" height="1800" alt="The trainer statistics on 30 October: 157 texts, 3 h 5 m practised, 18 wpm over the last ten texts, best 30, 3 of 31 keys at target, speed text by text, stars per lesson" loading="lazy">
+        <img src="images/screens/stats-overview-desktop.webp" width="1600" height="1000" alt="The trainer statistics on 30 October: 157 texts, 3 h 5 m practised, 18 wpm over the last ten texts, best 30, 3 of 31 keys at target, speed text by text, stars per lesson" loading="lazy">
       </figure><div><h3>My own numbers, twelve days in</h3><p>157 texts, 3 h 5 m, 30 words a minute at best, 3 keys of 31 at target. Each dot is one text; the line is the average of the last ten.</p></div></article>
     </div>
   </div>
@@ -249,14 +254,14 @@
       <div class="actions"><a class="btn btn--primary" href="/trainer/" target="_blank" rel="noopener">Try the trainer</a></div>
     </div>
     <figure class="shot shot--desktop shot--close" data-slot="trainer-close" data-kind="product" data-alt="The trainer statistics, keys coloured by mastery">
-      <img src="images/screens/stats-keys-desktop.png" width="2880" height="1800" alt="The trainer statistics, Keys tab: the board coloured by mastery, green at target, red new, and the weakest keys listed with their speed and accuracy" loading="lazy">
+      <img src="images/screens/stats-keys-desktop.webp" width="1600" height="1000" alt="The trainer statistics, Keys tab: the board coloured by mastery, green at target, red new, and the weakest keys listed with their speed and accuracy" loading="lazy">
     </figure>
   </div>
 </section>
 </main>
 <footer class="letter">
   <div class="container">
-    <p class="sign">Typed on the Toucan2, in Walid, between <time datetime="2026-10-18">18</time> and <time datetime="2026-10-30">30 October 2026</time>.</p>
+    <p class="sign">Typed on the Toucan2, in Walid, between <time datetime="2026-10-18">18</time> and <time datetime="2026-10-31">31 October 2026</time>.</p>
     <p class="sign sign--name">waliori</p>
     <nav aria-label="Links"><a href="https://github.com/waliori/toucan2" target="_blank" rel="noopener">The repository</a><a href="https://github.com/waliori/toucan2/blob/main/KEYMAP.md" target="_blank" rel="noopener">The keymap, as text</a><a href="/trainer/" target="_blank" rel="noopener">The trainer</a></nav>
   </div>
@@ -270,7 +275,6 @@ if (navigator.webdriver || !('IntersectionObserver' in window) || matchMedia('(p
 else { const ro = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); ro.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.1 }); toReveal.forEach((el) => ro.observe(el)); }
 // the habit glyphs loop only while they are on screen
 const hb = document.querySelector('.habits'); if (hb && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => hb.classList.toggle('is-paused', !e.isIntersecting)).observe(hb);
-window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
 document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });
 </script>
 <script>

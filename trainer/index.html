@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Typing trainer for the Walid layout on the Toucan2: lessons that follow your weak keys, chunks, sentences, your own text, and the stats behind them, in the browser.">
 <title>Walid layout trainer</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231c1c21'/%3E%3Crect x='6' y='6' width='20' height='20' fill='%23e8683a' stroke='%23f2efe9' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Archivo:wght@400;500&family=Archivo+Narrow:wght@500&display=swap">
@@ -237,7 +238,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
         <div class="col"><div class="t">Colour keys by</div><div class="seg" id="overlay"><button type="button" data-v="none">Nothing</button><button type="button" data-v="errors" id="heat">Errors</button><button type="button" data-v="mastery" id="mastery">Mastery</button></div></div>
         <div class="col"><div class="t">Hints</div><div class="seg" id="hintseg"><button type="button" data-v="auto">Auto</button><button type="button" data-v="always" id="hints">Always</button></div><small id="hint-desc"></small></div>
         <div class="rowf"><div class="t">Layout</div><select id="layout" title="Letters on the 30 core keys. Progress and stats are kept per layout."></select></div>
-        <div class="rowf"><div class="t">Your keymap<small>keymap-drawer YAML</small></div><button type="button" class="btn ghost" id="kmrm" hidden>Remove</button><button type="button" class="btn" id="kmadd">Add</button></div>
+        <div class="rowf"><div class="t">Your keymap<small>keymap-drawer YAML</small></div><button type="button" class="btn" id="kmrm" hidden>Remove</button><button type="button" class="btn" id="kmadd">Add</button></div>
       </section>
       <section>
         <h4>Practice</h4>
@@ -252,7 +253,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
           <small>Scan the QR with your phone, open the link, or paste the code on your other device. Keep it private: anyone with it can read your progress.</small>
           <div id="sync-qr"></div>
           <input id="sync-code" spellcheck="false" autocomplete="off">
-          <div class="btns"><button class="btn ghost" id="unlink" hidden>Unlink</button><button class="btn ghost" id="copy-sync">Copy code</button><button class="btn ghost" id="copy-link">Copy link</button><button class="primary" id="link-sync">Link device</button></div>
+          <div class="btns"><button class="btn" id="unlink" hidden>Unlink</button><button class="btn" id="copy-sync">Copy code</button><button class="btn" id="copy-link">Copy link</button><button class="primary" id="link-sync">Link device</button></div>
         </div>
         <div class="rowf"><div class="t">Live feed<small id="feed-status">Shows real key presses from the keyboard over USB. Chrome or Edge.</small></div><button class="btn" id="feed" aria-pressed="false">Connect</button></div>
       </section>
@@ -290,7 +291,7 @@ dialog::backdrop { background: color-mix(in oklab, var(--color-ink) 35%, transpa
   <div id="tabs"><button type="button" data-tab="overview" aria-pressed="true">Overview</button><button type="button" data-tab="keys" aria-pressed="false">Keys</button><button type="button" data-tab="pairs" aria-pressed="false">Letter pairs</button><button type="button" data-tab="practice" aria-pressed="false">Practice</button></div>
   <div id="stats-body"></div>
   <div id="tip" hidden></div>
-  <div class="bottom"><button type="button" class="btn ghost" id="export">Export progress</button><label class="btn ghost">Import<input type="file" id="import" accept="application/json" hidden></label></div>
+  <div class="bottom"><button type="button" class="btn" id="export">Export progress</button><label class="btn">Import<input type="file" id="import" accept="application/json" hidden></label></div>
 </dialog>
 
 <dialog id="kmdlg" aria-labelledby="kmdlg-h">
@@ -315,7 +316,7 @@ layers:
     - [▽, '"', ':', (, ), '?',   '-', '=', '[', ']', \, ▽]
     - [▽, ;, /, &lt;, '>', '|',   _, +, '{', '}', '`', ▽]
     - [▽, ▽, ▽,   ▽, {type: held}, ▽]</pre></details>
-  <div class="acts"><button type="button" class="btn primary" id="kmok">Add this keymap</button><label class="btn ghost">Choose a file<input type="file" id="kmfile" accept=".yaml,.yml,text/yaml,application/x-yaml" hidden></label><form method="dialog"><button class="btn ghost">Cancel</button></form><small class="err" id="kmerr"></small></div>
+  <div class="acts"><button type="button" class="btn primary" id="kmok">Add this keymap</button><label class="btn">Choose a file<input type="file" id="kmfile" accept=".yaml,.yml,text/yaml,application/x-yaml" hidden></label><form method="dialog"><button class="btn">Cancel</button></form><small class="err" id="kmerr"></small></div>
 </dialog>
 <dialog id="nofeed">
   <p><b>Live feed needs a Chromium-based browser.</b> It reads the keyboard’s USB serial port (left half) through WebSerial, which only Chrome, Edge, Brave, Vivaldi and Opera ship, on desktop, over https or 127.0.0.1. Open this page in one of them to see your real key presses and layers on the board. Everything else in the trainer works here.</p>
@@ -528,12 +529,12 @@ layers:
   const heat = JSON.parse(localStorage.getItem(K("heat")) || "{}"); // pos -> errors
   let heatOn = false, masteryOn = false;
   function paintHeat() {
-    const max = Math.max(1, ...Object.values(heat));
+    const max = Math.max(1, ...Object.values(heat)), dark = document.documentElement.classList.contains("dark") || (!document.documentElement.classList.contains("light") && matchMedia("(prefers-color-scheme: dark)").matches);   // the mastery fill sits under the ink label: dark by night, light by day
     const L = T.layers.find((l) => l.id === shownLayer);
     keyEls.forEach((g, i) => {
       const n = heat[i] || 0; g.classList.toggle("heat", heatOn && n > 0);
       const ch = L.keys[i].char; const c = masteryOn && ch !== undefined && KS[ch] ? conf(ch) : null;
-      g.querySelector("rect").style.fill = heatOn && n ? `rgba(228,111,121,${0.15 + 0.6 * n / max})` : c !== null ? `hsl(${Math.round(120 * Math.min(1, c))} 45% 28%)` : "";
+      g.querySelector("rect").style.fill = heatOn && n ? `rgba(228,111,121,${0.15 + 0.6 * n / max})` : c !== null ? `hsl(${Math.round(120 * Math.min(1, c))} 45% ${dark ? 28 : 74}%)` : "";
     });
   }
 
@@ -872,7 +873,7 @@ layers:
   $("#feed").addEventListener("click", async () => {
     if (!navigator.serial) { $("#nofeed").showModal(); return; }
     if (feedPort) { try { await feedReader.cancel(); } catch {} return; }   // unlocks the stream: the reading loop ends, closes the port and resets the button
-    try { const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x1d50 }] }); feedOpen(port); } catch {}   // the dongle shows two ports: pick the one that is not Studio's (press a key: this one talks)
+    try { const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x1d50 }] }); feedOpen(port); } catch {}   // the left half shows two ports: pick the one that is not Studio's (press a key: this one talks)
   });
   if (navigator.serial) { navigator.serial.getPorts().then((ps) => { if (ps.length) feedOpen(ps[0]); }); navigator.serial.addEventListener("connect", (e) => { if (!feedPort) feedOpen(e.target); }); }
 
@@ -909,7 +910,7 @@ layers:
   // theme: auto follows the system, dark and light are explicit
   let theme = localStorage.getItem("toucan.theme") || "auto";
   const applyTheme = () => { document.documentElement.classList.toggle("light", theme === "light"); document.documentElement.classList.toggle("dark", theme === "dark"); };
-  seg("#themeseg", () => theme, (v) => { theme = v; localStorage.setItem("toucan.theme", v); applyTheme(); }); applyTheme();
+  seg("#themeseg", () => theme, (v) => { theme = v; localStorage.setItem("toucan.theme", v); applyTheme(); paintHeat(); }); applyTheme();
   for (const [id, [name]] of Object.entries(LAYOUTS)) { const o = document.createElement("option"); o.value = id; o.textContent = name; o.selected = id === layoutId; $("#layout").appendChild(o); }
   $("#layout").addEventListener("change", (e) => { localStorage.setItem("toucan.layout", e.target.value); location.replace(location.pathname); });   // no query: the new layout opens on its own saved lesson, not this one's
   $("#stats-layout").textContent = "for " + LAYOUTS[layoutId][0].replace(/ \(.*/, "");   // progress and stats are per layout

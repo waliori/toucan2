@@ -4,11 +4,12 @@ A one-page case study of the Toucan2: the Walid layout, the keymap layers, the f
 Hallmark skill (theme Formwork); live at https://toucan.walior.it/.
 
 - `index.tmpl.html` + `build.mjs` → `index.html`. The six keyboard boards are drawn from `../trainer/keymap.js` (itself
-  generated from the firmware keymap) and the eight annealing candidates from `../layout-optimizer/custom_free_v2.json`,
-  so `node build.mjs` after a keymap change refreshes every label. The same build draws the method section's cost map
-  (analyzer.py's effort formula, re-stated in JS) and the three finalists from `../layout-optimizer/custom_free_v2.json`.
+  generated from the firmware keymap), the eight annealing boards from `../layout-optimizer/opt2_free_v2.log` (the final
+  run's log), the step 2 cost map from analyzer.py's effort formula re-stated in JS, and the step 3 glyphs (the eight
+  terms of the score, each a hand over its half of the board) from the same tables; `node build.mjs` after a keymap
+  change refreshes every label.
 - `styles.css` imports `tokens.css` and `base.css` (Hallmark scaffold). The first lines of `styles.css` are the design stamp.
-- `images/screens/` are captures of the hosted trainer (dark theme, 2x).
+- `images/screens/` are captures of the hosted trainer (dark theme, taken at 2x, served as 1600px WebP). `images/og.png` is the share card.
 - Serve: `python3 -m http.server 8777 --bind 127.0.0.1` here, then http://127.0.0.1:8777/
 - Deploy: automatic. Cloudflare Workers Builds runs `node dist.mjs && npx wrangler deploy` from the repository root on every push to main and puts this page at https://toucan.walior.it/ and the trainer at `/trainer/` (one Worker, see `wrangler.toml` there). Commit `index.html` along with the template: the build step only assembles `dist/`, it does not rebuild the page.
 

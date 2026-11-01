@@ -1,4 +1,4 @@
-/* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, four captures beside their words (nothing sticks), then a and a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
+/* Hallmark · shape: Bento Grid, loosely: one row of three plates under the hero, five numbered method steps (a real sequence, one exhibit each), then a table, three plates, four captures beside their words (nothing sticks), then a band · motion: one reveal on scroll at the author’s request, the hero still · genre: editorial · theme: Formwork (deal 2/3, seed visually-compelling-case-study-keyboard-community-cc5a·cd738f50·2026-10-29·r0) · job: try · draw: 00e083
  * hero: Ledge (swapped from Corridor: the material is a board to show, not a column of words) · nav: slab · footer: letter close · imagery: the product, screenshots 8 (own CDP capture), the keymap drawn as a diagram from the firmware source, no photographs · signature: the real Toucan2 keymap as a layer switcher in the hero, every label from the firmware, the keys that lead to a layer in orange · formwork: cast
  * terms: the eight terms of the score sit with their definitions, weights and points in step 3, each drawn as a glyph from the keymap, a hand over its half of the board, the striking fingers stretching to their keys in a loop · waived: ambient motion in those glyphs, by the author’s request (the loop pauses off screen and stops under reduced motion, where every stroke shows at once) ·
  * axes: mid/display-condensed/warm · posture: restrained · contrast: pass · fold: pass · hero-review: fix · 4 findings · 4 resolved · finish-review: subagent · 8 findings · 8 resolved · gap: the shape is a bento only in its second screen, named so in the stamp · v2.0.0 */
@@ -116,7 +116,6 @@ section { padding-block: var(--section-gap); }
 .bento { padding-top: var(--section-gap-s); }
 .tiles { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); align-items: stretch; }
 .tile { grid-column: span 4; min-height: 300px; display: grid; gap: var(--space-md); align-content: start; min-width: 0; }
-.tile--8 { grid-column: span 8; }
 .tile--plate { background: var(--color-plate); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); padding: var(--space-xl); align-content: space-between; }
 .plate-figure { margin: 0; }
 .plate-figure .figure { display: block; white-space: nowrap; font: 700 clamp(3rem, 5.2vw, 5.5rem)/1 var(--font-display); color: var(--color-ink); letter-spacing: var(--tracking-display); }
@@ -136,15 +135,11 @@ section { padding-block: var(--section-gap); }
 .taps thead th { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); border-bottom: var(--rule-bar) solid var(--color-ink); }
 .taps th[scope="row"] { font-weight: 500; color: var(--color-muted); font-family: var(--font-outlier); }
 .taps td { color: var(--color-ink); font-weight: 500; }
-.tile--row2 { min-height: 460px; }
-.tile--shot { align-content: stretch; }
-.tile--shot .shot--phone { max-height: 460px; justify-self: center; }
 .tile--plate .hands { font-size: clamp(3rem, 4.2vw, 4.5rem); }
 
 /* product captures: no device frame, a 2px ink keyline, the theme's print */
 .shot { margin: 0; border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); background: var(--color-paper-2); }
 .shot::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; outline: 2px solid var(--color-plate-ink); outline-offset: -2px; }
-.shot--phone { aspect-ratio: 390 / 844; max-height: 560px; justify-self: start; width: 100%; max-width: 280px; }
 .shot--desktop { aspect-ratio: 16 / 10; width: 100%; }
 .shot img { object-position: 50% 0; }
 
@@ -214,7 +209,7 @@ section { padding-block: var(--section-gap); }
 .band--ink { background: var(--color-ink); color: var(--color-plate-ink); }
 .band--ink h2, .band--ink .lead { color: var(--color-plate-ink); }
 
-/* ---- two plates: the halves and the screen ---- */
+/* ---- three plates: the halves and the screen ---- */
 .plates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap-columns); }
 .plate { background: var(--color-plate); border: var(--rule-bar) solid var(--color-ink); box-shadow: var(--shadow-card); padding: var(--space-xl); display: grid; gap: var(--space-lg); align-content: start; }
 .plate h3 { font-size: var(--text-xl); padding-bottom: var(--space-sm); border-bottom: var(--rule-bar) solid var(--color-ink); max-width: none; }
@@ -276,16 +271,13 @@ section { padding-block: var(--section-gap); }
 .emap .cap { fill: var(--color-ink); fill-opacity: var(--e); stroke: var(--color-ink); stroke-width: 2; }
 .emap text { font: 500 34px var(--font-outlier); fill: var(--color-ink); text-anchor: middle; }
 .emap .ekey--dark text { fill: var(--color-plate-ink); }
-/* step 3 and 5: tables in the metrics' manner */
-.versus { width: 100%; border-collapse: collapse; }
+/* step 5: a table in the metrics' manner */
+.versus { width: 100%; margin-top: var(--space-lg); border-collapse: collapse; }
 .versus th, .versus td { padding: var(--space-sm) var(--space-sm); text-align: left; border-bottom: var(--rule-hair) solid var(--color-paper-3); font-size: var(--text-md); vertical-align: top; }
 .versus thead th { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); border-bottom: var(--rule-bar) solid var(--color-ink); }
 .versus .num { text-align: right; font-family: var(--font-outlier); font-weight: 500; white-space: nowrap; }
 .versus td.name { font-weight: 500; color: var(--color-ink); white-space: nowrap; }
-/* step 4: one plate, the figure cast large */
-.plate--fact { min-height: 0; justify-self: start; width: min(100%, 36rem); }
 /* step 5: the eight boards by seed, the pick framed, the keys that differ in orange */
-.step .cands { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cand__score { flex-wrap: wrap; }
 .cand__score > span { color: var(--color-ink); font-weight: 500; }
 .cand__grid i.is-diff { color: var(--color-accent-deep); }
@@ -307,7 +299,6 @@ section { padding-block: var(--section-gap); }
 .anneal__key i { display: inline-block; width: 1.2em; height: 3px; margin-right: var(--space-2xs); vertical-align: middle; }
 .anneal__cur { background: var(--color-ink-2); }
 .anneal__best { background: var(--color-accent-deep); }
-.versus { margin-top: var(--space-lg); }
 .versus th.num { text-align: right; }
 /* the reproduce line */
 .repro { margin-top: var(--section-gap-l); display: grid; gap: var(--space-md); }
@@ -316,19 +307,18 @@ section { padding-block: var(--section-gap); }
 .repro code { font: inherit; }
 
 @media (max-width: 60rem) {
-  .step, .finalists { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: minmax(0, 1fr); }
   .head--split, .measure__text, .plates, .panels, .close__grid { grid-template-columns: minmax(0, 1fr); }
   .habits, .step--wide .step__text { grid-template-columns: minmax(0, 1fr); }
   .steps { gap: var(--section-gap-l); }
-  .tile--row2 { min-height: 0; }
   .head--split, .measure__text { gap: var(--space-md); }
-  .tile, .tile--8 { grid-column: span 12; min-height: 0; }
-  .cands, .step .cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile { grid-column: span 12; min-height: 0; }
+  .cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .panels { gap: var(--space-xl); }
   .shot--close { justify-self: start; }
 }
 @media (max-width: 40rem) {
-  .cands, .step .cands { grid-template-columns: minmax(0, 1fr); }
+  .cands { grid-template-columns: minmax(0, 1fr); }
   .habits { gap: var(--space-lg); }
   .habit { grid-template-columns: 7rem minmax(0, 1fr); }
   .habit__fig { flex-wrap: wrap; gap: var(--space-xs) var(--space-md); }
